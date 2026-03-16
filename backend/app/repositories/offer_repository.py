@@ -11,6 +11,10 @@ class OfferRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
+    # ------------------------------------------------------------------ #
+    # Lecture                                                              #
+    # ------------------------------------------------------------------ #
+
     def get_all(
         self,
         page: int = 1,
@@ -48,3 +52,26 @@ class OfferRepository:
             .where(Offer.id == offer_id)
         )
         return result.scalar_one_or_none()
+
+    def get_by_url(self, offer_url: str) -> Offer | None:
+        return self.db.execute(
+            select(Offer).where(Offer.offer_url == offer_url)
+        ).scalar_one_or_none()
+
+    def get_by_checksum(self, checksum: str) -> Offer | None:
+        return self.db.execute(
+            select(Offer).where(Offer.checksum == checksum)
+        ).scalar_one_or_none()
+
+    # ------------------------------------------------------------------ #
+    # Écriture                                                             #
+    # ------------------------------------------------------------------ #
+
+    def create(self, offer: Offer) -> Offer:
+        self.db.add(offer)
+        self.db.flush()
+        return offer
+
+    def update_state(self, offer: Offer, state: OfferState) -> None:
+        offer.current_state = state
+        self.db.flush()

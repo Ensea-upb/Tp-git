@@ -19,6 +19,7 @@ if database_url:
 from app.infrastructure.db.base import Base  # noqa: E402
 import app.infrastructure.db.models.source  # noqa: E402, F401
 import app.infrastructure.db.models.company  # noqa: E402, F401
+import app.infrastructure.db.models.offer_raw  # noqa: E402, F401
 import app.infrastructure.db.models.offer  # noqa: E402, F401
 
 target_metadata = Base.metadata

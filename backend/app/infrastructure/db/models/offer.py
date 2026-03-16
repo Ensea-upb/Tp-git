@@ -17,6 +17,11 @@ class Offer(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
+    # Traçabilité vers l'offre brute d'origine
+    raw_offer_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("offers_raw.id"), nullable=True, index=True
+    )
+
     # Relations
     company_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("companies.id"), nullable=True, index=True
@@ -64,3 +69,6 @@ class Offer(Base):
     # Relations ORM
     company: Mapped["Company | None"] = relationship("Company", back_populates="offers")  # noqa: F821
     primary_source: Mapped["Source | None"] = relationship("Source", back_populates="offers")  # noqa: F821
+    raw_offer: Mapped["OfferRaw | None"] = relationship(  # noqa: F821
+        "OfferRaw", back_populates="normalized_offer", foreign_keys=[raw_offer_id]
+    )

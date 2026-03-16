@@ -22,9 +22,19 @@ class Settings(BaseSettings):
     # Stockage fichiers
     file_storage_path: str = "/data/files"
 
+    # France Travail API (Sprint 2)
+    ft_client_id: str = ""
+    ft_client_secret: str = ""
+    ft_search_keywords: str = "développeur,data,logiciel,informatique"
+    ft_max_results: int = 50
+
     @property
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.backend_cors_origins.split(",")]
+
+    @property
+    def ft_configured(self) -> bool:
+        return bool(self.ft_client_id and self.ft_client_secret)
 
 
 settings = Settings()
