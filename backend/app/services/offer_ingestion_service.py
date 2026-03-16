@@ -35,8 +35,9 @@ from app.repositories.offer_raw_repository import OfferRawRepository
 from app.repositories.offer_repository import OfferRepository
 from app.repositories.source_repository import SourceRepository
 from app.repositories.user_preference_repository import UserPreferenceRepository
-from app.services.offer_deduplicator import OfferDeduplicator
+from app.services.offer_deduplicator import OfferDeduplicator, compute_cross_source_hash
 from app.services.offer_normalizer import OfferNormalizer
+from app.services.offer_ranking_service import OfferRankingService
 from app.services.offer_scoring_service import OfferScoringService
 from app.services.personalized_offer_scoring_service import PersonalizedOfferScoringService
 from app.services.source_connector_manager import SourceConnectorManager
@@ -55,6 +56,7 @@ class OfferIngestionService:
         self.normalizer = OfferNormalizer()
         self.scorer = OfferScoringService()
         self.personalized_scorer = PersonalizedOfferScoringService()
+        self.ranking_scorer = OfferRankingService(db)
         self.pref_repo = UserPreferenceRepository(db)
         self.deduplicator = OfferDeduplicator(
             offer_repo=self.offer_repo,
@@ -178,6 +180,11 @@ class OfferIngestionService:
                 name=normalized.company_name,
                 location=normalized.location_text,
             )
+            semantic_hash = compute_cross_source_hash(
+                normalized.normalized_title,
+                normalized.company_name,
+                normalized.location_text or payload.raw_location or "",
+            )
             offer = Offer(
                 raw_offer_id=offer_raw.id,
                 company_id=company.id,
@@ -192,6 +199,7 @@ class OfferIngestionService:
                 offer_url=payload.offer_url,
                 external_offer_id=payload.external_offer_id,
                 checksum=normalized.checksum,
+                semantic_hash=semantic_hash,
                 published_at=payload.published_at_detected,
                 current_state=OfferState.NORMALIZED,
                 is_active=True,
@@ -203,6 +211,8 @@ class OfferIngestionService:
             if prefs is not None:
                 self.personalized_scorer.score(offer, prefs)
             self.offer_repo.create(offer)
+            # g. Scorer ranking (fraîcheur + pertinence + localisation + source)
+            self.ranking_scorer.score_offer(offer)
             self._update_raw_status(offer_raw, "PARSED")
             result.new_offers += 1
 
@@ -216,6 +226,7 @@ class OfferIngestionService:
                     prefs = self.pref_repo.get_default()
                     if prefs is not None:
                         self.personalized_scorer.score(existing, prefs)
+                    self.ranking_scorer.score_offer(existing)
                     self.db.flush()
             self._update_raw_status(offer_raw, "PARSED")
             result.updated_offers += 1

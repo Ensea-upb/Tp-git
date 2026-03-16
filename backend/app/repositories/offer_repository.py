@@ -98,13 +98,11 @@ class OfferRepository:
             count_query = count_query.where(func.lower(Offer.location_text).contains(city.lower()))
 
         if score_min is not None:
-            # Filtre sur ranking_score ou global_score si ranking_score absent
-            query = query.where(
-                (Offer.ranking_score >= score_min) | (Offer.global_score >= score_min)
-            )
-            count_query = count_query.where(
-                (Offer.ranking_score >= score_min) | (Offer.global_score >= score_min)
-            )
+            # COALESCE : utilise ranking_score en priorité, fall back sur global_score
+            # Évite l'ambiguïté de l'OR qui faisait passer des offres sans ranking_score
+            coalesced = func.coalesce(Offer.ranking_score, Offer.global_score)
+            query = query.where(coalesced >= score_min)
+            count_query = count_query.where(coalesced >= score_min)
 
         if user_status is not None:
             query = query.where(OfferUserStatus.status == user_status)

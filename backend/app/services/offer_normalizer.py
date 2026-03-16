@@ -75,7 +75,7 @@ def _detect_work_mode(text: str) -> WorkMode | None:
     for pattern, mode in _WORK_MODE_PATTERNS:
         if pattern.search(text):
             return mode
-    return WorkMode.ONSITE
+    return None
 
 
 def _detect_contract_type(text: str) -> str | None:

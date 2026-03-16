@@ -133,7 +133,6 @@ def sample_offer(db):
         current_state=OfferState.QUALIFIED,
         is_active=True,
         global_score=80.0,
-        action_score=75.0,
         score_justification={"résumé": "Bon match test"},
         company_id=company.id,
         primary_source_id=source.id,

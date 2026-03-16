@@ -7,7 +7,7 @@ from rapidfuzz import fuzz
 from app.domain.dto.deduplication_decision import DeduplicationDecision
 from app.domain.dto.normalized_offer_payload import NormalizedOfferPayload
 from app.domain.dto.raw_offer_payload import RawOfferPayload
-from app.domain.text_normalizer import normalize_city, normalize_company, normalize_title
+from app.domain.text_normalizer import normalize_city, normalize_company, normalize_title_for_dedup
 from app.repositories.offer_raw_repository import OfferRawRepository
 from app.repositories.offer_repository import OfferRepository
 from app.repositories.source_repository import SourceRepository
@@ -127,9 +127,9 @@ class OfferDeduplicator:
         company_normalized = normalize_company(normalized.company_name or "")
         if company_normalized:
             candidates = self.offer_repo.get_candidates_for_fuzzy_match(company_normalized)
-            title_normalized = normalize_title(normalized.normalized_title)
+            title_normalized = normalize_title_for_dedup(normalized.normalized_title)
             for candidate in candidates:
-                candidate_title = normalize_title(candidate.normalized_title or "")
+                candidate_title = normalize_title_for_dedup(candidate.normalized_title or "")
                 similarity = fuzz.token_sort_ratio(title_normalized, candidate_title)
                 if similarity >= _FUZZY_TITLE_THRESHOLD:
                     return DeduplicationDecision(
