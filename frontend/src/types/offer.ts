@@ -17,7 +17,7 @@ export type OfferState =
 
 export type WorkMode = "ONSITE" | "HYBRID" | "REMOTE";
 
-export type SortBy = "created_at" | "relevance_score" | "personalized_score";
+export type SortBy = "created_at" | "relevance_score" | "personalized_score" | "ranking_score";
 
 export type UserStatusValue = "FAVORITE" | "SHORTLISTED" | "REJECTED" | "APPLIED";
 
@@ -51,6 +51,7 @@ export interface OfferListItem {
   is_active: boolean;
   global_score: number | null;
   personalized_score: number | null;
+  ranking_score: number | null;
   tags: string[] | null;
   published_at: string | null;
   created_at: string;

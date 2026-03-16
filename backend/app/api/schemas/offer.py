@@ -54,6 +54,7 @@ class OfferOut(BaseModel):
     score_justification: dict | None = None
     personalized_score: float | None = None
     personalized_justification: dict | None = None
+    ranking_score: float | None = None
     tags: list[str] | None = None
     offer_url: str | None = None
     created_at: datetime
@@ -82,6 +83,7 @@ class OfferListItem(BaseModel):
     is_active: bool
     global_score: float | None = None
     personalized_score: float | None = None
+    ranking_score: float | None = None
     tags: list[str] | None = None
     published_at: datetime | None = None
     created_at: datetime

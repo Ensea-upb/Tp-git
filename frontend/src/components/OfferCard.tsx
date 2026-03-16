@@ -97,6 +97,19 @@ export default function OfferCard({ offer }: OfferCardProps) {
 
         {/* Scores */}
         <div className="space-y-2 mb-3">
+          {offer.ranking_score != null && (
+            <ScoreBar
+              score={offer.ranking_score}
+              label="Pertinence"
+              color={
+                offer.ranking_score >= 75
+                  ? "bg-emerald-500"
+                  : offer.ranking_score >= 50
+                  ? "bg-emerald-300"
+                  : "bg-gray-300"
+              }
+            />
+          )}
           {offer.personalized_score != null && (
             <ScoreBar
               score={offer.personalized_score}

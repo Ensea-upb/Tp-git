@@ -59,6 +59,9 @@ class Offer(Base):
     personalized_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
     personalized_justification: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
+    # Ranking combiné (fraîcheur + pertinence titre + localisation + source)
+    ranking_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+
     # Tags métier (data, ml, ai, analytics, econometrics…)
     tags: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
 

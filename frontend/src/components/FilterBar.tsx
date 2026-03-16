@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   CONTRACT_TYPE_OPTIONS,
   WORK_MODE_OPTIONS,
@@ -16,6 +17,7 @@ interface FilterBarProps {
 
 export default function FilterBar({ currentParams, sources }: FilterBarProps) {
   const router = useRouter();
+  const [cityInput, setCityInput] = useState(currentParams.city ?? "");
 
   const handleChange = (key: string, value: string) => {
     const params = new URLSearchParams(currentParams);
@@ -28,11 +30,40 @@ export default function FilterBar({ currentParams, sources }: FilterBarProps) {
     router.push(`/offers?${params.toString()}`);
   };
 
+  const handleCitySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleChange("city", cityInput.trim());
+  };
+
   const selectClass =
     "text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200";
+  const inputClass =
+    "text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200 w-32";
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {/* Ville */}
+      <form onSubmit={handleCitySubmit} className="flex items-center gap-1">
+        <input
+          type="text"
+          className={inputClass}
+          placeholder="Ville…"
+          value={cityInput}
+          onChange={(e) => setCityInput(e.target.value)}
+          aria-label="Filtrer par ville"
+        />
+        {cityInput && (
+          <button
+            type="button"
+            className="text-xs text-gray-400 hover:text-gray-600"
+            onClick={() => { setCityInput(""); handleChange("city", ""); }}
+            aria-label="Effacer filtre ville"
+          >
+            ✕
+          </button>
+        )}
+      </form>
+
       {/* Contrat */}
       <select
         className={selectClass}
@@ -75,22 +106,39 @@ export default function FilterBar({ currentParams, sources }: FilterBarProps) {
         ))}
       </select>
 
-      {/* Source */}
-      {sources.length > 0 && (
-        <select
-          className={selectClass}
-          value={currentParams.source_id ?? ""}
-          onChange={(e) => handleChange("source_id", e.target.value)}
-          aria-label="Filtrer par source"
-        >
-          <option value="">Toutes les sources</option>
-          {sources.map((s) => (
-            <option key={s.id} value={s.id}>
+      {/* Source (par type) */}
+      <select
+        className={selectClass}
+        value={currentParams.source ?? ""}
+        onChange={(e) => handleChange("source", e.target.value)}
+        aria-label="Filtrer par source"
+      >
+        <option value="">Toutes les sources</option>
+        <option value="wttj">Welcome to the Jungle</option>
+        <option value="apec">APEC</option>
+        <option value="indeed">Indeed</option>
+        {sources
+          .filter((s) => !["wttj", "apec", "indeed"].includes(s.source_type))
+          .map((s) => (
+            <option key={s.id} value={s.source_type}>
               {s.name}
             </option>
           ))}
-        </select>
-      )}
+      </select>
+
+      {/* Score minimum */}
+      <select
+        className={selectClass}
+        value={currentParams.score_min ?? ""}
+        onChange={(e) => handleChange("score_min", e.target.value)}
+        aria-label="Score minimum"
+      >
+        <option value="">Tous les scores</option>
+        <option value="25">≥ 25</option>
+        <option value="50">≥ 50</option>
+        <option value="70">≥ 70</option>
+        <option value="85">≥ 85</option>
+      </select>
 
       {/* Tri */}
       <div className="ml-auto flex items-center gap-1.5">

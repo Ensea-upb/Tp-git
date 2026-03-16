@@ -24,8 +24,11 @@ def list_offers(
     contract_type: str | None = Query(default=None),
     work_mode: WorkMode | None = Query(default=None),
     source_id: uuid.UUID | None = Query(default=None),
+    source: str | None = Query(default=None, description="Filtrer par source_type ou nom de source (ex: 'wttj', 'apec')"),
+    city: str | None = Query(default=None, description="Filtrer par ville (recherche partielle, ex: 'Paris')"),
+    score_min: float | None = Query(default=None, ge=0, le=100, description="Score minimum (ranking ou global)"),
     user_status: UserStatus | None = Query(default=None, description="Filtrer par statut utilisateur"),
-    sort_by: SortBy = Query(default="created_at"),
+    sort_by: SortBy = Query(default="created_at", description="Tri : created_at | relevance_score | personalized_score | ranking_score"),
     db: Session = Depends(get_db),
 ) -> PaginatedOffers:
     service = OfferService(db)
@@ -37,6 +40,9 @@ def list_offers(
         contract_type=contract_type,
         work_mode=work_mode,
         source_id=source_id,
+        source=source,
+        city=city,
+        score_min=score_min,
         user_status=user_status,
         sort_by=sort_by,
     )

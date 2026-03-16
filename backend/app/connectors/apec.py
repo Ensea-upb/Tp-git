@@ -12,8 +12,6 @@ Les résultats contiennent titrePoste, nomEntreprise, lieuTravail, texteHtml.
 
 import time
 
-import httpx
-
 from app.connectors.base import BaseConnector
 from app.domain.dto.raw_offer_payload import RawOfferPayload
 from app.infrastructure.db.models.source import Source
@@ -48,7 +46,7 @@ class ApecConnector(BaseConnector):
     def is_available(self) -> bool:
         return True
 
-    def fetch(self) -> list[RawOfferPayload]:
+    def _do_fetch(self) -> list[RawOfferPayload]:
         meta = getattr(self.source, "metadata_json", None) or {}
         payload_base: dict = {
             "nombreOffresParPage": _PAGE_SIZE,
@@ -67,13 +65,11 @@ class ApecConnector(BaseConnector):
         while True:
             request_payload = {**payload_base, "page": page}
             try:
-                resp = httpx.post(
+                resp = self._http_post(
                     _SEARCH_URL,
                     json=request_payload,
                     headers=_HEADERS,
-                    timeout=20,
                 )
-                resp.raise_for_status()
                 data = resp.json()
             except Exception as exc:
                 self.logger.error("APEC fetch error (page %d): %s", page, exc)

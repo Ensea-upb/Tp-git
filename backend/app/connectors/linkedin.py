@@ -23,7 +23,6 @@ import logging
 
 from app.connectors.base import BaseConnector
 from app.domain.dto.raw_offer_payload import RawOfferPayload
-from app.infrastructure.db.models.source import Source
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ class LinkedInConnector(BaseConnector):
         )
         return False
 
-    def fetch(self) -> list[RawOfferPayload]:
+    def _do_fetch(self) -> list[RawOfferPayload]:
         raise NotImplementedError(
             "LinkedIn connector not yet implemented. "
             "is_available() returns False so this should never be called."

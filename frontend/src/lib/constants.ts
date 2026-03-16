@@ -78,6 +78,7 @@ export const USER_STATUS_FILTER_OPTIONS = [
 
 export const SORT_OPTIONS = [
   { value: "created_at", label: "Date d'ajout" },
+  { value: "ranking_score", label: "Pertinence" },
   { value: "relevance_score", label: "Score global" },
   { value: "personalized_score", label: "Score personnalisé" },
 ];

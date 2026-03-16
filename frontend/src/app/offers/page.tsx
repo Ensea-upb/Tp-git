@@ -11,6 +11,9 @@ interface SearchParams {
   contract_type?: string;
   work_mode?: string;
   source_id?: string;
+  source?: string;
+  city?: string;
+  score_min?: string;
   sort_by?: string;
   user_status?: string;
 }
@@ -39,6 +42,9 @@ export default async function OffersPage({
   const contract_type = searchParams.contract_type || undefined;
   const work_mode = (searchParams.work_mode as WorkMode) || undefined;
   const source_id = searchParams.source_id || undefined;
+  const source = searchParams.source || undefined;
+  const city = searchParams.city || undefined;
+  const score_min = searchParams.score_min ? parseFloat(searchParams.score_min) : undefined;
   const sort_by = (searchParams.sort_by as SortBy) || "created_at";
   const user_status = (searchParams.user_status as UserStatusValue) || undefined;
 
@@ -56,6 +62,9 @@ export default async function OffersPage({
         contract_type,
         work_mode,
         source_id,
+        source,
+        city,
+        score_min,
         user_status,
         sort_by,
       }),
@@ -71,6 +80,9 @@ export default async function OffersPage({
   if (searchParams.contract_type) currentParams.contract_type = searchParams.contract_type;
   if (searchParams.work_mode) currentParams.work_mode = searchParams.work_mode;
   if (searchParams.source_id) currentParams.source_id = searchParams.source_id;
+  if (searchParams.source) currentParams.source = searchParams.source;
+  if (searchParams.city) currentParams.city = searchParams.city;
+  if (searchParams.score_min) currentParams.score_min = searchParams.score_min;
   if (searchParams.sort_by) currentParams.sort_by = searchParams.sort_by;
   if (searchParams.is_active) currentParams.is_active = searchParams.is_active;
   if (searchParams.user_status) currentParams.user_status = searchParams.user_status;

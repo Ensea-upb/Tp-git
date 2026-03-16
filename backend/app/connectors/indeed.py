@@ -17,8 +17,6 @@ import re
 from datetime import datetime, timezone
 from xml.etree import ElementTree as ET
 
-import httpx
-
 from app.connectors.base import BaseConnector
 from app.domain.dto.raw_offer_payload import RawOfferPayload
 from app.infrastructure.db.models.source import Source
@@ -41,7 +39,7 @@ class IndeedConnector(BaseConnector):
     def is_available(self) -> bool:
         return True
 
-    def fetch(self) -> list[RawOfferPayload]:
+    def _do_fetch(self) -> list[RawOfferPayload]:
         meta = getattr(self.source, "metadata_json", None) or {}
         params: dict = {"sort": meta.get("sort", "date")}
         if query := meta.get("query"):
@@ -50,14 +48,12 @@ class IndeedConnector(BaseConnector):
             params["l"] = location
 
         try:
-            resp = httpx.get(
+            resp = self._http_get(
                 _RSS_URL,
                 params=params,
                 headers={"User-Agent": "Mozilla/5.0 (compatible; InternshipAgent/1.0)"},
-                timeout=20,
                 follow_redirects=True,
             )
-            resp.raise_for_status()
             xml_content = resp.text
         except Exception as exc:
             self.logger.error("Indeed RSS fetch error: %s", exc)

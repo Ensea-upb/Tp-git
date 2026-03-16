@@ -17,6 +17,9 @@ python-dotenv==1.0.1
 # HTTP client (connecteurs)
 httpx==0.28.1
 
+# Fuzzy matching (déduplication L5)
+rapidfuzz==3.10.1
+
 # HTML parsing (connecteur pages carrières)
 beautifulsoup4==4.12.3
 lxml==5.3.0

@@ -9,8 +9,6 @@ Pagination via paramètres page / per_page.
 
 import time
 
-import httpx
-
 from app.connectors.base import BaseConnector
 from app.domain.dto.raw_offer_payload import RawOfferPayload
 from app.infrastructure.db.models.source import Source
@@ -34,7 +32,7 @@ class WelcomeToTheJungleConnector(BaseConnector):
     def is_available(self) -> bool:
         return True  # API publique, aucun credential requis
 
-    def fetch(self) -> list[RawOfferPayload]:
+    def _do_fetch(self) -> list[RawOfferPayload]:
         meta = getattr(self.source, "metadata_json", None) or {}
         params_base: dict = {
             "per_page": _PAGE_SIZE,
@@ -52,13 +50,11 @@ class WelcomeToTheJungleConnector(BaseConnector):
 
         while True:
             try:
-                resp = httpx.get(
+                resp = self._http_get(
                     _SEARCH_URL,
                     params={**params_base, "page": page},
                     headers={"Accept": "application/json"},
-                    timeout=20,
                 )
-                resp.raise_for_status()
                 data = resp.json()
             except Exception as exc:
                 self.logger.error("WTTJ fetch error (page %d): %s", page, exc)

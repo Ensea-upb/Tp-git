@@ -60,6 +60,9 @@ export async function getOffers(params?: {
   contract_type?: string;
   work_mode?: WorkMode;
   source_id?: string;
+  source?: string;
+  city?: string;
+  score_min?: number;
   user_status?: UserStatusValue;
   sort_by?: SortBy;
 }): Promise<PaginatedOffers> {
@@ -71,6 +74,9 @@ export async function getOffers(params?: {
   if (params?.contract_type) searchParams.set("contract_type", params.contract_type);
   if (params?.work_mode) searchParams.set("work_mode", params.work_mode);
   if (params?.source_id) searchParams.set("source_id", params.source_id);
+  if (params?.source) searchParams.set("source", params.source);
+  if (params?.city) searchParams.set("city", params.city);
+  if (params?.score_min !== undefined) searchParams.set("score_min", String(params.score_min));
   if (params?.user_status) searchParams.set("user_status", params.user_status);
   if (params?.sort_by) searchParams.set("sort_by", params.sort_by);
 

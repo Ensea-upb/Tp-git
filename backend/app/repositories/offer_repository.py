@@ -11,8 +11,9 @@ from app.infrastructure.db.models.offer import Offer
 from app.infrastructure.db.models.offer_llm_analysis import OfferLLMAnalysis
 from app.infrastructure.db.models.offer_user_status import OfferUserStatus
 from app.infrastructure.db.models.profile_match_llm import ProfileMatchLLM
+from app.infrastructure.db.models.source import Source
 
-SortBy = Literal["created_at", "relevance_score", "personalized_score"]
+SortBy = Literal["created_at", "relevance_score", "personalized_score", "ranking_score"]
 
 
 class OfferRepository:
@@ -32,6 +33,9 @@ class OfferRepository:
         contract_type: str | None = None,
         work_mode: WorkMode | None = None,
         source_id: uuid.UUID | None = None,
+        source: str | None = None,
+        city: str | None = None,
+        score_min: float | None = None,
         user_status: UserStatus | None = None,
         sort_by: SortBy = "created_at",
     ) -> tuple[list[Offer], int]:
@@ -40,6 +44,8 @@ class OfferRepository:
             order_col = Offer.personalized_score.desc().nulls_last()
         elif sort_by == "relevance_score":
             order_col = Offer.global_score.desc().nulls_last()
+        elif sort_by == "ranking_score":
+            order_col = Offer.ranking_score.desc().nulls_last()
         else:
             order_col = Offer.created_at.desc()
 
@@ -76,6 +82,29 @@ class OfferRepository:
         if source_id is not None:
             query = query.where(Offer.primary_source_id == source_id)
             count_query = count_query.where(Offer.primary_source_id == source_id)
+
+        if source is not None:
+            # Filtre par source_type ou nom de source (insensible à la casse)
+            source_subq = select(Source.id).where(
+                (func.lower(Source.source_type) == source.lower())
+                | (func.lower(Source.name).contains(source.lower()))
+            )
+            query = query.where(Offer.primary_source_id.in_(source_subq))
+            count_query = count_query.where(Offer.primary_source_id.in_(source_subq))
+
+        if city is not None:
+            # Recherche insensible à la casse dans location_text
+            query = query.where(func.lower(Offer.location_text).contains(city.lower()))
+            count_query = count_query.where(func.lower(Offer.location_text).contains(city.lower()))
+
+        if score_min is not None:
+            # Filtre sur ranking_score ou global_score si ranking_score absent
+            query = query.where(
+                (Offer.ranking_score >= score_min) | (Offer.global_score >= score_min)
+            )
+            count_query = count_query.where(
+                (Offer.ranking_score >= score_min) | (Offer.global_score >= score_min)
+            )
 
         if user_status is not None:
             query = query.where(OfferUserStatus.status == user_status)
@@ -131,6 +160,32 @@ class OfferRepository:
         return self.db.execute(
             select(Offer).where(Offer.semantic_hash == semantic_hash)
         ).scalar_one_or_none()
+
+    def get_candidates_for_fuzzy_match(
+        self, company_name_normalized: str, limit: int = 50
+    ) -> list["Offer"]:
+        """
+        L5 : retourne les offres dont le nom de société normalisé correspond exactement.
+        Utilisé par OfferDeduplicator pour la comparaison fuzzy de titre.
+
+        Stratégie : joinedload company sur les 300 offres les plus récentes,
+        puis filtrage Python sur le nom normalisé. Plafonné à `limit` résultats.
+        Complexité O(300) par ingestion — acceptable pour le volume actuel.
+        """
+        from app.domain.text_normalizer import normalize_company
+
+        recent = list(
+            self.db.execute(
+                select(Offer)
+                .options(joinedload(Offer.company))
+                .order_by(Offer.created_at.desc())
+                .limit(300)
+            ).scalars().unique()
+        )
+        return [
+            c for c in recent
+            if normalize_company(c.company.name if c.company else "") == company_name_normalized
+        ][:limit]
 
     # ------------------------------------------------------------------ #
     # Écriture                                                             #

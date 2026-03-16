@@ -2,12 +2,18 @@ import hashlib
 import re
 import uuid
 
+from rapidfuzz import fuzz
+
 from app.domain.dto.deduplication_decision import DeduplicationDecision
 from app.domain.dto.normalized_offer_payload import NormalizedOfferPayload
 from app.domain.dto.raw_offer_payload import RawOfferPayload
+from app.domain.text_normalizer import normalize_city, normalize_company, normalize_title
 from app.repositories.offer_raw_repository import OfferRawRepository
 from app.repositories.offer_repository import OfferRepository
 from app.repositories.source_repository import SourceRepository
+
+# Seuil de similarité fuzzy pour le titre de poste (L5)
+_FUZZY_TITLE_THRESHOLD = 85.0
 
 
 def _normalize_text(text: str) -> str:
@@ -29,17 +35,19 @@ def compute_cross_source_hash(title: str, company: str, city: str) -> str:
 
 class OfferDeduplicator:
     """
-    Déduplication en cascade sur 4 niveaux :
+    Déduplication en cascade sur 5 niveaux :
       L1 — URL exacte              : offers.offer_url
       L2 — Source + ID ext.        : offers_raw.(source_id, external_offer_id)
       L3 — Checksum SHA-256        : offers.checksum (contenu exact)
       L4 — Hash sémantique inter-sources : offers.semantic_hash
                hash(normalize(titre) | normalize(société) | normalize(ville))
                Détecte la même offre publiée sur plusieurs jobboards.
+      L5 — Similarité fuzzy titre  : rapidfuzz.fuzz.token_sort_ratio > 85
+               même société (normalisée, correspondance exacte) + titre similaire
+               Détecte les variantes légèrement reformulées du même poste.
 
-    Note L4 : nécessite que offers.semantic_hash soit peuplé lors de l'ingestion.
-    La colonne existe sur le modèle Offer ; l'écriture est déléguée à OfferIngestionService
-    via NormalizedOfferPayload.semantic_hash (Sprint 8).
+    Note L4/L5 : efficaces uniquement si offers.semantic_hash est peuplé lors de
+    l'ingestion (OfferIngestionService — Sprint 8).
     """
 
     def __init__(
@@ -114,6 +122,22 @@ class OfferDeduplicator:
                 confidence=0.85,
                 matched_offer_id=existing_by_semantic.id,
             )
+
+        # ── Niveau 5 : Similarité fuzzy titre + société identique ─────────
+        company_normalized = normalize_company(normalized.company_name or "")
+        if company_normalized:
+            candidates = self.offer_repo.get_candidates_for_fuzzy_match(company_normalized)
+            title_normalized = normalize_title(normalized.normalized_title)
+            for candidate in candidates:
+                candidate_title = normalize_title(candidate.normalized_title or "")
+                similarity = fuzz.token_sort_ratio(title_normalized, candidate_title)
+                if similarity >= _FUZZY_TITLE_THRESHOLD:
+                    return DeduplicationDecision(
+                        decision="duplicate",
+                        reason=f"L5:fuzzy_title_match(score={similarity:.0f})",
+                        confidence=similarity / 100.0,
+                        matched_offer_id=candidate.id,
+                    )
 
         # ── Aucun doublon ──────────────────────────────────────────────────
         return DeduplicationDecision(

@@ -22,6 +22,9 @@ class OfferService:
         contract_type: str | None = None,
         work_mode: WorkMode | None = None,
         source_id: uuid.UUID | None = None,
+        source: str | None = None,
+        city: str | None = None,
+        score_min: float | None = None,
         user_status: UserStatus | None = None,
         sort_by: SortBy = "created_at",
     ) -> PaginatedOffers:
@@ -33,6 +36,9 @@ class OfferService:
             contract_type=contract_type,
             work_mode=work_mode,
             source_id=source_id,
+            source=source,
+            city=city,
+            score_min=score_min,
             user_status=user_status,
             sort_by=sort_by,
         )
