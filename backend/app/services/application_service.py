@@ -1,10 +1,7 @@
 """
-Application Service — Sprint 6 (post-review corrections).
-Corrections appliquées :
-- add_followup : commit unique (atomique)
-- update_status : états terminaux protégés
-- populate_drafts_background : positionne drafts_ready=True en fin de tâche
-- add_followup : restreint aux statuts autorisés (SENT, FOLLOW_UP_DUE, INTERVIEW)
+Application Service — Sprint 7.
+update_status utilise la machine de transitions domain/state_machine.py.
+list_paginated remplace list_all (pagination + filtre par statut).
 """
 import logging
 import uuid
@@ -13,22 +10,16 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.domain.enums.application_status import ApplicationStatus
+from app.domain.errors import BusinessRuleError, NotFoundError
+from app.domain.state_machine import validate_transition
 from app.infrastructure.db.models.application import Application
 from app.infrastructure.db.models.application_followup import ApplicationFollowup
 from app.infrastructure.db.session import SessionLocal
 from app.repositories.application_repository import ApplicationRepository
-from app.domain.errors import BusinessRuleError, NotFoundError
 from app.repositories.offer_repository import OfferRepository
 from app.services.application_assistant_service import ApplicationAssistantService
 
 logger = logging.getLogger(__name__)
-
-# États depuis lesquels on ne peut plus transitionner
-_TERMINAL_STATUSES = {
-    ApplicationStatus.REJECTED,
-    ApplicationStatus.ACCEPTED,
-    ApplicationStatus.ARCHIVED,
-}
 
 # Seuls ces statuts permettent de créer un follow-up
 _FOLLOWUP_ALLOWED_STATUSES = {
@@ -64,8 +55,13 @@ class ApplicationService:
         self.db.refresh(application)
         return application
 
-    def list_all(self) -> list[Application]:
-        return self.repo.list_all()
+    def list_paginated(
+        self,
+        status: ApplicationStatus | None = None,
+        page: int = 1,
+        limit: int = 20,
+    ) -> tuple[list[Application], int]:
+        return self.repo.list_paginated(status=status, page=page, limit=limit)
 
     def get(self, application_id: uuid.UUID) -> Application:
         app = self.repo.get(application_id)
@@ -78,12 +74,8 @@ class ApplicationService:
     ) -> Application:
         app = self.get(application_id)
 
-        # Protéger les états terminaux — aucune transition sortante possible
-        if app.status in _TERMINAL_STATUSES:
-            raise BusinessRuleError(
-                f"Cannot transition from terminal status '{app.status.value}'. "
-                "Archive, reject or accept is final."
-            )
+        # Machine de transitions — lève BusinessRuleError si interdit
+        validate_transition(app.status, new_status)
 
         app.status = new_status
         if new_status == ApplicationStatus.SENT and app.applied_at is None:
@@ -100,7 +92,6 @@ class ApplicationService:
     ) -> ApplicationFollowup:
         app = self.get(application_id)
 
-        # Restreindre aux statuts actifs pertinents
         if app.status not in _FOLLOWUP_ALLOWED_STATUSES:
             raise BusinessRuleError(
                 f"Cannot add a follow-up when status is '{app.status.value}'. "
@@ -114,11 +105,12 @@ class ApplicationService:
         )
         self.repo.add_followup(followup)
 
-        # Transition SENT → FOLLOW_UP_DUE dans le même commit
+        # Transition SENT → FOLLOW_UP_DUE dans le même commit (atomique)
         if app.status == ApplicationStatus.SENT:
+            validate_transition(app.status, ApplicationStatus.FOLLOW_UP_DUE)
             app.status = ApplicationStatus.FOLLOW_UP_DUE
 
-        self.db.commit()  # commit unique — atomique
+        self.db.commit()
         self.db.refresh(followup)
         return followup
 
@@ -128,9 +120,8 @@ class ApplicationService:
 async def populate_drafts_background(application_id: uuid.UUID) -> None:
     """
     Génère draft_cover_letter et draft_email via LLM et les persiste.
-    Positionne drafts_ready=True en fin de tâche, qu'il y ait des contenus ou non,
-    pour permettre à la UI de distinguer "en cours" / "terminé" / "indisponible".
-    Appelée en BackgroundTask — crée sa propre session DB.
+    Positionne drafts_ready=True en fin de tâche (même si LLM offline).
+    Crée sa propre session DB (BackgroundTask isolée).
     """
     db: Session = SessionLocal()
     try:
@@ -158,7 +149,6 @@ async def populate_drafts_background(application_id: uuid.UUID) -> None:
         except Exception:
             logger.exception("LLM email draft failed for application %s", application_id)
 
-        # Toujours marquer la tâche comme terminée — même si LLM était indisponible
         app.drafts_ready = True
         db.commit()
     finally:

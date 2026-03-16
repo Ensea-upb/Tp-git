@@ -126,6 +126,12 @@ class OfferRepository:
             select(Offer).where(Offer.checksum == checksum)
         ).scalar_one_or_none()
 
+    def get_by_semantic_hash(self, semantic_hash: str) -> Offer | None:
+        """L4 : doublon inter-sources détecté par hash(titre+société+ville)."""
+        return self.db.execute(
+            select(Offer).where(Offer.semantic_hash == semantic_hash)
+        ).scalar_one_or_none()
+
     # ------------------------------------------------------------------ #
     # Écriture                                                             #
     # ------------------------------------------------------------------ #

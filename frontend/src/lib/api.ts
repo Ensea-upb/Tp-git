@@ -21,6 +21,7 @@ import type {
   ApplicationStatus,
   FollowupCreate,
   Followup,
+  PaginatedApplications,
 } from "@/types/application";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -168,8 +169,17 @@ export async function createApplication(body: ApplicationCreate): Promise<Applic
   });
 }
 
-export async function getApplications(): Promise<Application[]> {
-  return apiFetch<Application[]>("/applications");
+export async function getApplications(params?: {
+  status?: ApplicationStatus;
+  page?: number;
+  limit?: number;
+}): Promise<PaginatedApplications> {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set("status", params.status);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.limit) sp.set("limit", String(params.limit));
+  const query = sp.toString() ? `?${sp.toString()}` : "";
+  return apiFetch<PaginatedApplications>(`/applications${query}`);
 }
 
 export async function getApplication(id: string): Promise<Application> {

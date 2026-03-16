@@ -31,6 +31,17 @@ export interface Application {
   created_at: string;
   updated_at: string;
   followups: Followup[];
+  // Enrichissement depuis l'offre liée
+  offer_title: string | null;
+  offer_source_name: string | null;
+}
+
+export interface PaginatedApplications {
+  items: Application[];
+  total: number;
+  page: number;
+  limit: number;
+  has_next: boolean;
 }
 
 export interface ApplicationCreate {

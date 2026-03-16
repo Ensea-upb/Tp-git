@@ -47,3 +47,15 @@ class Application(Base):
         cascade="all, delete-orphan",
         order_by="ApplicationFollowup.scheduled_at",
     )
+
+    # ── Champs calculés exposés via Pydantic from_attributes ──────────
+
+    @property
+    def offer_title(self) -> str | None:
+        return self.offer.normalized_title if self.offer else None
+
+    @property
+    def offer_source_name(self) -> str | None:
+        if self.offer and self.offer.primary_source:
+            return self.offer.primary_source.name
+        return None

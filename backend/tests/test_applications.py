@@ -84,8 +84,12 @@ def test_list_applications_via_api(client, api_headers, db):
 
     resp = client.get("/v1/applications", headers=api_headers)
     assert resp.status_code == 200
-    assert isinstance(resp.json(), list)
-    assert len(resp.json()) >= 1
+    data = resp.json()
+    # Sprint 7 : réponse paginée
+    assert "items" in data
+    assert "total" in data
+    assert isinstance(data["items"], list)
+    assert data["total"] >= 1
 
 
 # ── Tests : changement de statut ──────────────────────────────────────
@@ -100,6 +104,12 @@ def test_update_status_to_sent(client, api_headers, db):
     )
     app_id = create_resp.json()["id"]
 
+    # Sprint 7 : DRAFT → READY_TO_SEND → SENT
+    client.patch(
+        f"/v1/applications/{app_id}/status",
+        json={"status": "READY_TO_SEND"},
+        headers=api_headers,
+    )
     resp = client.patch(
         f"/v1/applications/{app_id}/status",
         json={"status": "SENT"},
@@ -120,12 +130,13 @@ def test_update_status_to_interview(client, api_headers, db):
     )
     app_id = create_resp.json()["id"]
 
-    # DRAFT → SENT → INTERVIEW
-    client.patch(
-        f"/v1/applications/{app_id}/status",
-        json={"status": "SENT"},
-        headers=api_headers,
-    )
+    # Sprint 7 : DRAFT → READY_TO_SEND → SENT → FOLLOW_UP_DUE → INTERVIEW
+    for step in ["READY_TO_SEND", "SENT", "FOLLOW_UP_DUE"]:
+        client.patch(
+            f"/v1/applications/{app_id}/status",
+            json={"status": step},
+            headers=api_headers,
+        )
     resp = client.patch(
         f"/v1/applications/{app_id}/status",
         json={"status": "INTERVIEW"},
@@ -156,12 +167,13 @@ def test_add_followup(client, api_headers, db):
     )
     app_id = create_resp.json()["id"]
 
-    # Passer en SENT d'abord
-    client.patch(
-        f"/v1/applications/{app_id}/status",
-        json={"status": "SENT"},
-        headers=api_headers,
-    )
+    # Sprint 7 : DRAFT → READY_TO_SEND → SENT
+    for step in ["READY_TO_SEND", "SENT"]:
+        client.patch(
+            f"/v1/applications/{app_id}/status",
+            json={"status": step},
+            headers=api_headers,
+        )
 
     scheduled = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
     resp = client.post(
@@ -184,11 +196,13 @@ def test_followup_changes_status_to_follow_up_due(client, api_headers, db):
     )
     app_id = create_resp.json()["id"]
 
-    client.patch(
-        f"/v1/applications/{app_id}/status",
-        json={"status": "SENT"},
-        headers=api_headers,
-    )
+    # Sprint 7 : DRAFT → READY_TO_SEND → SENT
+    for step in ["READY_TO_SEND", "SENT"]:
+        client.patch(
+            f"/v1/applications/{app_id}/status",
+            json={"status": step},
+            headers=api_headers,
+        )
 
     scheduled = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
     client.post(
@@ -225,6 +239,13 @@ def test_applications_require_auth(client, db):
 # ── Tests : états terminaux protégés (fix 2) ──────────────────────────
 
 
+_TERMINAL_PATHS: dict[str, list[str]] = {
+    "REJECTED": ["READY_TO_SEND", "SENT", "FOLLOW_UP_DUE", "REJECTED"],
+    "ACCEPTED": ["READY_TO_SEND", "SENT", "FOLLOW_UP_DUE", "INTERVIEW", "ACCEPTED"],
+    "ARCHIVED": ["ARCHIVED"],
+}
+
+
 @pytest.mark.parametrize("terminal_status", ["REJECTED", "ACCEPTED", "ARCHIVED"])
 def test_cannot_transition_from_terminal_status(client, api_headers, db, terminal_status):
     offer = _make_offer(db)
@@ -235,12 +256,13 @@ def test_cannot_transition_from_terminal_status(client, api_headers, db, termina
     )
     app_id = create_resp.json()["id"]
 
-    # Aller directement en statut terminal
-    client.patch(
-        f"/v1/applications/{app_id}/status",
-        json={"status": terminal_status},
-        headers=api_headers,
-    )
+    # Sprint 7 : atteindre le statut terminal via un chemin valide
+    for step in _TERMINAL_PATHS[terminal_status]:
+        client.patch(
+            f"/v1/applications/{app_id}/status",
+            json={"status": step},
+            headers=api_headers,
+        )
 
     # Toute transition depuis un état terminal doit être bloquée
     resp = client.patch(
@@ -264,11 +286,13 @@ def test_followup_and_status_update_are_atomic(client, api_headers, db):
     )
     app_id = create_resp.json()["id"]
 
-    client.patch(
-        f"/v1/applications/{app_id}/status",
-        json={"status": "SENT"},
-        headers=api_headers,
-    )
+    # Sprint 7 : DRAFT → READY_TO_SEND → SENT
+    for step in ["READY_TO_SEND", "SENT"]:
+        client.patch(
+            f"/v1/applications/{app_id}/status",
+            json={"status": step},
+            headers=api_headers,
+        )
 
     scheduled = (datetime.now(timezone.utc) + timedelta(days=3)).isoformat()
     client.post(
@@ -287,6 +311,15 @@ def test_followup_and_status_update_are_atomic(client, api_headers, db):
 # ── Tests : restriction aux statuts autorisés (fix 5) ─────────────────
 
 
+_FORBIDDEN_FOLLOWUP_PATHS: dict[str, list[str]] = {
+    "DRAFT": [],
+    "READY_TO_SEND": ["READY_TO_SEND"],
+    "REJECTED": ["READY_TO_SEND", "SENT", "FOLLOW_UP_DUE", "REJECTED"],
+    "ACCEPTED": ["READY_TO_SEND", "SENT", "FOLLOW_UP_DUE", "INTERVIEW", "ACCEPTED"],
+    "ARCHIVED": ["ARCHIVED"],
+}
+
+
 @pytest.mark.parametrize("forbidden_status", ["DRAFT", "READY_TO_SEND", "REJECTED", "ACCEPTED", "ARCHIVED"])
 def test_followup_forbidden_on_inactive_statuses(client, api_headers, db, forbidden_status):
     offer = _make_offer(db)
@@ -297,13 +330,13 @@ def test_followup_forbidden_on_inactive_statuses(client, api_headers, db, forbid
     )
     app_id = create_resp.json()["id"]
 
-    # Forcer le statut (ne pas passer par transition gardée pour les terminaux)
-    # On set direct via patch (DRAFT → forbidden_status est autorisé sauf si terminal)
-    client.patch(
-        f"/v1/applications/{app_id}/status",
-        json={"status": forbidden_status},
-        headers=api_headers,
-    )
+    # Sprint 7 : atteindre le statut via un chemin valide
+    for step in _FORBIDDEN_FOLLOWUP_PATHS[forbidden_status]:
+        client.patch(
+            f"/v1/applications/{app_id}/status",
+            json={"status": step},
+            headers=api_headers,
+        )
 
     scheduled = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
     resp = client.post(
@@ -326,11 +359,12 @@ def test_followup_past_date_rejected(client, api_headers, db):
     )
     app_id = create_resp.json()["id"]
 
-    client.patch(
-        f"/v1/applications/{app_id}/status",
-        json={"status": "SENT"},
-        headers=api_headers,
-    )
+    for step in ["READY_TO_SEND", "SENT"]:
+        client.patch(
+            f"/v1/applications/{app_id}/status",
+            json={"status": step},
+            headers=api_headers,
+        )
 
     past = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
     resp = client.post(
@@ -351,11 +385,12 @@ def test_followup_now_rejected(client, api_headers, db):
     )
     app_id = create_resp.json()["id"]
 
-    client.patch(
-        f"/v1/applications/{app_id}/status",
-        json={"status": "SENT"},
-        headers=api_headers,
-    )
+    for step in ["READY_TO_SEND", "SENT"]:
+        client.patch(
+            f"/v1/applications/{app_id}/status",
+            json={"status": step},
+            headers=api_headers,
+        )
 
     # Utilise une date légèrement dans le passé pour simuler "maintenant ou avant"
     now_minus = (datetime.now(timezone.utc) - timedelta(seconds=1)).isoformat()

@@ -14,30 +14,30 @@ interface Props {
   onUpdate: () => void;
 }
 
+// ── Section brouillons LLM — 3 états distincts ────────────────────────
+
 function DraftSection({ application }: { application: Application }) {
   const [showDraft, setShowDraft] = useState(false);
   const hasDrafts = application.draft_cover_letter || application.draft_email;
 
-  // Génération toujours en cours
   if (!application.drafts_ready) {
     return (
-      <p className="text-xs text-gray-400 italic mb-3 flex items-center gap-1">
-        <span className="inline-block w-2 h-2 rounded-full bg-blue-300 animate-pulse" />
+      <p className="text-xs text-gray-400 italic mb-3 flex items-center gap-1.5">
+        <span className="inline-block w-2 h-2 rounded-full bg-blue-300 animate-pulse shrink-0" />
         Génération des brouillons en cours…
       </p>
     );
   }
 
-  // Génération terminée mais LLM indisponible (drafts vides)
   if (!hasDrafts) {
     return (
-      <p className="text-xs text-amber-600 mb-3 flex items-center gap-1">
-        <span>⚠</span> Brouillons indisponibles (LLM hors ligne lors de la création)
+      <p className="text-xs text-amber-600 mb-3 flex items-center gap-1.5">
+        <span className="shrink-0">⚠</span>
+        Brouillons indisponibles (LLM hors ligne lors de la création)
       </p>
     );
   }
 
-  // Brouillons disponibles
   return (
     <div className="mb-3">
       <button
@@ -72,41 +72,78 @@ function DraftSection({ application }: { application: Application }) {
   );
 }
 
+// ── Section date de relance — avec sélecteur de date ──────────────────
+
+function FollowupSection({
+  applicationId,
+  onUpdate,
+}: {
+  applicationId: string;
+  onUpdate: () => void;
+}) {
+  const defaultDate = (): string => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return d.toISOString().slice(0, 10); // "YYYY-MM-DD"
+  };
+
+  const [date, setDate] = useState<string>(defaultDate);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSchedule() {
+    const selectedDate = new Date(date + "T09:00:00");
+    if (selectedDate <= new Date()) {
+      setError("La date doit être dans le futur.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      await addFollowup(applicationId, {
+        scheduled_at: selectedDate.toISOString(),
+        notes: "Relance planifiée",
+      });
+      onUpdate();
+    } catch {
+      setError("Erreur lors de la planification.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2 mt-1">
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-orange-400"
+      />
+      <button
+        onClick={handleSchedule}
+        disabled={loading}
+        className="text-xs bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 disabled:opacity-50"
+      >
+        {loading ? "…" : "+ Relance"}
+      </button>
+      {error && <span className="text-xs text-red-500">{error}</span>}
+    </div>
+  );
+}
+
+// ── Carte principale ──────────────────────────────────────────────────
+
 export default function ApplicationCard({ application, onUpdate }: Props) {
   const [loading, setLoading] = useState(false);
 
   const statusLabel = APPLICATION_STATUS_LABELS[application.status];
   const statusColor = APPLICATION_STATUS_COLORS[application.status];
 
-  async function markAsSent() {
+  async function transition(target: string) {
     setLoading(true);
     try {
-      await updateApplicationStatus(application.id, "SENT");
-      onUpdate();
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function markAsInterview() {
-    setLoading(true);
-    try {
-      await updateApplicationStatus(application.id, "INTERVIEW");
-      onUpdate();
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function scheduleFollowup() {
-    const date = new Date();
-    date.setDate(date.getDate() + 7);
-    setLoading(true);
-    try {
-      await addFollowup(application.id, {
-        scheduled_at: date.toISOString(),
-        notes: "Relance automatique",
-      });
+      await updateApplicationStatus(application.id, target as any);
       onUpdate();
     } finally {
       setLoading(false);
@@ -120,23 +157,30 @@ export default function ApplicationCard({ application, onUpdate }: Props) {
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-      {/* En-tête */}
-      <div className="flex items-start justify-between gap-2 mb-2">
+      {/* En-tête : titre offre + statut */}
+      <div className="flex items-start justify-between gap-2 mb-1">
         <Link
           href={`/offers/${application.offer_id}`}
           className="text-sm font-semibold text-gray-800 hover:text-blue-700 leading-tight"
         >
-          Offre #{application.offer_id.slice(0, 8)}…
+          {application.offer_title ?? `Offre #${application.offer_id.slice(0, 8)}…`}
         </Link>
         <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${statusColor}`}>
           {statusLabel}
         </span>
       </div>
 
-      {/* Canal & notes */}
+      {/* Source de l'offre */}
+      {application.offer_source_name && (
+        <p className="text-xs text-gray-400 mb-2">
+          via <span className="font-medium text-gray-500">{application.offer_source_name}</span>
+        </p>
+      )}
+
+      {/* Canal de candidature & notes */}
       {application.source_channel && (
         <p className="text-xs text-gray-500 mb-1">
-          via <span className="font-medium">{application.source_channel}</span>
+          Canal : <span className="font-medium">{application.source_channel}</span>
         </p>
       )}
       {application.notes && (
@@ -150,22 +194,31 @@ export default function ApplicationCard({ application, onUpdate }: Props) {
         </p>
       )}
 
-      {/* Relances */}
+      {/* Relances planifiées */}
       {application.followups.length > 0 && (
         <p className="text-xs text-orange-600 mb-2">
           {application.followups.length} relance(s) planifiée(s)
         </p>
       )}
 
-      {/* Brouillons LLM — 3 états distincts */}
+      {/* Brouillons LLM */}
       <DraftSection application={application} />
 
       {/* Actions contextuelles — désactivées sur états terminaux */}
       {!isTerminal && (
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {(application.status === "DRAFT" || application.status === "READY_TO_SEND") && (
+        <div className="flex flex-col gap-2 mt-2">
+          {application.status === "DRAFT" && (
             <button
-              onClick={markAsSent}
+              onClick={() => transition("READY_TO_SEND")}
+              disabled={loading}
+              className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              Prêt à envoyer
+            </button>
+          )}
+          {application.status === "READY_TO_SEND" && (
+            <button
+              onClick={() => transition("SENT")}
               disabled={loading}
               className="text-xs bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700 disabled:opacity-50"
             >
@@ -173,32 +226,55 @@ export default function ApplicationCard({ application, onUpdate }: Props) {
             </button>
           )}
           {application.status === "SENT" && (
-            <>
+            <FollowupSection
+              applicationId={application.id}
+              onUpdate={onUpdate}
+            />
+          )}
+          {application.status === "FOLLOW_UP_DUE" && (
+            <div className="flex gap-1.5">
               <button
-                onClick={scheduleFollowup}
-                disabled={loading}
-                className="text-xs bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 disabled:opacity-50"
-              >
-                + Relance
-              </button>
-              <button
-                onClick={markAsInterview}
+                onClick={() => transition("INTERVIEW")}
                 disabled={loading}
                 className="text-xs bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-700 disabled:opacity-50"
               >
-                Entretien
+                Entretien obtenu
               </button>
-            </>
+              <button
+                onClick={() => transition("REJECTED")}
+                disabled={loading}
+                className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 disabled:opacity-50"
+              >
+                Refusé
+              </button>
+            </div>
           )}
-          {application.status === "FOLLOW_UP_DUE" && (
-            <button
-              onClick={markAsInterview}
-              disabled={loading}
-              className="text-xs bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-700 disabled:opacity-50"
-            >
-              Entretien obtenu
-            </button>
+          {application.status === "INTERVIEW" && (
+            <div className="flex gap-1.5">
+              <button
+                onClick={() => transition("ACCEPTED")}
+                disabled={loading}
+                className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 disabled:opacity-50"
+              >
+                Accepté
+              </button>
+              <button
+                onClick={() => transition("REJECTED")}
+                disabled={loading}
+                className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 disabled:opacity-50"
+              >
+                Refusé
+              </button>
+            </div>
           )}
+          {/* Archiver toujours disponible (ANY → ARCHIVED) */}
+          <button
+            onClick={() => transition("ARCHIVED")}
+            disabled={loading}
+            className="text-xs text-gray-400 hover:text-gray-600 hover:underline text-left"
+          >
+            Archiver
+          </button>
         </div>
       )}
     </div>

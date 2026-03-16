@@ -24,7 +24,6 @@ class FollowupCreate(BaseModel):
     @classmethod
     def must_be_future(cls, v: datetime) -> datetime:
         now = datetime.now(timezone.utc)
-        # Normalise en tz-aware si naïf
         if v.tzinfo is None:
             v = v.replace(tzinfo=timezone.utc)
         if v <= now:
@@ -59,3 +58,15 @@ class ApplicationOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     followups: list[FollowupOut] = []
+
+    # Champs enrichis depuis l'offre liée (via ORM property)
+    offer_title: str | None = None
+    offer_source_name: str | None = None
+
+
+class PaginatedApplications(BaseModel):
+    items: list[ApplicationOut]
+    total: int
+    page: int
+    limit: int
+    has_next: bool
