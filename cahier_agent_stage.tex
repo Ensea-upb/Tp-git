@@ -1,0 +1,4505 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+
+\title{Cahier des Charges\\
+Agent Personnel de Recherche de Stage}
+
+\author{Projet personnel}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+Ce document constitue le cahier des charges initial d’un système logiciel visant à automatiser et assister la recherche de stage à l’aide de techniques d’intelligence artificielle et d’automatisation.
+
+L'objectif est de concevoir un \textbf{agent personnel de recherche de stage} capable de surveiller en continu différentes sources d’offres, d’analyser leur pertinence par rapport au profil de l’utilisateur, de préparer les candidatures, puis d’assister leur soumission et leur suivi.
+
+Le système doit agir de manière proactive tout en conservant une \textbf{validation humaine obligatoire} avant toute action externe telle que l’envoi d’une candidature ou d’une relance.
+
+\section{Objectifs du système}
+
+L’objectif principal du système est de reproduire le comportement d’un utilisateur dans sa recherche de stage tout en automatisant les tâches répétitives.
+
+Plus précisément, le système doit :
+
+\begin{itemize}
+\item surveiller régulièrement les plateformes proposant des stages ;
+\item détecter les nouvelles offres pertinentes ;
+\item analyser automatiquement la compatibilité entre une offre et le profil de l’utilisateur ;
+\item préparer les éléments de candidature (CV, lettre, formulaires) ;
+\item assister la soumission de candidature avec validation humaine ;
+\item assurer le suivi des candidatures envoyées ;
+\item proposer et préparer des relances en cas d’absence de réponse.
+\end{itemize}
+
+\section{Principe général}
+
+Le système doit fonctionner comme un \textbf{assistant personnel autonome} reproduisant le comportement d’un chercheur de stage.
+
+Le cycle de fonctionnement global est le suivant :
+
+\begin{enumerate}
+\item surveillance périodique des sources d'offres ;
+\item détection des nouvelles offres ;
+\item filtrage selon les préférences configurées ;
+\item analyse de correspondance avec le profil utilisateur ;
+\item préparation des candidatures pertinentes ;
+\item validation humaine avant envoi ;
+\item suivi des candidatures ;
+\item relances éventuelles.
+\end{enumerate}
+
+\section{Sources d’offres}
+
+Le système doit être capable d’explorer différentes sources d’offres de stage, notamment :
+
+\begin{itemize}
+\item LinkedIn
+\item Indeed
+\item Welcome to the Jungle
+\item plateformes d’emploi spécialisées
+\item pages carrières des entreprises
+\item career centers d’écoles ou d’universités
+\end{itemize}
+
+Cette liste pourra être enrichie au cours du développement.
+
+\section{Cycle de fonctionnement}
+
+Le système fonctionne selon un cycle déclenché périodiquement (par exemple toutes les trois heures).
+
+Lors de chaque cycle, les étapes suivantes sont exécutées.
+
+\subsection{Collecte des offres}
+
+Le système visite les sources configurées et collecte les nouvelles offres disponibles.
+
+\subsection{Détection des nouvelles offres}
+
+Les offres collectées sont comparées avec celles déjà enregistrées dans la base afin de détecter :
+
+\begin{itemize}
+\item les nouvelles offres
+\item les offres déjà connues
+\item les offres mises à jour
+\end{itemize}
+
+\subsection{Filtrage initial}
+
+Un filtrage est appliqué selon les critères configurés par l’utilisateur :
+
+\begin{itemize}
+\item type de contrat
+\item durée
+\item localisation
+\item mots-clés
+\item entreprises cibles
+\item entreprises exclues
+\end{itemize}
+
+\subsection{Analyse de correspondance}
+
+Pour chaque offre retenue, le système analyse la correspondance entre l’offre et le profil utilisateur.
+
+Cette analyse produit :
+
+\begin{itemize}
+\item un score global de correspondance
+\item une justification détaillée
+\item une estimation de priorité
+\end{itemize}
+
+\subsection{Décision}
+
+Selon le score obtenu, le système peut :
+
+\begin{itemize}
+\item ignorer l’offre
+\item la notifier à l’utilisateur
+\item préparer une candidature
+\end{itemize}
+
+\section{Préparation des candidatures}
+
+Pour les offres jugées pertinentes, le système doit être capable de :
+
+\begin{itemize}
+\item sélectionner la version la plus appropriée du CV
+\item adapter certains éléments du CV si nécessaire
+\item générer une lettre de motivation personnalisée
+\item préparer les informations nécessaires aux formulaires
+\end{itemize}
+
+Les candidatures préparées sont placées dans un état \textbf{prêtes à soumettre}.
+
+\section{Validation humaine}
+
+Aucune candidature ne doit être envoyée sans validation explicite de l’utilisateur.
+
+Le système doit permettre à l’utilisateur de :
+
+\begin{itemize}
+\item valider la candidature
+\item modifier les documents générés
+\item rejeter la candidature
+\item reporter la décision
+\end{itemize}
+
+\section{Suivi des candidatures}
+
+Après soumission, le système doit enregistrer les informations suivantes :
+
+\begin{itemize}
+\item entreprise
+\item poste
+\item date de candidature
+\item canal de candidature
+\item statut de la candidature
+\end{itemize}
+
+Le système doit maintenir un historique complet des interactions.
+
+\section{Gestion des réponses}
+
+Le système peut être connecté à une messagerie (par exemple Gmail) afin de :
+
+\begin{itemize}
+\item détecter les réponses des recruteurs
+\item associer les réponses aux candidatures correspondantes
+\item notifier l’utilisateur
+\item proposer des réponses adaptées
+\end{itemize}
+
+\section{Gestion des relances}
+
+En l’absence de réponse dans un délai configuré, le système peut préparer une relance.
+
+Les relances doivent :
+
+\begin{itemize}
+\item être rédigées automatiquement
+\item être adaptées au contexte de la candidature
+\item nécessiter une validation humaine avant envoi
+\end{itemize}
+
+\section{Contraintes du système}
+
+Le système doit respecter les contraintes suivantes :
+
+\begin{itemize}
+\item ne jamais envoyer de candidature sans validation humaine ;
+\item ne jamais modifier les informations du CV de manière mensongère ;
+\item éviter les candidatures en double ;
+\item conserver un historique complet des actions ;
+\item permettre l’audit et la traçabilité des décisions.
+\end{itemize}
+
+\section{Évolution du document}
+
+Ce cahier des charges constitue une première version du projet.
+
+Il sera enrichi progressivement avec :
+
+\begin{itemize}
+\item l’architecture technique
+\item la modélisation des données
+\item la description des modules logiciels
+\item les choix technologiques
+\item les scénarios d’utilisation détaillés
+\end{itemize}
+
+\section{Modélisation fonctionnelle du système}
+
+\subsection{Acteurs du système}
+
+Le système met en jeu plusieurs acteurs.
+
+\begin{itemize}
+    \item \textbf{Utilisateur} : configure le système, valide les candidatures, corrige les documents générés, supervise le suivi.
+    \item \textbf{Moteur de veille} : collecte périodiquement les offres depuis les sources configurées.
+    \item \textbf{Moteur de décision} : filtre, analyse et score les offres selon le profil utilisateur.
+    \item \textbf{Moteur de préparation} : prépare les documents de candidature et les informations nécessaires à la soumission.
+    \item \textbf{Moteur de suivi} : surveille les réponses, met à jour les statuts et prépare les relances.
+    \item \textbf{Services externes} : plateformes d’offres, messagerie, services de notification.
+\end{itemize}
+
+\subsection{Objets métier}
+
+Les principaux objets manipulés par le système sont les suivants :
+
+\begin{itemize}
+    \item \textbf{Offre} : annonce de stage détectée sur une source.
+    \item \textbf{Source} : plateforme ou site à partir duquel les offres sont collectées.
+    \item \textbf{Entreprise} : organisation proposant une offre.
+    \item \textbf{Profil utilisateur} : ensemble des préférences, compétences et contraintes de l’utilisateur.
+    \item \textbf{Version de CV} : version spécifique du CV disponible pour adaptation ou soumission.
+    \item \textbf{Brouillon de candidature} : ensemble préparatoire avant validation.
+    \item \textbf{Candidature} : candidature effectivement soumise.
+    \item \textbf{Relance} : message de suivi préparé après absence de réponse.
+    \item \textbf{Réponse} : message reçu d’un recruteur ou d’une entreprise.
+    \item \textbf{Journal de décision} : enregistrement des décisions prises par le système.
+\end{itemize}
+
+\subsection{États d’une offre}
+
+Une offre peut évoluer selon les états suivants :
+
+\begin{center}
+DETECTEE $\rightarrow$ FILTREE $\rightarrow$ ANALYSEE $\rightarrow$ QUALIFIEE
+$\rightarrow$ A\_PREPARER $\rightarrow$ PREPAREE $\rightarrow$ A\_VALIDER
+$\rightarrow$ VALIDEE $\rightarrow$ SOUMISE $\rightarrow$ EN\_SUIVI
+$\rightarrow$ CLOTUREE
+\end{center}
+
+Des branches alternatives sont possibles :
+
+\begin{itemize}
+    \item ANALYSEE $\rightarrow$ REJETEE
+    \item PREPAREE $\rightarrow$ ABANDONNEE
+    \item A\_VALIDER $\rightarrow$ MODIFICATION\_DEMANDEE
+    \item EN\_SUIVI $\rightarrow$ REFUS
+    \item EN\_SUIVI $\rightarrow$ ENTRETIEN
+    \item EN\_SUIVI $\rightarrow$ ACCEPTATION
+\end{itemize}
+
+\subsection{États d’une relance}
+
+Le processus de relance suit les états suivants :
+
+\begin{center}
+AUCUNE\_RELANCE $\rightarrow$ RELANCE\_A\_PREPARER
+$\rightarrow$ RELANCE\_A\_VALIDER
+$\rightarrow$ RELANCE\_ENVOYEE
+\end{center}
+
+En cas de retour recruteur :
+
+\begin{center}
+RELANCE\_ENVOYEE $\rightarrow$ REPONSE\_RECUE
+\end{center}
+
+\subsection{Cas d’usage principaux}
+
+Les cas d’usage principaux du système sont les suivants :
+
+\begin{enumerate}
+    \item détecter une nouvelle offre depuis une source configurée ;
+    \item filtrer l’offre selon les préférences utilisateur ;
+    \item analyser la pertinence de l’offre par rapport au profil ;
+    \item préparer une candidature pour une offre qualifiée ;
+    \item soumettre la candidature à validation humaine ;
+    \item enregistrer la candidature après envoi ;
+    \item surveiller les réponses reçues via les canaux connectés ;
+    \item préparer une relance en l’absence de réponse ;
+    \item clôturer une candidature selon son issue.
+\end{enumerate}
+
+\section{Modèle de données conceptuel}
+
+Cette section décrit les principales entités manipulées par le système ainsi que leurs relations conceptuelles.
+
+L’objectif est de structurer les informations nécessaires au bon fonctionnement du produit avant la définition détaillée du schéma physique de base de données.
+
+\subsection{Principes généraux}
+
+Le modèle de données doit permettre :
+
+\begin{itemize}
+    \item le stockage des offres détectées ;
+    \item la conservation des sources d’origine ;
+    \item l’enregistrement du profil utilisateur et des préférences ;
+    \item la gestion des différentes versions de CV et des lettres générées ;
+    \item le suivi complet des candidatures ;
+    \item la préparation et le suivi des relances ;
+    \item la traçabilité des décisions automatiques et humaines ;
+    \item l’historisation des exécutions du système.
+\end{itemize}
+
+\subsection{Entités principales}
+
+\subsubsection{Source}
+
+L’entité \textbf{Source} représente une plateforme ou un canal à partir duquel des offres sont collectées.
+
+Exemples :
+\begin{itemize}
+    \item LinkedIn ;
+    \item Indeed ;
+    \item page carrière d’une entreprise ;
+    \item career center ;
+    \item flux email ou newsletter.
+\end{itemize}
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant de la source ;
+    \item nom ;
+    \item type de source ;
+    \item URL de base ;
+    \item statut d’activation ;
+    \item fréquence de surveillance.
+\end{itemize}
+
+\subsubsection{Entreprise}
+
+L’entité \textbf{Entreprise} représente l’organisation qui publie ou porte une offre.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant de l’entreprise ;
+    \item nom ;
+    \item secteur ;
+    \item site web ;
+    \item localisation principale ;
+    \item niveau de priorité ou d’intérêt ;
+    \item statut cible / exclue / neutre.
+\end{itemize}
+
+\subsubsection{Offre brute}
+
+L’entité \textbf{OffreBrute} représente l’offre telle qu’elle a été collectée depuis une source, avant normalisation complète.
+
+Elle permet de conserver une trace fidèle de la donnée d’origine.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item source associée ;
+    \item identifiant externe sur la plateforme ;
+    \item URL de l’offre ;
+    \item titre brut ;
+    \item contenu brut ;
+    \item date de collecte ;
+    \item date de publication détectée ;
+    \item statut de parsing.
+\end{itemize}
+
+\subsubsection{Offre normalisée}
+
+L’entité \textbf{Offre} représente une offre après nettoyage, extraction des champs utiles et dédoublonnage.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item entreprise associée ;
+    \item source principale ;
+    \item titre normalisé ;
+    \item description normalisée ;
+    \item type de contrat ;
+    \item durée ;
+    \item localisation ;
+    \item mode de travail (présentiel, hybride, télétravail) ;
+    \item date de publication ;
+    \item date limite éventuelle ;
+    \item niveau d’étude requis ;
+    \item statut courant ;
+    \item score global ;
+    \item score d’action ;
+    \item justification de scoring.
+\end{itemize}
+
+\subsubsection{Profil utilisateur}
+
+L’entité \textbf{ProfilUtilisateur} représente le profil métier utilisé pour l’analyse des offres.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item nom du profil ;
+    \item formation ;
+    \item compétences ;
+    \item expériences ;
+    \item projets ;
+    \item préférences de localisation ;
+    \item types de postes recherchés ;
+    \item mots-clés prioritaires ;
+    \item contraintes ;
+    \item date de mise à jour.
+\end{itemize}
+
+\subsubsection{Préférences de recherche}
+
+L’entité \textbf{PreferenceRecherche} regroupe les règles de filtrage et de priorisation utilisées par le système.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item fréquence de surveillance ;
+    \item liste de localisations autorisées ;
+    \item liste d’entreprises cibles ;
+    \item liste d’entreprises exclues ;
+    \item durée minimale et maximale ;
+    \item date de début souhaitée ;
+    \item seuil minimal de score ;
+    \item politique de relance.
+\end{itemize}
+
+\subsubsection{Version de CV}
+
+L’entité \textbf{CVVersion} représente une version de CV disponible pour la préparation des candidatures.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item nom de version ;
+    \item fichier associé ;
+    \item orientation métier ;
+    \item date de création ;
+    \item version active ou non ;
+    \item commentaires.
+\end{itemize}
+
+\subsubsection{Lettre de motivation}
+
+L’entité \textbf{LettreMotivation} représente une lettre générée ou retravaillée pour une offre donnée.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item offre associée ;
+    \item contenu ;
+    \item statut ;
+    \item date de génération ;
+    \item date de validation ;
+    \item version finale.
+\end{itemize}
+
+\subsubsection{Brouillon de candidature}
+
+L’entité \textbf{BrouillonCandidature} représente un dossier préparatoire avant validation humaine.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item offre associée ;
+    \item CV sélectionné ;
+    \item lettre associée ;
+    \item email ou message préparé ;
+    \item réponses préparées aux questions éventuelles ;
+    \item statut du brouillon ;
+    \item date de création ;
+    \item date de dernière modification.
+\end{itemize}
+
+\subsubsection{Candidature}
+
+L’entité \textbf{Candidature} représente une candidature effectivement soumise.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item offre associée ;
+    \item brouillon d’origine ;
+    \item canal de soumission ;
+    \item date d’envoi ;
+    \item statut courant ;
+    \item date du dernier changement de statut ;
+    \item commentaires utilisateur.
+\end{itemize}
+
+\subsubsection{Relance}
+
+L’entité \textbf{Relance} représente une relance préparée ou envoyée à la suite d’une candidature.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item candidature associée ;
+    \item type de relance ;
+    \item contenu ;
+    \item date prévue ;
+    \item date d’envoi ;
+    \item statut.
+\end{itemize}
+
+\subsubsection{Réponse}
+
+L’entité \textbf{Reponse} représente une réponse reçue d’un recruteur ou d’une entreprise.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item candidature associée ;
+    \item canal de réception ;
+    \item expéditeur ;
+    \item sujet ;
+    \item contenu ;
+    \item date de réception ;
+    \item classification automatique.
+\end{itemize}
+
+\subsubsection{Exécution d’agent}
+
+L’entité \textbf{AgentRun} représente une exécution planifiée ou manuelle du système.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item date de démarrage ;
+    \item date de fin ;
+    \item type d’exécution ;
+    \item nombre d’offres détectées ;
+    \item nombre d’offres retenues ;
+    \item statut final ;
+    \item journal synthétique.
+\end{itemize}
+
+\subsubsection{Journal de décision}
+
+L’entité \textbf{DecisionLog} représente une décision prise par le système ou par l’utilisateur.
+
+Attributs conceptuels possibles :
+\begin{itemize}
+    \item identifiant ;
+    \item type d’objet concerné ;
+    \item identifiant de l’objet concerné ;
+    \item auteur de la décision (système ou utilisateur) ;
+    \item décision prise ;
+    \item justification ;
+    \item date ;
+    \item métadonnées associées.
+\end{itemize}
+
+\subsection{Relations principales entre les entités}
+
+Les relations conceptuelles principales sont les suivantes :
+
+\begin{itemize}
+    \item une \textbf{Source} peut produire plusieurs \textbf{OffresBrutes} ;
+    \item une \textbf{OffreBrute} peut être transformée en une \textbf{Offre} ;
+    \item une \textbf{Entreprise} peut être associée à plusieurs \textbf{Offres} ;
+    \item une \textbf{Offre} peut donner lieu à zéro ou un \textbf{BrouillonCandidature} ;
+    \item un \textbf{BrouillonCandidature} utilise une \textbf{CVVersion} et éventuellement une \textbf{LettreMotivation} ;
+    \item une \textbf{Offre} peut donner lieu à zéro ou une \textbf{Candidature} ;
+    \item une \textbf{Candidature} peut avoir plusieurs \textbf{Relances} ;
+    \item une \textbf{Candidature} peut recevoir plusieurs \textbf{Reponses} ;
+    \item une \textbf{DecisionLog} peut être rattachée à une \textbf{Offre}, un \textbf{BrouillonCandidature}, une \textbf{Candidature} ou une \textbf{Relance} ;
+    \item un \textbf{AgentRun} peut produire plusieurs décisions et plusieurs objets métiers.
+\end{itemize}
+
+\subsection{Contraintes conceptuelles}
+
+Le modèle de données doit respecter les contraintes suivantes :
+
+\begin{itemize}
+    \item une même offre ne doit pas être dupliquée inutilement après normalisation ;
+    \item une candidature ne peut exister que si une offre correspondante existe ;
+    \item une relance ne peut être créée que pour une candidature déjà envoyée ;
+    \item toute décision importante doit être historisée ;
+    \item toute soumission externe doit être traçable ;
+    \item les versions de CV et de lettres doivent être conservées.
+\end{itemize}
+
+\subsection{Remarque sur la suite}
+
+Le présent modèle conceptuel constitue la base de la future modélisation logique puis physique de la base de données.
+
+Il sera complété dans la suite du projet par :
+
+\begin{itemize}
+    \item un schéma relationnel détaillé ;
+    \item les clés primaires et étrangères ;
+    \item les cardinalités précises ;
+    \item les contraintes d’intégrité ;
+    \item les choix d’indexation.
+\end{itemize}
+
+\section{Schéma relationnel logique}
+
+Cette section propose une première traduction du modèle conceptuel en schéma relationnel logique.
+
+L’objectif est de préparer la future implémentation de la base de données relationnelle du système, en identifiant les tables principales, leurs attributs structurants et les relations entre elles.
+
+\subsection{Principes de modélisation}
+
+Le schéma relationnel doit respecter les principes suivants :
+
+\begin{itemize}
+    \item séparation entre données brutes collectées et données normalisées ;
+    \item conservation de l’historique des actions et décisions ;
+    \item traçabilité complète des candidatures et relances ;
+    \item extensibilité pour les futures versions du système ;
+    \item compatibilité avec un système de workflow piloté par états.
+\end{itemize}
+
+\subsection{Tables principales}
+
+\subsubsection{Table \texttt{sources}}
+
+Cette table recense les différentes sources surveillées par le système.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+name & texte & nom de la source \\
+source_type & texte & type de source \\
+base_url & texte & URL principale \\
+is_active & booléen & source active ou non \\
+check_frequency_hours & entier & fréquence de surveillance \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{companies}}
+
+Cette table stocke les entreprises liées aux offres.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+name & texte & nom de l’entreprise \\
+sector & texte & secteur d’activité \\
+website_url & texte & site web \\
+main_location & texte & localisation principale \\
+priority_level & entier & niveau d’intérêt \\
+company_status & texte & cible, neutre, exclue \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{offers\_raw}}
+
+Cette table conserve les offres telles qu’elles ont été collectées.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+source_id & FK & référence vers \texttt{sources} \\
+external_offer_id & texte & identifiant externe éventuel \\
+offer_url & texte & URL de l’offre \\
+raw_title & texte & titre brut \\
+raw_content & texte long & contenu brut \\
+collected_at & datetime & date de collecte \\
+published_at_detected & datetime & date détectée de publication \\
+parsing_status & texte & statut du parsing \\
+checksum & texte & empreinte pour détection de doublons \\
+created_at & datetime & date de création \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{offers}}
+
+Cette table contient les offres normalisées utilisées par le système.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+raw_offer_id & FK & référence vers \texttt{offers\_raw} \\
+company_id & FK & référence vers \texttt{companies} \\
+primary_source_id & FK & référence vers \texttt{sources} \\
+normalized_title & texte & titre normalisé \\
+normalized_description & texte long & description nettoyée \\
+contract_type & texte & type de contrat \\
+duration_months & entier & durée estimée \\
+location_text & texte & localisation \\
+work_mode & texte & présentiel, hybride, télétravail \\
+published_at & datetime & date de publication \\
+deadline_at & datetime & date limite éventuelle \\
+education_level & texte & niveau requis \\
+current_state & texte & état courant de l’offre \\
+global_score & numérique & score global \\
+action_score & numérique & score d’action \\
+score_justification & texte long & justification du scoring \\
+is_active & booléen & offre active ou non \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{user\_profiles}}
+
+Cette table représente le profil principal utilisé pour l’analyse.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+profile_name & texte & nom du profil \\
+education_summary & texte long & résumé de formation \\
+skills_text & texte long & compétences \\
+experiences_text & texte long & expériences \\
+projects_text & texte long & projets \\
+constraints_text & texte long & contraintes \\
+is_active & booléen & profil actif \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{search\_preferences}}
+
+Cette table regroupe les préférences de recherche.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+user_profile_id & FK & référence vers \texttt{user\_profiles} \\
+monitoring_frequency_hours & entier & fréquence de surveillance \\
+allowed_locations & texte long & localisations autorisées \\
+target_companies & texte long & entreprises cibles \\
+excluded_companies & texte long & entreprises exclues \\
+target_keywords & texte long & mots-clés prioritaires \\
+minimum_score_threshold & numérique & seuil minimal \\
+followup_policy & texte long & politique de relance \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{cv\_versions}}
+
+Cette table stocke les différentes versions de CV.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+user_profile_id & FK & référence vers \texttt{user\_profiles} \\
+version_name & texte & nom de la version \\
+file_path & texte & chemin ou identifiant fichier \\
+orientation_label & texte & orientation métier \\
+is_active & booléen & version active \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{cover\_letters}}
+
+Cette table stocke les lettres de motivation générées.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+offer_id & FK & référence vers \texttt{offers} \\
+content & texte long & contenu de la lettre \\
+generation_status & texte & statut de génération \\
+validated_at & datetime & date de validation \\
+final_version_path & texte & chemin vers version finale \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{application\_drafts}}
+
+Cette table représente les brouillons de candidature.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+offer_id & FK & référence vers \texttt{offers} \\
+cv_version_id & FK & référence vers \texttt{cv\_versions} \\
+cover_letter_id & FK & référence vers \texttt{cover\_letters} \\
+prepared_email_subject & texte & sujet préparé \\
+prepared_email_body & texte long & corps du message \\
+prepared_answers & texte long & réponses formulaires \\
+draft_state & texte & état du brouillon \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{applications}}
+
+Cette table représente les candidatures effectivement envoyées.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+offer_id & FK & référence vers \texttt{offers} \\
+application_draft_id & FK & référence vers \texttt{application\_drafts} \\
+submission_channel & texte & email, formulaire, plateforme \\
+submitted_at & datetime & date d’envoi \\
+application_status & texte & statut courant \\
+last_status_change_at & datetime & dernier changement \\
+user_notes & texte long & commentaires utilisateur \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{followups}}
+
+Cette table stocke les relances préparées ou envoyées.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+application_id & FK & référence vers \texttt{applications} \\
+followup_type & texte & type de relance \\
+content & texte long & contenu \\
+scheduled_at & datetime & date prévue \\
+sent_at & datetime & date d’envoi \\
+followup_status & texte & statut \\
+created_at & datetime & date de création \\
+updated_at & datetime & date de mise à jour \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{responses}}
+
+Cette table stocke les réponses reçues.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+application_id & FK & référence vers \texttt{applications} \\
+channel & texte & canal de réception \\
+sender & texte & expéditeur \\
+subject & texte & sujet \\
+body & texte long & contenu \\
+received_at & datetime & date de réception \\
+auto_classification & texte & classification automatique \\
+created_at & datetime & date de création \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{agent\_runs}}
+
+Cette table historise les exécutions du système.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+run_type & texte & type d’exécution \\
+started_at & datetime & début d’exécution \\
+ended_at & datetime & fin d’exécution \\
+detected_offers_count & entier & nombre d’offres détectées \\
+retained_offers_count & entier & nombre d’offres retenues \\
+run_status & texte & statut final \\
+summary_log & texte long & résumé d’exécution \\
+created_at & datetime & date de création \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Table \texttt{decision\_logs}}
+
+Cette table conserve les décisions du système et de l’utilisateur.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type logique} & \textbf{Description} \\
+\hline
+id & PK & identifiant interne \\
+agent_run_id & FK & référence vers \texttt{agent\_runs} \\
+object_type & texte & type d’objet concerné \\
+object_id & entier & identifiant de l’objet \\
+decision_author & texte & système ou utilisateur \\
+decision_type & texte & décision prise \\
+decision_reason & texte long & justification \\
+metadata_json & texte long & métadonnées associées \\
+created_at & datetime & date de décision \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Relations structurantes}
+
+Les relations principales du schéma logique sont les suivantes :
+
+\begin{itemize}
+    \item \texttt{sources} 1 --- N \texttt{offers\_raw}
+    \item \texttt{companies} 1 --- N \texttt{offers}
+    \item \texttt{offers\_raw} 1 --- 0..1 \texttt{offers}
+    \item \texttt{sources} 1 --- N \texttt{offers}
+    \item \texttt{user\_profiles} 1 --- N \texttt{cv\_versions}
+    \item \texttt{user\_profiles} 1 --- N \texttt{search\_preferences}
+    \item \texttt{offers} 1 --- 0..1 \texttt{cover\_letters}
+    \item \texttt{offers} 1 --- 0..1 \texttt{application\_drafts}
+    \item \texttt{application\_drafts} N --- 1 \texttt{cv\_versions}
+    \item \texttt{application\_drafts} N --- 0..1 \texttt{cover\_letters}
+    \item \texttt{offers} 1 --- 0..1 \texttt{applications}
+    \item \texttt{applications} 1 --- N \texttt{followups}
+    \item \texttt{applications} 1 --- N \texttt{responses}
+    \item \texttt{agent\_runs} 1 --- N \texttt{decision\_logs}
+\end{itemize}
+
+\subsection{Contraintes logiques majeures}
+
+Les contraintes logiques suivantes doivent être respectées :
+
+\begin{itemize}
+    \item une offre normalisée doit être rattachée à une offre brute d’origine ;
+    \item une candidature ne peut être créée que pour une offre existante ;
+    \item une relance ne peut exister que pour une candidature déjà soumise ;
+    \item toute décision importante doit être historisée dans \texttt{decision\_logs} ;
+    \item les doublons d’offres doivent être contrôlés à partir des URLs, identifiants externes et empreintes de contenu ;
+    \item une candidature soumise doit conserver une référence vers le brouillon utilisé ;
+    \item les fichiers de CV et lettres doivent être versionnés.
+\end{itemize}
+
+\subsection{Normalisation future}
+
+Dans une version plus avancée, certaines colonnes textuelles pourront être séparées en tables dédiées afin d’améliorer la normalisation :
+
+\begin{itemize}
+    \item table de mots-clés ;
+    \item table de compétences ;
+    \item table de localisations ;
+    \item table de tags d’offres ;
+    \item table de canaux de communication ;
+    \item table de statuts métier normalisés.
+\end{itemize}
+
+\subsection{Remarque de transition}
+
+Le présent schéma relationnel logique constitue une base de travail pour la future implémentation PostgreSQL.
+
+La suite du projet consistera à préciser :
+
+\begin{itemize}
+    \item les types SQL exacts ;
+    \item les contraintes d’unicité ;
+    \item les index ;
+    \item les énumérations d’états ;
+    \item les stratégies de mise à jour et d’archivage.
+\end{itemize}
+
+\section{Workflows et flux opérationnels}
+
+Cette section décrit les principaux workflows métier du système.  
+Ces workflows représentent les processus opérationnels exécutés par l’agent personnel de recherche de stage.
+
+\subsection{Workflow de veille des offres}
+
+Le système surveille périodiquement les sources d’offres.
+
+Ce processus est déclenché automatiquement selon une fréquence configurée (par exemple toutes les trois heures).
+
+\begin{enumerate}
+
+\item déclenchement du cycle par le planificateur ;
+
+\item visite des sources actives ;
+
+\item extraction des offres disponibles ;
+
+\item détection des doublons ;
+
+\item normalisation des offres ;
+
+\item stockage dans la base de données.
+
+\end{enumerate}
+
+\subsection{Workflow d'analyse des offres}
+
+Chaque offre collectée est analysée afin d'évaluer sa pertinence.
+
+\begin{enumerate}
+
+\item filtrage initial selon les préférences utilisateur ;
+
+\item extraction des informations importantes :
+
+\begin{itemize}
+\item compétences requises ;
+\item missions ;
+\item localisation ;
+\item type de contrat ;
+\item durée.
+\end{itemize}
+
+\item comparaison avec le profil utilisateur ;
+
+\item calcul du score global ;
+
+\item calcul du score d’action ;
+
+\item décision automatique :
+
+\begin{itemize}
+\item ignorer l’offre ;
+\item notifier l’utilisateur ;
+\item préparer une candidature.
+\end{itemize}
+
+\end{enumerate}
+
+\subsection{Workflow de préparation de candidature}
+
+Lorsqu’une offre est jugée pertinente, le système prépare une candidature.
+
+\begin{enumerate}
+
+\item création d’un brouillon de candidature ;
+
+\item sélection de la version de CV la plus appropriée ;
+
+\item génération d’une lettre de motivation personnalisée ;
+
+\item préparation des réponses aux formulaires éventuels ;
+
+\item préparation du message de contact ;
+
+\item changement de statut vers \textbf{A\_VALIDER}.
+
+\end{enumerate}
+
+\subsection{Workflow de validation}
+
+Avant toute soumission, l’utilisateur doit valider la candidature.
+
+Les actions possibles sont :
+
+\begin{itemize}
+
+\item valider et envoyer ;
+
+\item modifier les documents ;
+
+\item rejeter la candidature ;
+
+\item reporter la décision.
+
+\end{itemize}
+
+\subsection{Workflow de soumission}
+
+Une fois validée, la candidature est soumise via le canal approprié.
+
+\begin{itemize}
+
+\item formulaire de plateforme ;
+
+\item email direct ;
+
+\item plateforme de recrutement.
+
+\end{itemize}
+
+La candidature est ensuite enregistrée dans l’état :
+
+\begin{center}
+\textbf{EN\_SUIVI}
+\end{center}
+
+\subsection{Workflow de suivi}
+
+Après soumission, le système surveille les réponses.
+
+\begin{enumerate}
+
+\item vérification des messages reçus ;
+
+\item association des réponses aux candidatures ;
+
+\item classification automatique :
+
+\begin{itemize}
+\item réponse positive ;
+\item refus ;
+\item demande d'information ;
+\item invitation à entretien.
+\end{itemize}
+
+\item mise à jour du statut.
+
+\end{enumerate}
+
+\subsection{Workflow de relance}
+
+En absence de réponse dans le délai configuré :
+
+\begin{enumerate}
+
+\item détection de candidature sans réponse ;
+
+\item génération d’un message de relance ;
+
+\item changement de statut vers :
+
+\begin{center}
+\textbf{RELANCE\_A\_VALIDER}
+\end{center}
+
+\item validation utilisateur ;
+
+\item envoi de la relance ;
+
+\item mise à jour du statut.
+
+\end{enumerate}
+\section{Architecture logicielle}
+
+\subsection{Vision générale}
+
+L’architecture logicielle du système repose sur une organisation modulaire en plusieurs couches.
+
+L’objectif est de garantir :
+
+\begin{itemize}
+    \item une séparation claire des responsabilités ;
+    \item une traçabilité complète des décisions et des actions ;
+    \item une évolutivité progressive du système ;
+    \item une compatibilité avec une logique de human-in-the-loop ;
+    \item une capacité d’orchestration de workflows complexes.
+\end{itemize}
+
+Le système est structuré selon les couches suivantes :
+
+\begin{enumerate}
+    \item interface utilisateur ;
+    \item API applicative ;
+    \item services métier ;
+    \item orchestration et agents ;
+    \item connecteurs externes et automatisation ;
+    \item persistance, stockage et observabilité.
+\end{enumerate}
+
+\subsection{Schéma logique global}
+
+\begin{center}
+\begin{tabular}{c}
+Interface utilisateur \\
+$\downarrow$ \\
+API applicative \\
+$\downarrow$ \\
+Services métier \\
+$\downarrow$ \\
+Orchestrateur de workflows et agents \\
+$\downarrow$ \\
+Connecteurs externes / navigateurs / messagerie \\
+$\downarrow$ \\
+Base de données / fichiers / logs
+\end{tabular}
+\end{center}
+\subsection{Découpage modulaire recommandé}
+
+Une première structuration logicielle du projet peut être la suivante :
+
+\begin{verbatim}
+job_agent/
+├── frontend/
+│   ├── dashboard/
+│   ├── offers/
+│   ├── applications/
+│   ├── followups/
+│   └── settings/
+│
+├── backend/
+│   ├── api/
+│   │   ├── routes/
+│   │   ├── schemas/
+│   │   └── dependencies/
+│   │
+│   ├── services/
+│   │   ├── offer_ingestion_service.py
+│   │   ├── matching_service.py
+│   │   ├── application_preparation_service.py
+│   │   ├── submission_service.py
+│   │   ├── followup_service.py
+│   │   ├── mailbox_sync_service.py
+│   │   └── decision_log_service.py
+│   │
+│   ├── domain/
+│   │   ├── models/
+│   │   ├── enums/
+│   │   ├── rules/
+│   │   └── state_machines/
+│   │
+│   ├── repositories/
+│   │   ├── offer_repository.py
+│   │   ├── application_repository.py
+│   │   ├── followup_repository.py
+│   │   └── decision_log_repository.py
+│   │
+│   ├── orchestration/
+│   │   ├── workflows/
+│   │   ├── agents/
+│   │   └── schedulers/
+│   │
+│   ├── connectors/
+│   │   ├── linkedin/
+│   │   ├── indeed/
+│   │   ├── company_pages/
+│   │   ├── gmail/
+│   │   ├── telegram/
+│   │   └── playwright/
+│   │
+│   └── infrastructure/
+│       ├── db/
+│       ├── cache/
+│       ├── storage/
+│       └── logging/
+│
+└── docs/
+\end{verbatim}
+
+\section{Architecture logicielle détaillée}
+
+\subsection{Objectifs de l’architecture}
+
+L’architecture logicielle du système doit répondre aux objectifs suivants :
+
+\begin{itemize}
+    \item modularité ;
+    \item traçabilité ;
+    \item maintenabilité ;
+    \item évolutivité ;
+    \item compatibilité avec une logique de human-in-the-loop ;
+    \item séparation claire entre logique métier, orchestration et exécution externe.
+\end{itemize}
+
+\subsection{Découpage architectural}
+
+Le système est structuré en six couches principales :
+
+\begin{enumerate}
+    \item couche interface utilisateur ;
+    \item couche API applicative ;
+    \item couche services métier ;
+    \item couche orchestration et agents ;
+    \item couche connecteurs externes ;
+    \item couche persistance et observabilité.
+\end{enumerate}
+
+\subsection{Couche interface utilisateur}
+
+La couche interface utilisateur a pour rôle de permettre à l’utilisateur de :
+
+\begin{itemize}
+    \item consulter les offres détectées ;
+    \item analyser les scores et justifications ;
+    \item visualiser les brouillons de candidature ;
+    \item valider ou rejeter les candidatures ;
+    \item suivre les statuts des candidatures ;
+    \item configurer les préférences du système.
+\end{itemize}
+
+Cette couche ne porte pas la logique métier profonde ; elle consomme les services exposés par l’API.
+
+\subsection{Couche API applicative}
+
+La couche API applicative expose les opérations du système.
+
+Elle permet notamment :
+
+\begin{itemize}
+    \item la consultation des offres ;
+    \item la consultation du pipeline de candidatures ;
+    \item le déclenchement de la préparation d’une candidature ;
+    \item la validation ou le rejet d’un brouillon ;
+    \item la consultation et la modification des paramètres.
+\end{itemize}
+
+\subsection{Couche services métier}
+
+La couche services métier contient la logique fonctionnelle centrale du produit.
+
+Elle comprend notamment :
+
+\begin{itemize}
+    \item un service d’ingestion et de normalisation des offres ;
+    \item un service d’analyse et de scoring ;
+    \item un service de préparation de candidature ;
+    \item un service de soumission ;
+    \item un service de suivi des réponses ;
+    \item un service de planification des relances ;
+    \item un service de journalisation des décisions.
+\end{itemize}
+
+\subsection{Couche orchestration et agents}
+
+La couche d’orchestration coordonne les workflows métier du système.
+
+Elle prend en charge :
+
+\begin{itemize}
+    \item les déclenchements planifiés ;
+    \item les séquences de traitement multi-étapes ;
+    \item les interruptions nécessitant validation humaine ;
+    \item la reprise d’exécution après validation ;
+    \item l’enchaînement entre collecte, analyse, préparation, suivi et relance.
+\end{itemize}
+
+Cette couche doit rester distincte de la logique métier pure.
+
+\subsection{Couche connecteurs externes}
+
+La couche connecteurs externes gère les interactions avec les systèmes extérieurs.
+
+Elle comprend :
+
+\begin{itemize}
+    \item les connecteurs vers les plateformes d’offres ;
+    \item les connecteurs vers les pages carrières d’entreprises ;
+    \item les mécanismes d’automatisation navigateur ;
+    \item la connexion à la messagerie ;
+    \item les connecteurs de notification.
+\end{itemize}
+
+\subsection{Couche persistance et observabilité}
+
+Cette couche assure :
+
+\begin{itemize}
+    \item le stockage des objets métier ;
+    \item l’historisation des décisions ;
+    \item la conservation des documents générés ;
+    \item la journalisation des exécutions ;
+    \item l’observabilité du système.
+\end{itemize}
+
+\subsection{Composants logiciels principaux}
+
+Les composants logiciels principaux identifiés à ce stade sont :
+
+\begin{itemize}
+    \item \texttt{Scheduler} ;
+    \item \texttt{SourceConnectorManager} ;
+    \item \texttt{OfferNormalizer} ;
+    \item \texttt{OfferDeduplicator} ;
+    \item \texttt{OfferScoringEngine} ;
+    \item \texttt{DocumentGenerator} ;
+    \item \texttt{ApprovalManager} ;
+    \item \texttt{SubmissionExecutor} ;
+    \item \texttt{MailboxWatcher} ;
+    \item \texttt{FollowUpPlanner} ;
+    \item \texttt{AuditLogger}.
+\end{itemize}
+
+\subsection{Principes d’implémentation}
+
+Les principes suivants doivent guider l’implémentation :
+
+\begin{itemize}
+    \item faible couplage entre modules ;
+    \item séparation entre logique métier et infrastructure ;
+    \item testabilité unitaire des services ;
+    \item centralisation des états métier ;
+    \item historisation systématique des décisions importantes ;
+    \item capacité de montée en charge progressive.
+\end{itemize}
+
+\subsection{Exécution synchrone et asynchrone}
+
+Le système doit combiner des traitements synchrones et asynchrones.
+
+Les opérations synchrones concernent notamment :
+
+\begin{itemize}
+    \item la consultation des données ;
+    \item la validation utilisateur ;
+    \item la navigation dans l’interface.
+\end{itemize}
+
+Les opérations asynchrones concernent notamment :
+
+\begin{itemize}
+    \item la collecte d’offres ;
+    \item la normalisation ;
+    \item le scoring ;
+    \item la génération de documents ;
+    \item la surveillance de la messagerie ;
+    \item la planification des relances ;
+    \item l’automatisation navigateur.
+\end{itemize}
+
+\subsection{Évolution future}
+
+Cette architecture a vocation à être raffinée dans les sections suivantes du projet, notamment :
+
+\begin{itemize}
+    \item architecture physique de déploiement ;
+    \item choix technologiques détaillés ;
+    \item contrats d’API ;
+    \item architecture des agents ;
+    \item architecture frontend ;
+    \item stratégie de sécurité et de confidentialité.
+\end{itemize}
+
+\section{Architecture technique concrète}
+
+\subsection{Principes de choix techniques}
+
+L’architecture technique retenue doit permettre :
+
+\begin{itemize}
+    \item une implémentation progressive ;
+    \item une forte traçabilité ;
+    \item une séparation claire entre interface, logique métier, orchestration et exécution externe ;
+    \item une compatibilité avec un fonctionnement human-in-the-loop ;
+    \item une capacité de reprise des processus longs.
+\end{itemize}
+
+Le système sera conçu selon une approche de monolithe modulaire complétée par des workers spécialisés.
+
+\subsection{Stack technique retenue}
+
+La stack technique cible est la suivante :
+
+\begin{itemize}
+    \item \textbf{Frontend} : Next.js avec TypeScript ;
+    \item \textbf{Backend API} : FastAPI ;
+    \item \textbf{Base de données} : PostgreSQL ;
+    \item \textbf{Cache et coordination} : Redis ;
+    \item \textbf{Orchestration de workflows} : n8n ;
+    \item \textbf{Logique agentique durable} : LangGraph ;
+    \item \textbf{Automatisation navigateur} : Playwright Python ;
+    \item \textbf{Déploiement} : Docker / Docker Compose.
+\end{itemize}
+
+\subsection{Rôle des composants}
+
+\subsubsection{Frontend}
+
+Le frontend fournit l’interface utilisateur principale. Il permet :
+
+\begin{itemize}
+    \item la consultation des offres ;
+    \item la visualisation des scores et justifications ;
+    \item la validation ou le rejet des brouillons ;
+    \item le suivi des candidatures ;
+    \item la configuration du système.
+\end{itemize}
+
+\subsubsection{Backend API}
+
+Le backend FastAPI expose les services applicatifs du système.
+
+Il assure :
+
+\begin{itemize}
+    \item les endpoints d’accès aux données ;
+    \item la validation des entrées ;
+    \item le déclenchement d’actions métier ;
+    \item la communication entre le frontend et les services internes.
+\end{itemize}
+
+\subsubsection{Base de données PostgreSQL}
+
+PostgreSQL stocke les données métier persistantes :
+
+\begin{itemize}
+    \item sources ;
+    \item offres ;
+    \item entreprises ;
+    \item brouillons ;
+    \item candidatures ;
+    \item relances ;
+    \item réponses ;
+    \item journaux de décision ;
+    \item exécutions du système.
+\end{itemize}
+
+\subsubsection{Redis}
+
+Redis est utilisé pour :
+
+\begin{itemize}
+    \item la coordination légère entre composants ;
+    \item le cache ;
+    \item la gestion de verrous temporaires ;
+    \item le support éventuel de files de tâches.
+\end{itemize}
+
+\subsubsection{n8n}
+
+n8n est utilisé comme orchestrateur transverse pour :
+
+\begin{itemize}
+    \item les déclenchements planifiés ;
+    \item les notifications ;
+    \item les workflows simples inter-systèmes ;
+    \item certaines pauses nécessitant validation humaine.
+\end{itemize}
+
+\subsubsection{LangGraph}
+
+LangGraph est utilisé pour les processus agentiques longs et persistants.
+
+Il prend en charge :
+
+\begin{itemize}
+    \item les graphes d’analyse d’offres ;
+    \item les graphes de préparation de candidature ;
+    \item les interruptions avant soumission ;
+    \item la reprise après validation utilisateur ;
+    \item la persistance d’état des exécutions longues.
+\end{itemize}
+
+\subsubsection{Playwright Python}
+
+Playwright Python est utilisé pour :
+
+\begin{itemize}
+    \item l’extraction de données sur des sites dynamiques ;
+    \item la navigation automatique sur certaines plateformes ;
+    \item le pré-remplissage de formulaires ;
+    \item l’assistance à la soumission avant validation finale.
+\end{itemize}
+
+\subsection{Architecture de déploiement}
+
+Le système est déployé sous forme de services conteneurisés.
+
+Une première architecture de déploiement comprend :
+
+\begin{itemize}
+    \item un conteneur frontend ;
+    \item un conteneur backend API ;
+    \item un conteneur worker Python ;
+    \item un conteneur n8n ;
+    \item un conteneur PostgreSQL ;
+    \item un conteneur Redis ;
+    \item un environnement d’exécution Playwright.
+\end{itemize}
+
+\subsection{Mode d’exécution}
+
+Le système combine trois modes d’exécution :
+
+\begin{itemize}
+    \item exécution interactive déclenchée par l’utilisateur ;
+    \item exécution planifiée déclenchée automatiquement ;
+    \item exécution longue avec interruption et reprise.
+\end{itemize}
+
+\subsection{Choix d’architecture initiale}
+
+Le projet adopte initialement une architecture de monolithe modulaire.
+
+Ce choix est motivé par :
+
+\begin{itemize}
+    \item la simplicité d’implémentation ;
+    \item la facilité de maintenance ;
+    \item la rapidité de développement ;
+    \item l’adéquation avec un produit personnel évolutif.
+\end{itemize}
+
+\subsection{Périmètre technique de la première version}
+
+La première version du système comprendra :
+
+\begin{itemize}
+    \item une interface web ;
+    \item une API applicative ;
+    \item une base PostgreSQL ;
+    \item un orchestrateur n8n ;
+    \item un worker agentique Python ;
+    \item un premier ensemble restreint de connecteurs de sources ;
+    \item la synchronisation avec la messagerie ;
+    \item la notification utilisateur.
+\end{itemize}
+
+\section{Plan d’implémentation technique v1}
+
+\subsection{Objectif général}
+
+Le plan d’implémentation technique v1 a pour objectif de construire une première version fonctionnelle du système, couvrant l’ensemble de la chaîne de valeur métier :
+
+\begin{itemize}
+    \item collecte des offres ;
+    \item normalisation et stockage ;
+    \item analyse et scoring ;
+    \item préparation des candidatures ;
+    \item validation humaine ;
+    \item suivi et relance.
+\end{itemize}
+
+L’approche retenue est incrémentale.  
+Le développement doit suivre un ordre garantissant une montée en valeur progressive du produit.
+
+\subsection{Phase 0 : initialisation du projet}
+
+Cette phase vise à mettre en place le socle technique minimal du projet.
+
+Elle comprend :
+
+\begin{itemize}
+    \item la création du dépôt principal ;
+    \item la mise en place de la structure des dossiers ;
+    \item la configuration de Docker Compose ;
+    \item la définition des variables d’environnement ;
+    \item l’initialisation du backend FastAPI ;
+    \item l’initialisation du frontend Next.js ;
+    \item la connexion à PostgreSQL et Redis ;
+    \item l’initialisation du système de migrations.
+\end{itemize}
+
+\subsection{Phase 1 : noyau domaine et persistance}
+
+Cette phase consiste à implémenter les entités métier et leur persistance.
+
+Elle comprend :
+
+\begin{itemize}
+    \item la création des modèles de données ;
+    \item l’implémentation des tables principales ;
+    \item la définition des états métier ;
+    \item la mise en place des repositories ;
+    \item la création des premières migrations ;
+    \item la création de jeux de données initiaux.
+\end{itemize}
+
+\subsection{Phase 2 : ingestion des offres}
+
+Cette phase vise à faire entrer de vraies offres dans le système.
+
+Elle comprend :
+
+\begin{itemize}
+    \item l’implémentation d’une interface commune de connecteurs ;
+    \item la création d’un gestionnaire de connecteurs ;
+    \item le développement des premières sources simples ;
+    \item la normalisation des offres collectées ;
+    \item la détection initiale des doublons ;
+    \item le stockage des offres brutes et normalisées.
+\end{itemize}
+
+\subsection{Phase 3 : qualification et scoring}
+
+Cette phase vise à transformer les offres collectées en opportunités évaluées.
+
+Elle comprend :
+
+\begin{itemize}
+    \item l’implémentation du moteur de matching ;
+    \item l’extraction des informations clés des offres ;
+    \item le calcul d’un score global ;
+    \item le calcul d’un score d’action ;
+    \item la production d’une justification explicite ;
+    \item la mise à jour des états d’offre.
+\end{itemize}
+
+\subsection{Phase 4 : préparation de candidature}
+
+Cette phase vise à produire un brouillon exploitable pour validation.
+
+Elle comprend :
+
+\begin{itemize}
+    \item la sélection d’une version de CV ;
+    \item la génération d’une lettre de motivation ;
+    \item la préparation d’un message de contact ;
+    \item la préparation des réponses à d’éventuelles questions ;
+    \item la création des objets de type brouillon de candidature.
+\end{itemize}
+
+\subsection{Phase 5 : validation et soumission}
+
+Cette phase vise à intégrer le contrôle humain dans le cycle.
+
+Elle comprend :
+
+\begin{itemize}
+    \item la mise en place du mécanisme de validation ;
+    \item l’implémentation des transitions d’état associées ;
+    \item l’enregistrement des décisions utilisateur ;
+    \item la création des candidatures envoyées ;
+    \item l’initialisation du pipeline de suivi.
+\end{itemize}
+
+\subsection{Phase 6 : suivi et relances}
+
+Cette phase vise à fermer la boucle métier.
+
+Elle comprend :
+
+\begin{itemize}
+    \item la synchronisation avec la messagerie ;
+    \item la détection des réponses reçues ;
+    \item le rattachement des réponses aux candidatures ;
+    \item la classification automatique des réponses ;
+    \item la planification des relances ;
+    \item la génération de brouillons de relance.
+\end{itemize}
+
+\subsection{Phase 7 : orchestration}
+
+Cette phase vise à automatiser les déclenchements récurrents du système.
+
+Elle comprend :
+
+\begin{itemize}
+    \item la planification périodique de la veille ;
+    \item l’envoi de notifications ;
+    \item la reprise des workflows après validation ;
+    \item l’historisation des exécutions.
+\end{itemize}
+
+\subsection{Phase 8 : agentique durable}
+
+Cette phase vise à introduire les premiers graphes d’exécution persistants.
+
+Elle comprend :
+
+\begin{itemize}
+    \item l’implémentation de graphes LangGraph ciblés ;
+    \item la gestion des interruptions ;
+    \item la reprise après validation utilisateur ;
+    \item la persistance d’état des processus longs.
+\end{itemize}
+
+\subsection{Phase 9 : automatisation navigateur ciblée}
+
+Cette phase vise à introduire l’automatisation de certaines plateformes dynamiques.
+
+Elle comprend :
+
+\begin{itemize}
+    \item l’intégration de Playwright Python ;
+    \item la création d’un premier connecteur navigateur ;
+    \item l’assistance au remplissage de formulaire ;
+    \item l’arrêt avant soumission finale.
+\end{itemize}
+
+\subsection{Ordre de priorité de développement}
+
+L’ordre de priorité recommandé est le suivant :
+
+\begin{enumerate}
+    \item socle technique ;
+    \item base de données et domaine ;
+    \item ingestion des offres ;
+    \item scoring ;
+    \item génération de brouillons ;
+    \item validation humaine ;
+    \item suivi et relances ;
+    \item orchestration ;
+    \item graphes agentiques ;
+    \item automatisation navigateur.
+\end{enumerate}
+
+\subsection{Critère de succès de la v1}
+
+La version 1 sera considérée comme satisfaisante si le système est capable de :
+
+\begin{itemize}
+    \item surveiller plusieurs sources d’offres ;
+    \item enregistrer les nouvelles offres ;
+    \item analyser leur pertinence ;
+    \item générer un brouillon de candidature ;
+    \item soumettre ce brouillon à validation humaine ;
+    \item enregistrer une candidature envoyée ;
+    \item suivre son statut ;
+    \item proposer une relance en absence de réponse.
+\end{itemize}
+
+\section{Structuration du dépôt et arborescence technique v1}
+
+\subsection{Principe général}
+
+Le projet est organisé sous la forme d’un mono-dépôt structuré en sous-ensembles cohérents.
+
+Cette organisation vise à :
+
+\begin{itemize}
+    \item séparer clairement les responsabilités ;
+    \item faciliter le développement incrémental ;
+    \item maintenir une bonne lisibilité du code ;
+    \item permettre une évolution progressive du système ;
+    \item distinguer l’interface utilisateur, l’API, les traitements longs, les workflows et l’infrastructure.
+\end{itemize}
+
+\subsection{Organisation générale du dépôt}
+
+Le dépôt principal comprend les sous-ensembles suivants :
+
+\begin{itemize}
+    \item \texttt{frontend/} : interface utilisateur ;
+    \item \texttt{backend/} : API applicative et logique métier ;
+    \item \texttt{worker/} : traitements longs et exécutions agentiques ;
+    \item \texttt{workflows/} : workflows d’orchestration ;
+    \item \texttt{infra/} : fichiers d’infrastructure et scripts d’environnement ;
+    \item \texttt{docs/} : documentation du projet ;
+    \item \texttt{shared/} : artefacts partagés ;
+    \item \texttt{data/} : jeux de données, fixtures et exemples.
+\end{itemize}
+
+\subsection{Arborescence cible du dépôt}
+
+Une arborescence technique cible pour la version 1 est la suivante :
+
+\begin{verbatim}
+job-search-agent/
+├── docs/
+├── infra/
+├── frontend/
+├── backend/
+├── worker/
+├── workflows/
+├── shared/
+└── data/
+\end{verbatim}
+
+\subsection{Structuration du backend}
+
+Le backend est organisé autour des modules suivants :
+
+\begin{itemize}
+    \item \texttt{core/} : configuration, base de données, logging ;
+    \item \texttt{api/} : routes et dépendances HTTP ;
+    \item \texttt{schemas/} : schémas de validation et de sérialisation ;
+    \item \texttt{domain/} : entités, règles métier, états ;
+    \item \texttt{services/} : logique applicative ;
+    \item \texttt{repositories/} : accès aux données ;
+    \item \texttt{orchestration/} : commandes, événements et gestion des flux ;
+    \item \texttt{connectors/} : intégrations avec les systèmes externes ;
+    \item \texttt{infrastructure/} : implémentations techniques concrètes.
+\end{itemize}
+
+\subsection{Structuration du worker}
+
+Le worker regroupe les traitements longs et les processus non interactifs.
+
+Il comprend notamment :
+
+\begin{itemize}
+    \item des jobs planifiés ;
+    \item des graphes d’exécution ;
+    \item des tâches unitaires ;
+    \item des intégrations avec les autres composants ;
+    \item des utilitaires d’exécution.
+\end{itemize}
+
+\subsection{Structuration du frontend}
+
+Le frontend est structuré par domaines fonctionnels.
+
+Il comprend notamment :
+
+\begin{itemize}
+    \item les pages principales de l’application ;
+    \item les composants d’interface réutilisables ;
+    \item les modules fonctionnels par feature ;
+    \item les hooks et bibliothèques utilitaires ;
+    \item les types frontaux.
+\end{itemize}
+
+\subsection{Structuration des workflows}
+
+Les workflows d’orchestration sont stockés séparément afin de permettre :
+
+\begin{itemize}
+    \item leur versionnement ;
+    \item leur documentation ;
+    \item leur export et leur réimportation ;
+    \item leur maintenance indépendante.
+\end{itemize}
+
+\subsection{Structuration de la documentation}
+
+La documentation doit être maintenue au sein du dépôt.
+
+Elle comprend notamment :
+
+\begin{itemize}
+    \item le cahier des charges ;
+    \item les décisions d’architecture ;
+    \item les notes de workflows ;
+    \item les diagrammes ;
+    \item les conventions de développement.
+\end{itemize}
+
+\subsection{Fichiers racine indispensables}
+
+Les fichiers racine à prévoir dès la version 1 sont :
+
+\begin{itemize}
+    \item \texttt{README.md} ;
+    \item \texttt{.env.example} ;
+    \item \texttt{docker-compose.yml} ;
+    \item \texttt{Makefile}.
+\end{itemize}
+
+\subsection{Principes de structuration}
+
+Les principes suivants doivent être respectés :
+
+\begin{itemize}
+    \item un module doit avoir une responsabilité claire ;
+    \item la logique métier doit être séparée de l’infrastructure ;
+    \item les intégrations externes doivent être isolées ;
+    \item les états métier doivent être centralisés ;
+    \item les artefacts partagés doivent être explicitement identifiés.
+\end{itemize}
+
+\section{Catalogue des modules backend v1}
+
+\subsection{Objectif}
+
+Cette section recense les principaux modules backend de la version 1 du système.
+
+Pour chaque module, l’objectif est de préciser :
+
+\begin{itemize}
+    \item sa responsabilité ;
+    \item ses entrées ;
+    \item ses sorties ;
+    \item ses dépendances principales ;
+    \item sa priorité d’implémentation.
+\end{itemize}
+
+\subsection{Familles de modules}
+
+Les modules backend v1 sont regroupés en six familles :
+
+\begin{enumerate}
+    \item modules cœur technique ;
+    \item modules de persistance ;
+    \item modules métier liés aux offres ;
+    \item modules métier liés aux candidatures ;
+    \item modules métier liés au suivi ;
+    \item modules transverses.
+\end{enumerate}
+
+\subsection{Modules cœur technique}
+
+\subsubsection{\texttt{config}}
+Responsabilité : centraliser la configuration applicative.
+
+\subsubsection{\texttt{database}}
+Responsabilité : gérer l’accès à la base de données et les sessions.
+
+\subsubsection{\texttt{logging}}
+Responsabilité : centraliser la journalisation applicative.
+
+\subsubsection{\texttt{enums}}
+Responsabilité : définir les états et catégories métier.
+
+\subsubsection{\texttt{state\_machines}}
+Responsabilité : encapsuler les transitions légales d’état.
+
+\subsection{Modules de persistance}
+
+\subsubsection{\texttt{source\_repository}}
+Responsabilité : gérer les sources surveillées.
+
+\subsubsection{\texttt{company\_repository}}
+Responsabilité : gérer les entreprises.
+
+\subsubsection{\texttt{offer\_raw\_repository}}
+Responsabilité : gérer les offres brutes collectées.
+
+\subsubsection{\texttt{offer\_repository}}
+Responsabilité : gérer les offres normalisées.
+
+\subsubsection{\texttt{application\_draft\_repository}}
+Responsabilité : gérer les brouillons de candidature.
+
+\subsubsection{\texttt{application\_repository}}
+Responsabilité : gérer les candidatures envoyées.
+
+\subsubsection{\texttt{followup\_repository}}
+Responsabilité : gérer les relances.
+
+\subsubsection{\texttt{response\_repository}}
+Responsabilité : gérer les réponses reçues.
+
+\subsubsection{\texttt{decision\_log\_repository}}
+Responsabilité : gérer la persistance des journaux de décision.
+
+\subsection{Modules métier liés aux offres}
+
+\subsubsection{\texttt{source\_connector\_manager}}
+Responsabilité : piloter les connecteurs de collecte.
+
+\subsubsection{\texttt{offer\_normalizer}}
+Responsabilité : transformer une offre brute en offre normalisée.
+
+\subsubsection{\texttt{offer\_deduplicator}}
+Responsabilité : détecter les doublons d’offres.
+
+\subsubsection{\texttt{offer\_ingestion\_service}}
+Responsabilité : orchestrer l’entrée d’une offre dans le système.
+
+\subsubsection{\texttt{matching\_service}}
+Responsabilité : évaluer la compatibilité entre une offre et le profil utilisateur.
+
+\subsubsection{\texttt{offer\_scoring\_engine}}
+Responsabilité : calculer les scores métier.
+
+\subsection{Modules métier liés aux candidatures}
+
+\subsubsection{\texttt{cv\_selection\_service}}
+Responsabilité : choisir la version de CV la plus adaptée.
+
+\subsubsection{\texttt{cover\_letter\_service}}
+Responsabilité : générer une lettre de motivation adaptée.
+
+\subsubsection{\texttt{application\_preparation\_service}}
+Responsabilité : préparer un brouillon complet de candidature.
+
+\subsubsection{\texttt{approval\_service}}
+Responsabilité : gérer les validations utilisateur.
+
+\subsubsection{\texttt{submission\_service}}
+Responsabilité : enregistrer ou exécuter la soumission d’une candidature validée.
+
+\subsection{Modules métier liés au suivi}
+
+\subsubsection{\texttt{mailbox\_sync\_service}}
+Responsabilité : synchroniser les réponses issues de la messagerie.
+
+\subsubsection{\texttt{response\_classification\_service}}
+Responsabilité : classifier automatiquement les réponses reçues.
+
+\subsubsection{\texttt{followup\_policy\_service}}
+Responsabilité : déterminer si une relance est autorisée ou recommandée.
+
+\subsubsection{\texttt{followup\_service}}
+Responsabilité : créer et gérer les brouillons de relance.
+
+\subsection{Modules transverses}
+
+\subsubsection{\texttt{decision\_log\_service}}
+Responsabilité : centraliser la journalisation métier.
+
+\subsubsection{\texttt{agent\_run\_service}}
+Responsabilité : historiser les exécutions du système.
+
+\subsubsection{\texttt{notification\_service}}
+Responsabilité : envoyer les notifications utiles à l’utilisateur.
+
+\subsection{Ordre d’implémentation recommandé}
+
+L’ordre d’implémentation recommandé est le suivant :
+
+\begin{enumerate}
+    \item modules cœur technique ;
+    \item modules de persistance ;
+    \item modules d’ingestion et de normalisation des offres ;
+    \item modules de scoring et de matching ;
+    \item modules de préparation de candidature ;
+    \item modules de validation et de soumission ;
+    \item modules de suivi et de relance ;
+    \item modules transverses avancés.
+\end{enumerate}
+
+\subsection{Modules critiques de la version 1}
+
+Les modules critiques de la version 1 sont :
+
+\begin{itemize}
+    \item \texttt{offer\_ingestion\_service} ;
+    \item \texttt{offer\_normalizer} ;
+    \item \texttt{offer\_deduplicator} ;
+    \item \texttt{matching\_service} ;
+    \item \texttt{application\_preparation\_service} ;
+    \item \texttt{approval\_service} ;
+    \item \texttt{submission\_service}.
+\end{itemize}
+
+\section{Spécification des interfaces et contrats des modules critiques v1}
+
+\subsection{Objectif}
+
+Cette section précise les contrats logiciels des modules critiques de la version 1.
+
+Pour chaque module, il convient de définir :
+
+\begin{itemize}
+    \item sa responsabilité ;
+    \item ses préconditions ;
+    \item ses entrées ;
+    \item ses sorties ;
+    \item ses postconditions ;
+    \item ses erreurs possibles ;
+    \item ses dépendances principales.
+\end{itemize}
+
+\subsection{\texttt{BaseSourceConnector}}
+
+\textbf{Responsabilité :} définir le contrat minimal de tout connecteur de source.
+
+\textbf{Entrées :}
+\begin{itemize}
+    \item configuration de source ;
+    \item paramètres éventuels de collecte.
+\end{itemize}
+
+\textbf{Sortie :}
+\begin{itemize}
+    \item liste d’offres brutes standardisées.
+\end{itemize}
+
+\textbf{Garantie :}
+chaque offre brute doit contenir un noyau minimal d’information permettant son ingestion.
+
+\subsection{\texttt{OfferNormalizer}}
+
+\textbf{Responsabilité :} transformer une offre brute en offre normalisée.
+
+\textbf{Entrée :}
+\begin{itemize}
+    \item une offre brute.
+\end{itemize}
+
+\textbf{Sortie :}
+\begin{itemize}
+    \item une offre normalisée structurée.
+\end{itemize}
+
+\textbf{Postconditions :}
+la sortie doit contenir autant que possible un titre normalisé, une entreprise, une description nettoyée, une localisation, un type de contrat, une date de publication et les métadonnées utiles.
+
+\subsection{\texttt{OfferDeduplicator}}
+
+\textbf{Responsabilité :} identifier si une offre correspond à un nouvel enregistrement, à un doublon ou à une mise à jour.
+
+\textbf{Entrées :}
+\begin{itemize}
+    \item une offre normalisée ;
+    \item le contexte de comparaison en base.
+\end{itemize}
+
+\textbf{Sortie :}
+\begin{itemize}
+    \item une décision de déduplication ;
+    \item un score de confiance ;
+    \item éventuellement une référence vers l’offre existante.
+\end{itemize}
+
+\subsection{\texttt{OfferIngestionService}}
+
+\textbf{Responsabilité :} orchestrer l’entrée complète d’une offre dans le système.
+
+\textbf{Entrée :}
+\begin{itemize}
+    \item une offre brute ;
+    \item une référence de source.
+\end{itemize}
+
+\textbf{Sortie :}
+\begin{itemize}
+    \item un résultat d’ingestion contenant les identifiants créés ou mis à jour ;
+    \item le statut d’ingestion ;
+    \item la décision de déduplication.
+\end{itemize}
+
+\textbf{Postconditions :}
+l’offre brute est conservée, l’offre normalisée est créée ou mise à jour, et la décision est historisée.
+
+\subsection{\texttt{MatchingService}}
+
+\textbf{Responsabilité :} évaluer la pertinence d’une offre relativement au profil utilisateur.
+
+\textbf{Entrées :}
+\begin{itemize}
+    \item une offre normalisée ;
+    \item un profil utilisateur ;
+    \item les préférences de recherche actives.
+\end{itemize}
+
+\textbf{Sortie :}
+\begin{itemize}
+    \item un résultat de matching contenant les sous-scores ;
+    \item un score global ;
+    \item un score d’action ;
+    \item une justification ;
+    \item une recommandation d’action.
+\end{itemize}
+
+\textbf{Garantie :}
+le résultat doit être explicable, traçable et réutilisable dans les décisions métier.
+
+\subsection{\texttt{ApplicationPreparationService}}
+
+\textbf{Responsabilité :} préparer un brouillon complet de candidature.
+
+\textbf{Entrées :}
+\begin{itemize}
+    \item une offre qualifiée ;
+    \item un profil utilisateur ;
+    \item des préférences actives ;
+    \item les versions de CV disponibles.
+\end{itemize}
+
+\textbf{Sortie :}
+\begin{itemize}
+    \item un brouillon de candidature complet ;
+    \item la référence du CV sélectionné ;
+    \item la lettre générée ;
+    \item les messages préparés ;
+    \item l’état \texttt{A\_VALIDER}.
+\end{itemize}
+
+\textbf{Postconditions :}
+un brouillon persistant est créé, les artefacts sont stockés et la décision est journalisée.
+
+\subsection{\texttt{ApprovalService}}
+
+\textbf{Responsabilité :} traiter les décisions utilisateur sur les objets à valider.
+
+\textbf{Entrées :}
+\begin{itemize}
+    \item type d’objet ;
+    \item identifiant d’objet ;
+    \item décision utilisateur ;
+    \item commentaire éventuel.
+\end{itemize}
+
+\textbf{Sortie :}
+\begin{itemize}
+    \item résultat de validation ;
+    \item ancien état ;
+    \item nouvel état ;
+    \item journal de décision.
+\end{itemize}
+
+\textbf{Garantie :}
+aucune transition illégale ne doit être autorisée.
+
+\subsection{\texttt{SubmissionService}}
+
+\textbf{Responsabilité :} transformer un brouillon validé en candidature soumise.
+
+\textbf{Entrées :}
+\begin{itemize}
+    \item un brouillon validé ;
+    \item un canal de soumission ;
+    \item les métadonnées éventuelles.
+\end{itemize}
+
+\textbf{Sortie :}
+\begin{itemize}
+    \item une candidature créée ;
+    \item un statut initial de suivi ;
+    \item une trace de soumission.
+\end{itemize}
+
+\textbf{Postconditions :}
+la candidature est créée, le brouillon est marqué comme soumis et le pipeline de suivi est initialisé.
+
+\subsection{Structures contractuelles minimales}
+
+Les structures minimales à formaliser sont notamment :
+
+\begin{itemize}
+    \item \texttt{RawOfferPayload} ;
+    \item \texttt{NormalizedOfferPayload} ;
+    \item \texttt{DeduplicationDecision} ;
+    \item \texttt{MatchingResult} ;
+    \item \texttt{ApplicationDraftResult} ;
+    \item \texttt{ApprovalResult} ;
+    \item \texttt{SubmissionResult}.
+\end{itemize}
+
+\subsection{Règles générales}
+
+Les règles suivantes s’appliquent à tous les modules critiques :
+
+\begin{itemize}
+    \item une responsabilité fonctionnelle claire par module ;
+    \item aucune transition d’état hors machine d’état ;
+    \item journalisation systématique des décisions importantes ;
+    \item sorties structurées et explicites.
+\end{itemize}
+
+\section{Machines d’état métier v1}
+
+\subsection{Objectif}
+
+Cette section formalise les machines d’état métier de la version 1 du système.
+
+L’objectif est de garantir :
+
+\begin{itemize}
+    \item la cohérence des cycles de vie des objets métier ;
+    \item le contrôle des transitions autorisées ;
+    \item la traçabilité des changements d’état ;
+    \item l’intégration correcte du human-in-the-loop.
+\end{itemize}
+
+Les objets métier principaux soumis à une machine d’état sont :
+
+\begin{itemize}
+    \item les offres ;
+    \item les brouillons de candidature ;
+    \item les candidatures ;
+    \item les relances.
+\end{itemize}
+
+\subsection{Principes généraux}
+
+Les principes suivants s’appliquent à toutes les machines d’état :
+
+\begin{itemize}
+    \item toute transition d’état doit passer par la machine d’état correspondante ;
+    \item toute transition importante doit être journalisée ;
+    \item un état doit représenter une réalité métier explicite ;
+    \item les états terminaux ne peuvent pas être quittés dans la version 1.
+\end{itemize}
+
+\subsection{Machine d’état des offres}
+
+Les états métier d’une offre sont les suivants :
+
+\begin{itemize}
+    \item \texttt{DETECTED} ;
+    \item \texttt{RAW\_STORED} ;
+    \item \texttt{NORMALIZED} ;
+    \item \texttt{DEDUPLICATED} ;
+    \item \texttt{ANALYZED} ;
+    \item \texttt{REJECTED} ;
+    \item \texttt{QUALIFIED} ;
+    \item \texttt{DRAFT\_REQUESTED} ;
+    \item \texttt{DRAFT\_PREPARED} ;
+    \item \texttt{READY\_FOR\_REVIEW} ;
+    \item \texttt{SUBMISSION\_IN\_PROGRESS} ;
+    \item \texttt{SUBMITTED} ;
+    \item \texttt{CLOSED}.
+\end{itemize}
+
+Le flux principal est :
+
+\begin{center}
+\texttt{DETECTED}
+$\rightarrow$
+\texttt{RAW\_STORED}
+$\rightarrow$
+\texttt{NORMALIZED}
+$\rightarrow$
+\texttt{DEDUPLICATED}
+$\rightarrow$
+\texttt{ANALYZED}
+$\rightarrow$
+\texttt{QUALIFIED}
+$\rightarrow$
+\texttt{DRAFT\_REQUESTED}
+$\rightarrow$
+\texttt{DRAFT\_PREPARED}
+$\rightarrow$
+\texttt{READY\_FOR\_REVIEW}
+$\rightarrow$
+\texttt{SUBMISSION\_IN\_PROGRESS}
+$\rightarrow$
+\texttt{SUBMITTED}
+$\rightarrow$
+\texttt{CLOSED}
+\end{center}
+
+Des branches alternatives sont autorisées :
+
+\begin{itemize}
+    \item \texttt{ANALYZED} $\rightarrow$ \texttt{REJECTED} ;
+    \item \texttt{QUALIFIED} $\rightarrow$ \texttt{REJECTED} ;
+    \item \texttt{READY\_FOR\_REVIEW} $\rightarrow$ \texttt{REJECTED}.
+\end{itemize}
+
+\subsection{Machine d’état des brouillons de candidature}
+
+Les états métier d’un brouillon sont les suivants :
+
+\begin{itemize}
+    \item \texttt{DRAFT\_CREATED} ;
+    \item \texttt{CV\_SELECTED} ;
+    \item \texttt{LETTER\_GENERATED} ;
+    \item \texttt{MESSAGE\_PREPARED} ;
+    \item \texttt{READY\_FOR\_VALIDATION} ;
+    \item \texttt{APPROVED} ;
+    \item \texttt{REJECTED} ;
+    \item \texttt{CHANGES\_REQUESTED} ;
+    \item \texttt{POSTPONED} ;
+    \item \texttt{SUBMITTED}.
+\end{itemize}
+
+Le flux principal est :
+
+\begin{center}
+\texttt{DRAFT\_CREATED}
+$\rightarrow$
+\texttt{CV\_SELECTED}
+$\rightarrow$
+\texttt{LETTER\_GENERATED}
+$\rightarrow$
+\texttt{MESSAGE\_PREPARED}
+$\rightarrow$
+\texttt{READY\_FOR\_VALIDATION}
+$\rightarrow$
+\texttt{APPROVED}
+$\rightarrow$
+\texttt{SUBMITTED}
+\end{center}
+
+Des branches alternatives sont autorisées :
+
+\begin{itemize}
+    \item \texttt{READY\_FOR\_VALIDATION} $\rightarrow$ \texttt{REJECTED} ;
+    \item \texttt{READY\_FOR\_VALIDATION} $\rightarrow$ \texttt{CHANGES\_REQUESTED} ;
+    \item \texttt{READY\_FOR\_VALIDATION} $\rightarrow$ \texttt{POSTPONED} ;
+    \item \texttt{CHANGES\_REQUESTED} $\rightarrow$ \texttt{DRAFT\_CREATED} ;
+    \item \texttt{POSTPONED} $\rightarrow$ \texttt{READY\_FOR\_VALIDATION}.
+\end{itemize}
+
+\subsection{Machine d’état des candidatures}
+
+Les états métier d’une candidature sont les suivants :
+
+\begin{itemize}
+    \item \texttt{CREATED} ;
+    \item \texttt{SUBMITTED} ;
+    \item \texttt{ACKNOWLEDGED} ;
+    \item \texttt{UNDER\_REVIEW} ;
+    \item \texttt{FOLLOWUP\_DUE} ;
+    \item \texttt{FOLLOWUP\_IN\_PROGRESS} ;
+    \item \texttt{RESPONSE\_RECEIVED} ;
+    \item \texttt{INTERVIEW} ;
+    \item \texttt{REJECTED} ;
+    \item \texttt{ACCEPTED} ;
+    \item \texttt{WITHDRAWN} ;
+    \item \texttt{CLOSED}.
+\end{itemize}
+
+Des transitions principales sont autorisées entre :
+
+\begin{itemize}
+    \item \texttt{CREATED} $\rightarrow$ \texttt{SUBMITTED} ;
+    \item \texttt{SUBMITTED} $\rightarrow$ \texttt{ACKNOWLEDGED} ;
+    \item \texttt{SUBMITTED} $\rightarrow$ \texttt{FOLLOWUP\_DUE} ;
+    \item \texttt{SUBMITTED} $\rightarrow$ \texttt{REJECTED} ;
+    \item \texttt{SUBMITTED} $\rightarrow$ \texttt{ACCEPTED} ;
+    \item \texttt{ACKNOWLEDGED} $\rightarrow$ \texttt{UNDER\_REVIEW} ;
+    \item \texttt{UNDER\_REVIEW} $\rightarrow$ \texttt{RESPONSE\_RECEIVED} ;
+    \item \texttt{RESPONSE\_RECEIVED} $\rightarrow$ \texttt{INTERVIEW} ;
+    \item \texttt{INTERVIEW} $\rightarrow$ \texttt{REJECTED} ;
+    \item \texttt{INTERVIEW} $\rightarrow$ \texttt{ACCEPTED} ;
+    \item \texttt{REJECTED} $\rightarrow$ \texttt{CLOSED} ;
+    \item \texttt{ACCEPTED} $\rightarrow$ \texttt{CLOSED} ;
+    \item \texttt{WITHDRAWN} $\rightarrow$ \texttt{CLOSED}.
+\end{itemize}
+
+\subsection{Machine d’état des relances}
+
+Les états métier d’une relance sont les suivants :
+
+\begin{itemize}
+    \item \texttt{NOT\_NEEDED} ;
+    \item \texttt{ELIGIBLE} ;
+    \item \texttt{DRAFTING} ;
+    \item \texttt{READY\_FOR\_VALIDATION} ;
+    \item \texttt{APPROVED} ;
+    \item \texttt{SENT} ;
+    \item \texttt{CANCELLED} ;
+    \item \texttt{ANSWERED} ;
+    \item \texttt{CLOSED}.
+\end{itemize}
+
+Le flux principal est :
+
+\begin{center}
+\texttt{NOT\_NEEDED}
+$\rightarrow$
+\texttt{ELIGIBLE}
+$\rightarrow$
+\texttt{DRAFTING}
+$\rightarrow$
+\texttt{READY\_FOR\_VALIDATION}
+$\rightarrow$
+\texttt{APPROVED}
+$\rightarrow$
+\texttt{SENT}
+$\rightarrow$
+\texttt{CLOSED}
+\end{center}
+
+Des branches alternatives sont autorisées :
+
+\begin{itemize}
+    \item \texttt{READY\_FOR\_VALIDATION} $\rightarrow$ \texttt{CANCELLED} ;
+    \item \texttt{SENT} $\rightarrow$ \texttt{ANSWERED} ;
+    \item \texttt{ANSWERED} $\rightarrow$ \texttt{CLOSED} ;
+    \item \texttt{CANCELLED} $\rightarrow$ \texttt{CLOSED}.
+\end{itemize}
+
+\subsection{Règles d’interdiction}
+
+Les interdictions suivantes sont fixées pour la version 1 :
+
+\begin{itemize}
+    \item une offre ne peut pas passer directement de \texttt{DETECTED} à \texttt{SUBMITTED} ;
+    \item un brouillon ne peut pas être soumis sans être approuvé ;
+    \item une candidature rejetée, acceptée ou clôturée ne peut pas générer de nouvelle relance ;
+    \item une relance annulée ou clôturée ne peut pas être réactivée.
+\end{itemize}
+
+\subsection{Événements métier}
+
+Les transitions sont déclenchées par des événements métier explicites, tels que :
+
+\begin{itemize}
+    \item détection d’offre ;
+    \item normalisation terminée ;
+    \item scoring terminé ;
+    \item brouillon préparé ;
+    \item validation utilisateur ;
+    \item soumission effectuée ;
+    \item réponse reçue ;
+    \item relance devenue éligible ;
+    \item relance envoyée.
+\end{itemize}
+
+\subsection{Règle générale de journalisation}
+
+Toute transition importante d’état doit être historisée dans les journaux de décision ou d’exécution du système.
+
+\section{Spécification des DTO, payloads et schémas d’échange v1}
+
+\subsection{Objectif}
+
+Cette section formalise les principaux objets d’échange de la version 1 du système.
+
+Ces objets ont pour rôle de structurer les échanges :
+
+\begin{itemize}
+    \item entre connecteurs et backend ;
+    \item entre services métier ;
+    \item entre backend et worker ;
+    \item entre backend et frontend ;
+    \item entre le système et les services externes.
+\end{itemize}
+
+\subsection{Principes généraux}
+
+Les principes suivants s’appliquent aux DTO de la version 1 :
+
+\begin{itemize}
+    \item un DTO représente un contrat d’échange explicite ;
+    \item un DTO doit être simple, sérialisable et stable ;
+    \item les champs critiques doivent être obligatoires ;
+    \item les états métier doivent être portés par des énumérations ;
+    \item un champ de métadonnées extensible peut être ajouté si nécessaire.
+\end{itemize}
+
+\subsection{DTO d’ingestion des offres}
+
+Les objets principaux de cette famille sont :
+
+\begin{itemize}
+    \item \texttt{SourceConfigDTO} ;
+    \item \texttt{RawOfferPayload} ;
+    \item \texttt{ConnectorRunResult}.
+\end{itemize}
+
+\texttt{SourceConfigDTO} décrit une source surveillée.
+
+\texttt{RawOfferPayload} représente une offre brute retournée par un connecteur.
+
+\texttt{ConnectorRunResult} représente le résultat d’un cycle d’exécution d’un connecteur.
+
+\subsection{DTO de normalisation et de déduplication}
+
+Les objets principaux de cette famille sont :
+
+\begin{itemize}
+    \item \texttt{NormalizedOfferPayload} ;
+    \item \texttt{NormalizationResult} ;
+    \item \texttt{DeduplicationDecision} ;
+    \item \texttt{OfferIngestionResult}.
+\end{itemize}
+
+\texttt{NormalizedOfferPayload} représente une offre après structuration.
+
+\texttt{NormalizationResult} décrit le résultat du processus de normalisation.
+
+\texttt{DeduplicationDecision} formalise la décision de déduplication.
+
+\texttt{OfferIngestionResult} formalise le résultat complet d’une ingestion.
+
+\subsection{DTO de matching et de scoring}
+
+Les objets principaux de cette famille sont :
+
+\begin{itemize}
+    \item \texttt{MatchingInputDTO} ;
+    \item \texttt{DimensionScoreDTO} ;
+    \item \texttt{MatchingResult} ;
+    \item \texttt{OfferScoringSnapshotDTO}.
+\end{itemize}
+
+\texttt{MatchingResult} contient notamment :
+
+\begin{itemize}
+    \item des sous-scores par dimension ;
+    \item un score global ;
+    \item un score d’action ;
+    \item une justification ;
+    \item une recommandation d’action.
+\end{itemize}
+
+\subsection{DTO de préparation et de validation de candidature}
+
+Les objets principaux de cette famille sont :
+
+\begin{itemize}
+    \item \texttt{CVSelectionResult} ;
+    \item \texttt{CoverLetterDraftDTO} ;
+    \item \texttt{PreparedMessageDTO} ;
+    \item \texttt{PreparedAnswersDTO} ;
+    \item \texttt{ApplicationDraftResult} ;
+    \item \texttt{ApprovalRequestDTO} ;
+    \item \texttt{ApprovalResult} ;
+    \item \texttt{SubmissionRequestDTO} ;
+    \item \texttt{SubmissionResult}.
+\end{itemize}
+
+\texttt{ApplicationDraftResult} représente le résultat complet de préparation d’un brouillon.
+
+\texttt{ApprovalRequestDTO} et \texttt{ApprovalResult} structurent les décisions utilisateur.
+
+\texttt{SubmissionRequestDTO} et \texttt{SubmissionResult} structurent la soumission d’une candidature.
+
+\subsection{DTO de suivi, réponses et relances}
+
+Les objets principaux de cette famille sont :
+
+\begin{itemize}
+    \item \texttt{MailboxMessageDTO} ;
+    \item \texttt{ResponseClassificationResult} ;
+    \item \texttt{FollowUpEligibilityResult} ;
+    \item \texttt{FollowUpDraftDTO} ;
+    \item \texttt{FollowUpResult}.
+\end{itemize}
+
+Ces objets permettent de formaliser :
+
+\begin{itemize}
+    \item les messages reçus ;
+    \item leur classification ;
+    \item l’éligibilité à une relance ;
+    \item les brouillons de relance.
+\end{itemize}
+
+\subsection{DTO transverses}
+
+Les objets transverses principaux sont :
+
+\begin{itemize}
+    \item \texttt{DecisionLogDTO} ;
+    \item \texttt{AgentRunDTO} ;
+    \item \texttt{NotificationDTO}.
+\end{itemize}
+
+Ils permettent respectivement de représenter :
+
+\begin{itemize}
+    \item une décision métier historisée ;
+    \item une exécution du système ;
+    \item une notification à destination de l’utilisateur.
+\end{itemize}
+
+\subsection{Règles de conception}
+
+Les règles suivantes doivent être respectées :
+
+\begin{itemize}
+    \item les DTO internes, les DTO d’API et les DTO d’intégration externe doivent être distingués ;
+    \item tout objet traversant plusieurs modules doit être formalisé explicitement ;
+    \item les payloads doivent rester sobres dans la version 1 ;
+    \item les sorties critiques doivent être fortement structurées.
+\end{itemize}
+
+\subsection{Priorités pour la version 1}
+
+Les DTO prioritaires à stabiliser pour la version 1 sont notamment :
+
+\begin{itemize}
+    \item \texttt{RawOfferPayload} ;
+    \item \texttt{NormalizedOfferPayload} ;
+    \item \texttt{DeduplicationDecision} ;
+    \item \texttt{MatchingResult} ;
+    \item \texttt{ApplicationDraftResult} ;
+    \item \texttt{ApprovalRequestDTO} ;
+    \item \texttt{ApprovalResult} ;
+    \item \texttt{SubmissionRequestDTO} ;
+    \item \texttt{SubmissionResult} ;
+    \item \texttt{FollowUpEligibilityResult}.
+\end{itemize}
+
+\section{Spécification des endpoints API v1}
+
+\subsection{Objectif}
+
+Cette section décrit la surface d’API de la version 1 du système.
+
+L’objectif de cette API est de permettre :
+
+\begin{itemize}
+    \item la consultation des offres détectées ;
+    \item la consultation détaillée des objets métier ;
+    \item la préparation de candidatures ;
+    \item la validation humaine ;
+    \item la soumission et le suivi des candidatures ;
+    \item la préparation et la gestion des relances ;
+    \item la consultation des préférences et des exécutions du système.
+\end{itemize}
+
+\subsection{Principes généraux}
+
+L’API de la version 1 suit les principes suivants :
+
+\begin{itemize}
+    \item style REST simple ;
+    \item endpoints orientés ressources métier ;
+    \item cohérence avec les machines d’état ;
+    \item séparation entre opérations de lecture et opérations de transition d’état ;
+    \item réponses structurées et traçables.
+\end{itemize}
+
+\subsection{Familles d’endpoints}
+
+Les familles principales d’endpoints sont les suivantes :
+
+\begin{itemize}
+    \item \texttt{/health} ;
+    \item \texttt{/offers} ;
+    \item \texttt{/drafts} ;
+    \item \texttt{/applications} ;
+    \item \texttt{/followups} ;
+    \item \texttt{/profiles} ;
+    \item \texttt{/settings} ;
+    \item \texttt{/runs}.
+\end{itemize}
+
+\subsection{Endpoints de santé}
+
+\subsubsection{\texttt{GET /health}}
+Permet de vérifier que l’API répond correctement.
+
+\subsubsection{\texttt{GET /health/dependencies}}
+Permet de vérifier l’état des dépendances principales.
+
+\subsection{Endpoints liés aux offres}
+
+\subsubsection{\texttt{GET /offers}}
+Liste les offres avec filtres, tri et pagination.
+
+\subsubsection{\texttt{GET /offers/\{offer\_id\}}}
+Retourne le détail d’une offre.
+
+\subsubsection{\texttt{POST /offers/\{offer\_id\}/score}}
+Déclenche ou redéclenche le scoring d’une offre.
+
+\subsubsection{\texttt{POST /offers/\{offer\_id\}/prepare-draft}}
+Demande la préparation d’un brouillon de candidature.
+
+\subsubsection{\texttt{POST /offers/\{offer\_id\}/reject}}
+Permet de rejeter explicitement une offre.
+
+\subsubsection{\texttt{GET /offers/\{offer\_id\}/history}}
+Retourne l’historique métier d’une offre.
+
+\subsection{Endpoints liés aux brouillons de candidature}
+
+\subsubsection{\texttt{GET /drafts}}
+Liste les brouillons de candidature.
+
+\subsubsection{\texttt{GET /drafts/\{draft\_id\}}}
+Retourne le détail d’un brouillon.
+
+\subsubsection{\texttt{POST /drafts/\{draft\_id\}/approve}}
+Approuve un brouillon.
+
+\subsubsection{\texttt{POST /drafts/\{draft\_id\}/reject}}
+Rejette un brouillon.
+
+\subsubsection{\texttt{POST /drafts/\{draft\_id\}/request-changes}}
+Demande une modification d’un brouillon.
+
+\subsubsection{\texttt{POST /drafts/\{draft\_id\}/postpone}}
+Reporte la décision sur un brouillon.
+
+\subsubsection{\texttt{POST /drafts/\{draft\_id\}/submit}}
+Transforme un brouillon validé en candidature suivie.
+
+\subsection{Endpoints liés aux candidatures}
+
+\subsubsection{\texttt{GET /applications}}
+Liste les candidatures et leur état de suivi.
+
+\subsubsection{\texttt{GET /applications/\{application\_id\}}}
+Retourne le détail d’une candidature.
+
+\subsubsection{\texttt{POST /applications/\{application\_id\}/mark-status}}
+Permet de confirmer ou corriger un changement de statut.
+
+\subsubsection{\texttt{GET /applications/\{application\_id\}/history}}
+Retourne l’historique complet d’une candidature.
+
+\subsection{Endpoints liés aux relances}
+
+\subsubsection{\texttt{GET /followups}}
+Liste les relances.
+
+\subsubsection{\texttt{GET /applications/\{application\_id\}/followup-eligibility}}
+Évalue l’éligibilité d’une candidature à une relance.
+
+\subsubsection{\texttt{POST /applications/\{application\_id\}/followups/prepare}}
+Prépare une relance.
+
+\subsubsection{\texttt{GET /followups/\{followup\_id\}}}
+Retourne le détail d’une relance.
+
+\subsubsection{\texttt{POST /followups/\{followup\_id\}/approve}}
+Approuve une relance.
+
+\subsubsection{\texttt{POST /followups/\{followup\_id\}/cancel}}
+Annule une relance.
+
+\subsubsection{\texttt{POST /followups/\{followup\_id\}/send}}
+Déclenche ou enregistre l’envoi d’une relance.
+
+\subsection{Endpoints liés au profil utilisateur}
+
+\subsubsection{\texttt{GET /profiles/active}}
+Retourne le profil utilisateur actif.
+
+\subsubsection{\texttt{PUT /profiles/active}}
+Met à jour le profil utilisateur actif.
+
+\subsubsection{\texttt{GET /profiles/active/cv-versions}}
+Liste les versions de CV disponibles.
+
+\subsubsection{\texttt{POST /profiles/active/cv-versions}}
+Ajoute une nouvelle version de CV.
+
+\subsection{Endpoints liés aux préférences}
+
+\subsubsection{\texttt{GET /settings/search-preferences}}
+Retourne les préférences de recherche.
+
+\subsubsection{\texttt{PUT /settings/search-preferences}}
+Met à jour les préférences de recherche.
+
+\subsubsection{\texttt{GET /settings/system}}
+Retourne certains paramètres système visibles.
+
+\subsection{Endpoints liés aux exécutions du système}
+
+\subsubsection{\texttt{GET /runs}}
+Liste les exécutions du système.
+
+\subsubsection{\texttt{GET /runs/\{run\_id\}}}
+Retourne le détail d’une exécution.
+
+\subsubsection{\texttt{POST /runs/monitoring/trigger}}
+Déclenche manuellement un cycle de veille.
+
+\subsubsection{\texttt{POST /runs/mailbox-sync/trigger}}
+Déclenche manuellement une synchronisation de messagerie.
+
+\subsection{Règles générales de réponse}
+
+Les règles suivantes s’appliquent aux réponses API :
+
+\begin{itemize}
+    \item toute réponse de lecture doit contenir les identifiants et états utiles ;
+    \item toute réponse d’action doit préciser l’ancien état et le nouvel état si applicable ;
+    \item les erreurs doivent être structurées ;
+    \item les identifiants de journalisation doivent être retournés lorsqu’une action importante a été tracée.
+\end{itemize}
+
+\subsection{Périmètre minimal requis pour la version 1}
+
+Le périmètre minimal d’API à rendre opérationnel dans la version 1 est le suivant :
+
+\begin{itemize}
+    \item consultation des offres ;
+    \item détail d’une offre ;
+    \item préparation d’un brouillon ;
+    \item consultation d’un brouillon ;
+    \item approbation d’un brouillon ;
+    \item soumission d’un brouillon ;
+    \item consultation des candidatures ;
+    \item détail d’une candidature ;
+    \item évaluation d’éligibilité à une relance ;
+    \item préparation d’une relance.
+\end{itemize}
+\section{Spécification du frontend v1 : écrans, composants, données et actions utilisateur}
+
+\subsection{Objectif}
+
+Cette section décrit la structure fonctionnelle du frontend de la version 1.
+
+Le frontend doit permettre à l’utilisateur de :
+
+\begin{itemize}
+    \item consulter les offres détectées ;
+    \item comprendre les recommandations du système ;
+    \item valider ou rejeter les brouillons préparés ;
+    \item suivre les candidatures ;
+    \item piloter les relances ;
+    \item configurer les préférences du système.
+\end{itemize}
+
+\subsection{Principes généraux}
+
+Le frontend de la version 1 suit les principes suivants :
+
+\begin{itemize}
+    \item interface orientée tableau de bord métier ;
+    \item organisation centrée sur les objets fonctionnels ;
+    \item lisibilité des états et des décisions ;
+    \item priorité donnée à la validation et au suivi ;
+    \item sobriété de l’interface.
+\end{itemize}
+
+\subsection{Écrans principaux}
+
+Les écrans principaux du frontend v1 sont les suivants :
+
+\begin{enumerate}
+    \item tableau de bord ;
+    \item inbox des offres ;
+    \item détail d’une offre ;
+    \item brouillons à valider ;
+    \item pipeline des candidatures ;
+    \item paramètres.
+\end{enumerate}
+
+\subsection{Tableau de bord}
+
+Le tableau de bord fournit une vue synthétique du système.
+
+Il doit afficher notamment :
+
+\begin{itemize}
+    \item le nombre de nouvelles offres ;
+    \item le nombre d’offres qualifiées ;
+    \item le nombre de brouillons à valider ;
+    \item le nombre de candidatures en suivi ;
+    \item le nombre de relances dues ;
+    \item les dernières réponses reçues ;
+    \item le dernier run du système.
+\end{itemize}
+
+\subsection{Inbox des offres}
+
+L’inbox des offres permet de consulter les offres détectées et de les filtrer.
+
+Chaque offre affichée doit présenter :
+
+\begin{itemize}
+    \item le titre ;
+    \item l’entreprise ;
+    \item la localisation ;
+    \item la date ;
+    \item le score ;
+    \item l’état ;
+    \item la recommandation ;
+    \item la source.
+\end{itemize}
+
+Les principales actions sont :
+
+\begin{itemize}
+    \item ouvrir une offre ;
+    \item rejeter une offre ;
+    \item lancer une préparation de brouillon ;
+    \item recalculer le score.
+\end{itemize}
+
+\subsection{Détail d’une offre}
+
+L’écran de détail d’une offre doit afficher :
+
+\begin{itemize}
+    \item les informations générales de l’offre ;
+    \item le score global et le score d’action ;
+    \item la justification du matching ;
+    \item les sous-scores par dimension ;
+    \item la description normalisée ;
+    \item l’historique résumé de l’offre.
+\end{itemize}
+
+Les actions principales sont :
+
+\begin{itemize}
+    \item préparer un brouillon ;
+    \item recalculer le score ;
+    \item rejeter l’offre.
+\end{itemize}
+
+\subsection{Brouillons à valider}
+
+Cet écran est dédié au human-in-the-loop.
+
+Il doit permettre de consulter pour chaque brouillon :
+
+\begin{itemize}
+    \item l’offre associée ;
+    \item le CV sélectionné ;
+    \item la lettre générée ;
+    \item le message préparé ;
+    \item les réponses préparées ;
+    \item l’état du brouillon.
+\end{itemize}
+
+Les actions principales sont :
+
+\begin{itemize}
+    \item approuver ;
+    \item rejeter ;
+    \item demander des modifications ;
+    \item reporter ;
+    \item soumettre.
+\end{itemize}
+
+\subsection{Pipeline des candidatures}
+
+Le pipeline des candidatures permet de suivre les candidatures envoyées.
+
+Il doit afficher notamment :
+
+\begin{itemize}
+    \item le poste ;
+    \item l’entreprise ;
+    \item la date d’envoi ;
+    \item le canal ;
+    \item l’état courant ;
+    \item la dernière activité ;
+    \item les réponses reçues ;
+    \item les relances éventuelles.
+\end{itemize}
+
+Les actions principales sont :
+
+\begin{itemize}
+    \item consulter une candidature ;
+    \item consulter son historique ;
+    \item évaluer l’éligibilité à une relance ;
+    \item préparer une relance ;
+    \item mettre à jour un statut.
+\end{itemize}
+
+\subsection{Paramètres}
+
+L’écran des paramètres doit permettre de gérer :
+
+\begin{itemize}
+    \item les préférences de recherche ;
+    \item le profil utilisateur ;
+    \item les versions de CV ;
+    \item la politique de relance.
+\end{itemize}
+
+\subsection{Composants principaux}
+
+Les composants principaux à prévoir sont notamment :
+
+\begin{itemize}
+    \item des cartes KPI ;
+    \item des badges d’état ;
+    \item des badges de score ;
+    \item des listes et tables d’offres ;
+    \item des fiches de brouillons ;
+    \item des vues de lettres et messages préparés ;
+    \item des cartes de candidatures ;
+    \item des formulaires de paramètres.
+\end{itemize}
+
+\subsection{Actions utilisateur minimales}
+
+Les actions minimales à rendre disponibles dans la version 1 sont :
+
+\begin{itemize}
+    \item consulter une offre ;
+    \item rejeter une offre ;
+    \item préparer un brouillon ;
+    \item approuver un brouillon ;
+    \item rejeter un brouillon ;
+    \item demander des modifications ;
+    \item soumettre une candidature ;
+    \item consulter une candidature ;
+    \item préparer une relance ;
+    \item modifier les préférences ;
+    \item gérer les versions de CV.
+\end{itemize}
+
+\subsection{Navigation}
+
+La navigation principale du frontend est organisée autour des rubriques suivantes :
+
+\begin{itemize}
+    \item tableau de bord ;
+    \item offres ;
+    \item brouillons ;
+    \item candidatures ;
+    \item relances ;
+    \item paramètres.
+\end{itemize}
+
+\subsection{États UX à prévoir}
+
+Chaque écran doit prévoir des états explicites de :
+
+\begin{itemize}
+    \item chargement ;
+    \item absence de données ;
+    \item erreur ;
+    \item succès après action ;
+    \item confirmation d’action sensible.
+\end{itemize}
+
+\subsection{Orientation générale}
+
+Le frontend de la version 1 doit être conçu comme un poste de pilotage personnel, privilégiant la lisibilité, la rapidité d’exécution et le contrôle humain plutôt que la sophistication visuelle.
+
+\section{Spécification des workflows frontend-backend v1}
+
+\subsection{Objectif}
+
+Cette section formalise les principaux workflows entre le frontend et le backend dans la version 1 du système.
+
+L’objectif est de décrire, pour chaque parcours critique :
+
+\begin{itemize}
+    \item le point de départ dans l’interface ;
+    \item l’action utilisateur ;
+    \item l’appel API correspondant ;
+    \item le traitement backend ;
+    \item les transitions d’état éventuelles ;
+    \item le retour visible dans l’interface ;
+    \item la gestion des erreurs.
+\end{itemize}
+
+\subsection{Consultation des offres}
+
+Depuis l’écran d’inbox des offres, l’utilisateur peut consulter la liste des offres détectées.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{GET /offers}
+\end{center}
+
+Le backend retourne une liste paginée d’offres résumées.
+
+Ce workflow n’implique aucun changement d’état métier.
+
+\subsection{Consultation du détail d’une offre}
+
+Depuis l’inbox, l’utilisateur peut ouvrir une offre particulière.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{GET /offers/\{offer\_id\}}
+\end{center}
+
+Le backend retourne le détail de l’offre, son scoring, sa justification et son historique utile.
+
+\subsection{Préparation d’un brouillon de candidature}
+
+Depuis le détail d’une offre ou depuis l’inbox, l’utilisateur peut demander la préparation d’une candidature.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{POST /offers/\{offer\_id\}/prepare-draft}
+\end{center}
+
+Le backend :
+
+\begin{itemize}
+    \item vérifie l’état de l’offre ;
+    \item charge le profil et les préférences ;
+    \item sélectionne un CV ;
+    \item génère les éléments du brouillon ;
+    \item crée un objet brouillon ;
+    \item journalise la décision.
+\end{itemize}
+
+Ce workflow peut entraîner une transition d’état de l’offre et la création d’un brouillon prêt à validation.
+
+\subsection{Consultation d’un brouillon}
+
+Depuis l’écran des brouillons, l’utilisateur peut ouvrir un brouillon préparé.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{GET /drafts/\{draft\_id\}}
+\end{center}
+
+Le backend retourne le détail complet du brouillon, y compris les artefacts préparés.
+
+\subsection{Validation d’un brouillon}
+
+Depuis le détail du brouillon, l’utilisateur peut :
+
+\begin{itemize}
+    \item approuver ;
+    \item rejeter ;
+    \item demander des modifications ;
+    \item reporter la décision.
+\end{itemize}
+
+Ces workflows reposent sur les appels :
+
+\begin{center}
+\texttt{POST /drafts/\{draft\_id\}/approve}
+\end{center}
+
+\begin{center}
+\texttt{POST /drafts/\{draft\_id\}/reject}
+\end{center}
+
+\begin{center}
+\texttt{POST /drafts/\{draft\_id\}/request-changes}
+\end{center}
+
+\begin{center}
+\texttt{POST /drafts/\{draft\_id\}/postpone}
+\end{center}
+
+Le backend applique la machine d’état, journalise la décision et retourne le nouvel état.
+
+\subsection{Soumission d’une candidature}
+
+Depuis un brouillon approuvé, l’utilisateur peut lancer la soumission.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{POST /drafts/\{draft\_id\}/submit}
+\end{center}
+
+Le backend :
+
+\begin{itemize}
+    \item vérifie l’état du brouillon ;
+    \item crée la candidature ;
+    \item met à jour les états associés ;
+    \item initialise le suivi ;
+    \item journalise l’opération.
+\end{itemize}
+
+\subsection{Consultation du pipeline des candidatures}
+
+Depuis l’écran pipeline, l’utilisateur peut consulter les candidatures suivies.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{GET /applications}
+\end{center}
+
+Le backend retourne une liste filtrable et paginée des candidatures.
+
+\subsection{Consultation du détail d’une candidature}
+
+Depuis le pipeline, l’utilisateur peut ouvrir une candidature particulière.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{GET /applications/\{application\_id\}}
+\end{center}
+
+Le backend retourne :
+
+\begin{itemize}
+    \item les informations générales ;
+    \item le brouillon d’origine ;
+    \item les réponses reçues ;
+    \item les relances ;
+    \item l’historique des décisions et transitions.
+\end{itemize}
+
+\subsection{Évaluation de l’éligibilité à une relance}
+
+Depuis le détail d’une candidature, l’utilisateur peut demander si une relance est pertinente.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{GET /applications/\{application\_id\}/followup-eligibility}
+\end{center}
+
+Le backend évalue la politique de relance et retourne une décision d’éligibilité.
+
+\subsection{Préparation d’une relance}
+
+Si la relance est éligible, l’utilisateur peut demander sa préparation.
+
+Ce workflow repose sur l’appel :
+
+\begin{center}
+\texttt{POST /applications/\{application\_id\}/followups/prepare}
+\end{center}
+
+Le backend génère un brouillon de relance, le persiste et met à jour les états concernés.
+
+\subsection{Validation et envoi d’une relance}
+
+Une relance préparée peut ensuite être approuvée puis envoyée.
+
+Ces workflows reposent sur les appels :
+
+\begin{center}
+\texttt{POST /followups/\{followup\_id\}/approve}
+\end{center}
+
+\begin{center}
+\texttt{POST /followups/\{followup\_id\}/send}
+\end{center}
+
+Le backend applique les transitions d’état, journalise les décisions et met à jour la candidature associée.
+
+\subsection{Modification des paramètres}
+
+Depuis l’écran des paramètres, l’utilisateur peut modifier :
+
+\begin{itemize}
+    \item les préférences de recherche ;
+    \item le profil utilisateur ;
+    \item les versions de CV.
+\end{itemize}
+
+Ces workflows reposent notamment sur les appels :
+
+\begin{center}
+\texttt{PUT /settings/search-preferences}
+\end{center}
+
+\begin{center}
+\texttt{PUT /profiles/active}
+\end{center}
+
+\begin{center}
+\texttt{POST /profiles/active/cv-versions}
+\end{center}
+
+\subsection{Règles générales}
+
+Les règles suivantes s’appliquent à tous les workflows frontend-backend :
+
+\begin{itemize}
+    \item toute action sensible doit retourner un résultat explicite ;
+    \item toute transition d’état doit être visible dans l’interface ;
+    \item les actions disponibles dans l’interface doivent être cohérentes avec l’état métier courant ;
+    \item les erreurs doivent être affichées de manière compréhensible ;
+    \item les listes doivent être réactualisées après les mutations importantes.
+\end{itemize}
+
+\subsection{Orientation pour la version 1}
+
+La version 1 doit couvrir en priorité les parcours suivants :
+
+\begin{itemize}
+    \item consultation d’une offre ;
+    \item préparation d’un brouillon ;
+    \item validation humaine ;
+    \item soumission d’une candidature ;
+    \item consultation du pipeline ;
+    \item préparation d’une relance.
+\end{itemize}
+\section{Stratégie de sécurité, confidentialité et gestion des accès v1}
+
+\subsection{Objectif}
+
+Cette section définit les principes de sécurité applicables à la version 1 du système.
+
+L’objectif est de garantir :
+
+\begin{itemize}
+    \item la protection des données personnelles ;
+    \item la protection des secrets techniques ;
+    \item le contrôle des actions sensibles ;
+    \item la traçabilité des opérations importantes ;
+    \item une exposition minimale du système.
+\end{itemize}
+
+\subsection{Principes généraux}
+
+Les principes suivants s’appliquent à la version 1 :
+
+\begin{itemize}
+    \item principe du moindre privilège ;
+    \item validation humaine obligatoire avant toute action externe sensible ;
+    \item séparation stricte entre secrets et code source ;
+    \item minimisation des données stockées ;
+    \item journalisation des actions critiques.
+\end{itemize}
+
+\subsection{Catégories de données sensibles}
+
+Les catégories de données sensibles manipulées par le système comprennent notamment :
+
+\begin{itemize}
+    \item les données personnelles de l’utilisateur ;
+    \item les CV et lettres de motivation ;
+    \item les candidatures et leur historique ;
+    \item les messages issus de la messagerie ;
+    \item les secrets techniques et jetons d’accès ;
+    \item les artefacts générés par le système.
+\end{itemize}
+
+\subsection{Gestion des secrets}
+
+Les secrets techniques ne doivent jamais être stockés dans le code source.
+
+Ils doivent être gérés via :
+
+\begin{itemize}
+    \item des variables d’environnement ;
+    \item des fichiers de configuration locaux non versionnés ;
+    \item un fichier \texttt{.env.example} sans données sensibles.
+\end{itemize}
+
+Aucun secret réel ne doit apparaître dans :
+
+\begin{itemize}
+    \item le dépôt Git ;
+    \item les fichiers exportés ;
+    \item les journaux applicatifs ;
+    \item les captures de configuration.
+\end{itemize}
+
+\subsection{Gestion des accès à l’application}
+
+La version 1 ne doit pas être exposée publiquement par défaut.
+
+Les principes suivants sont retenus :
+
+\begin{itemize}
+    \item absence d’accès anonyme ;
+    \item authentification minimale requise ;
+    \item exposition réseau limitée ;
+    \item protection des endpoints sensibles.
+\end{itemize}
+
+\subsection{Contrôle des actions sensibles}
+
+Les actions suivantes sont considérées comme sensibles :
+
+\begin{itemize}
+    \item soumettre une candidature ;
+    \item envoyer une relance ;
+    \item modifier des paramètres critiques ;
+    \item connecter ou synchroniser la messagerie ;
+    \item déclencher certaines automatisations externes.
+\end{itemize}
+
+Ces actions doivent :
+
+\begin{itemize}
+    \item passer par le backend ;
+    \item être validées vis-à-vis de l’état métier courant ;
+    \item être journalisées ;
+    \item rester soumises au contrôle humain lorsque nécessaire.
+\end{itemize}
+
+\subsection{Messagerie et intégrations externes}
+
+Les intégrations externes doivent respecter le principe du moindre privilège.
+
+En particulier :
+
+\begin{itemize}
+    \item les permissions d’accès à la messagerie doivent être limitées ;
+    \item les synchronisations doivent être tracées ;
+    \item les envois doivent rester contrôlés ;
+    \item les données récupérées doivent être limitées à ce qui est utile.
+\end{itemize}
+
+\subsection{Protection des fichiers}
+
+Les fichiers générés ou utilisés par le système doivent être stockés dans un espace non public.
+
+Les règles suivantes s’appliquent :
+
+\begin{itemize}
+    \item stockage privé ;
+    \item noms de fichiers contrôlés ;
+    \item pas d’exposition directe non sécurisée ;
+    \item conservation des versions importantes ;
+    \item possibilité d’archivage ou de suppression.
+\end{itemize}
+
+\subsection{Politique de logs et d’audit}
+
+Le système doit journaliser :
+
+\begin{itemize}
+    \item les exécutions importantes ;
+    \item les transitions d’état ;
+    \item les validations utilisateur ;
+    \item les soumissions et relances ;
+    \item les erreurs techniques significatives.
+\end{itemize}
+
+En revanche, les journaux ne doivent pas contenir en clair :
+
+\begin{itemize}
+    \item mots de passe ;
+    \item jetons ;
+    \item secrets ;
+    \item détails sensibles non nécessaires.
+\end{itemize}
+
+\subsection{Gestion des erreurs}
+
+Les erreurs exposées à l’utilisateur doivent rester compréhensibles sans divulguer d’informations techniques sensibles.
+
+Les détails techniques complets doivent être conservés dans les journaux internes, et non dans les réponses frontend.
+
+\subsection{Intégrité métier}
+
+Les règles métier suivantes participent à la sécurité logique du système :
+
+\begin{itemize}
+    \item un brouillon non approuvé ne peut pas être soumis ;
+    \item une candidature rejetée, acceptée ou clôturée ne peut pas être relancée ;
+    \item une transition d’état interdite ne peut pas être contournée ;
+    \item les états terminaux ne peuvent pas être quittés librement.
+\end{itemize}
+
+\subsection{Sauvegarde et résilience minimale}
+
+La version 1 doit prévoir un minimum de sauvegarde des éléments suivants :
+
+\begin{itemize}
+    \item base de données ;
+    \item fichiers utilisateur ;
+    \item préférences ;
+    \item historique de candidatures ;
+    \item workflows exportés.
+\end{itemize}
+
+\subsection{Orientation générale}
+
+La version 1 ne vise pas une architecture de sécurité avancée de type multi-tenant ou entreprise complète.
+
+Elle doit néanmoins reposer sur des règles simples mais strictes, permettant d’obtenir un système personnel sérieux, non exposé inutilement et respectueux des données manipulées.
+\section{Stratégie d’observabilité, logs, monitoring et debug v1}
+
+\subsection{Objectif}
+
+Cette section définit les principes d’observabilité de la version 1 du système.
+
+L’objectif est de garantir que le système soit :
+
+\begin{itemize}
+    \item compréhensible ;
+    \item diagnosable ;
+    \item mesurable ;
+    \item traçable ;
+    \item débogable.
+\end{itemize}
+
+\subsection{Principes généraux}
+
+Les principes suivants s’appliquent à la version 1 :
+
+\begin{itemize}
+    \item tout workflow important doit être traçable ;
+    \item les logs doivent être structurés ;
+    \item les logs techniques et les logs métier doivent être distingués ;
+    \item toute exécution importante doit disposer d’un identifiant unique ;
+    \item les erreurs ne doivent pas être silencieuses.
+\end{itemize}
+
+\subsection{Zones à observer}
+
+Les zones principales à observer sont les suivantes :
+
+\begin{itemize}
+    \item les exécutions du système ;
+    \item les connecteurs de collecte ;
+    \item les décisions métier ;
+    \item les transitions d’état ;
+    \item les intégrations externes ;
+    \item les performances générales.
+\end{itemize}
+
+\subsection{Politique de logs}
+
+Le système doit utiliser au minimum les niveaux de logs suivants :
+
+\begin{itemize}
+    \item \texttt{DEBUG} ;
+    \item \texttt{INFO} ;
+    \item \texttt{WARNING} ;
+    \item \texttt{ERROR}.
+\end{itemize}
+
+Les logs doivent inclure autant que possible :
+
+\begin{itemize}
+    \item un horodatage ;
+    \item un niveau ;
+    \item un composant ;
+    \item un identifiant de run ;
+    \item un type d’événement ;
+    \item un identifiant d’objet concerné ;
+    \item un message explicite ;
+    \item des métadonnées utiles.
+\end{itemize}
+
+\subsection{Traces d’exécution}
+
+Chaque exécution importante du système doit être historisée.
+
+Cela concerne notamment :
+
+\begin{itemize}
+    \item les runs de veille ;
+    \item les synchronisations de messagerie ;
+    \item les runs de scoring ;
+    \item les préparations de candidatures ;
+    \item les traitements de relance.
+\end{itemize}
+
+Chaque run doit être associé à :
+
+\begin{itemize}
+    \item un identifiant unique ;
+    \item un type de run ;
+    \item une date de début ;
+    \item une date de fin ;
+    \item un statut ;
+    \item des compteurs utiles ;
+    \item un résumé.
+\end{itemize}
+
+\subsection{Événements métier à journaliser}
+
+Les événements métier suivants doivent être journalisés :
+
+\begin{itemize}
+    \item détection d’une offre ;
+    \item normalisation d’une offre ;
+    \item décision de déduplication ;
+    \item scoring d’une offre ;
+    \item création d’un brouillon ;
+    \item approbation ou rejet d’un brouillon ;
+    \item soumission d’une candidature ;
+    \item détection d’une réponse ;
+    \item préparation ou envoi d’une relance ;
+    \item début et fin d’un run système.
+\end{itemize}
+
+\subsection{Métriques utiles}
+
+La version 1 doit permettre le suivi de métriques simples, notamment :
+
+\begin{itemize}
+    \item nombre d’offres collectées ;
+    \item nombre d’offres nouvelles ;
+    \item nombre d’offres qualifiées ;
+    \item nombre de brouillons générés ;
+    \item nombre de candidatures soumises ;
+    \item nombre de réponses reçues ;
+    \item nombre de relances préparées ;
+    \item nombre d’erreurs critiques ;
+    \item temps moyen d’exécution des runs.
+\end{itemize}
+
+\subsection{Monitoring minimal}
+
+La version 1 doit prévoir un monitoring minimal comprenant :
+
+\begin{itemize}
+    \item des endpoints de santé ;
+    \item l’accès aux journaux applicatifs ;
+    \item l’historique des runs ;
+    \item une vue synthétique de l’état du système ;
+    \item une visibilité sur les erreurs récentes.
+\end{itemize}
+
+\subsection{Stratégie de debug}
+
+Le debug doit être possible à trois niveaux :
+
+\begin{itemize}
+    \item par exécution du système ;
+    \item par objet métier ;
+    \item par intégration externe.
+\end{itemize}
+
+Le système doit permettre de répondre à des questions telles que :
+
+\begin{itemize}
+    \item quel run a échoué ;
+    \item sur quel objet ;
+    \item à quelle étape ;
+    \item pour quelle raison ;
+    \item avec quel impact métier.
+\end{itemize}
+
+\subsection{Aides au diagnostic}
+
+La version 1 doit prévoir au minimum :
+
+\begin{itemize}
+    \item des identifiants de corrélation ;
+    \item des journaux structurés ;
+    \item l’historique des décisions ;
+    \item des déclenchements manuels contrôlés pour certains workflows ;
+    \item une consultation des historiques d’objets et de runs.
+\end{itemize}
+
+\subsection{Orientation générale}
+
+L’observabilité de la version 1 doit rester simple mais rigoureuse.
+
+Elle doit privilégier :
+
+\begin{itemize}
+    \item la compréhension du comportement du système ;
+    \item la capacité de diagnostic ;
+    \item la traçabilité des décisions ;
+    \item la correction rapide des erreurs.
+\end{itemize}
+\section{Stratégie de test, validation et qualité logicielle v1}
+
+\subsection{Objectif}
+
+Cette section définit la stratégie de test de la version 1 du système.
+
+L’objectif est de garantir :
+
+\begin{itemize}
+    \item la fiabilité des modules ;
+    \item la cohérence des workflows métier ;
+    \item la stabilité du système lors de son évolution ;
+    \item la détection rapide des erreurs.
+\end{itemize}
+
+\subsection{Niveaux de tests}
+
+La stratégie de test repose sur plusieurs niveaux :
+
+\begin{itemize}
+    \item tests unitaires ;
+    \item tests d’intégration ;
+    \item tests de workflow métier ;
+    \item tests de régression ;
+    \item tests manuels contrôlés.
+\end{itemize}
+
+\subsection{Tests unitaires}
+
+Les tests unitaires vérifient le fonctionnement isolé des modules.
+
+Les modules prioritaires à tester sont :
+
+\begin{itemize}
+    \item la normalisation des offres ;
+    \item la déduplication ;
+    \item le calcul des scores ;
+    \item la sélection de CV ;
+    \item la politique de relance.
+\end{itemize}
+
+\subsection{Tests d’intégration}
+
+Les tests d’intégration vérifient la coopération entre modules.
+
+Ils couvrent notamment :
+
+\begin{itemize}
+    \item l’ingestion complète d’une offre ;
+    \item la préparation d’un brouillon de candidature ;
+    \item la soumission d’une candidature.
+\end{itemize}
+
+\subsection{Tests de workflow métier}
+
+Les tests de workflow vérifient les parcours utilisateur complets.
+
+Les workflows principaux à tester sont :
+
+\begin{itemize}
+    \item offre détectée vers candidature soumise ;
+    \item candidature soumise vers relance.
+\end{itemize}
+
+\subsection{Tests de régression}
+
+Les tests de régression permettent de vérifier que les modifications du code n’introduisent pas de régression.
+
+Ils doivent être exécutés avant toute nouvelle version importante.
+
+\subsection{Tests manuels}
+
+Certains éléments nécessitent des tests manuels :
+
+\begin{itemize}
+    \item qualité des lettres générées ;
+    \item comportement des connecteurs web ;
+    \item intégration avec la messagerie ;
+    \item cohérence globale de l’interface.
+\end{itemize}
+
+\subsection{Jeux de données de test}
+
+La version 1 doit inclure des jeux de données de test comprenant :
+
+\begin{itemize}
+    \item des offres fictives ;
+    \item des candidatures simulées ;
+    \item des réponses email simulées.
+\end{itemize}
+
+\subsection{Tests des machines d’état}
+
+Les transitions d’état doivent être testées pour :
+
+\begin{itemize}
+    \item les offres ;
+    \item les brouillons ;
+    \item les candidatures ;
+    \item les relances.
+\end{itemize}
+
+Les transitions interdites doivent être explicitement vérifiées.
+
+\subsection{Validation avant déploiement}
+
+Avant toute nouvelle version, les vérifications suivantes doivent être effectuées :
+
+\begin{itemize}
+    \item exécution des tests unitaires ;
+    \item exécution des tests d’intégration ;
+    \item validation du workflow principal ;
+    \item vérification des logs ;
+    \item vérification de la cohérence de l’interface.
+\end{itemize}
+
+\subsection{Orientation générale}
+
+La version 1 privilégie une stratégie de test simple mais rigoureuse, centrée sur les modules critiques et les workflows métier principaux.
+
+\section{Roadmap de développement et planification des versions}
+
+\subsection{Objectif}
+
+Cette section définit la planification du développement du système.
+
+L’objectif est de structurer la construction du produit en plusieurs versions progressives.
+
+\subsection{Vision générale}
+
+Le développement est organisé en quatre étapes :
+
+\begin{itemize}
+\item MVP (produit minimal fonctionnel)
+\item version 1 (copilote complet)
+\item version 2 (automatisation intelligente)
+\item version 3 (agents autonomes avancés)
+\end{itemize}
+
+\subsection{MVP}
+
+Le MVP vise à produire un système minimal mais immédiatement utile.
+
+Les fonctionnalités principales sont :
+
+\begin{itemize}
+\item collecte d’offres depuis quelques sources
+\item normalisation simple
+\item scoring basique
+\item inbox d’offres
+\item préparation de brouillons de candidature
+\item validation humaine
+\item suivi simple des candidatures
+\end{itemize}
+
+\subsection{Version 1}
+
+La version 1 constitue la première version complète du système.
+
+Elle ajoute notamment :
+
+\begin{itemize}
+\item déduplication robuste
+\item matching avancé
+\item justification des scores
+\item pipeline complet de candidatures
+\item politique de relance
+\item synchronisation avec la messagerie
+\item observabilité et journalisation complètes
+\end{itemize}
+
+\subsection{Version 2}
+
+La version 2 introduit des capacités d’automatisation intelligente.
+
+Les fonctionnalités supplémentaires comprennent :
+
+\begin{itemize}
+\item apprentissage des préférences utilisateur
+\item sélection automatique du CV
+\item enrichissement des informations d’entreprise
+\item priorisation intelligente des offres
+\item alertes proactives
+\end{itemize}
+
+\subsection{Version 3}
+
+La version 3 introduit des agents autonomes spécialisés.
+
+Ces agents peuvent :
+
+\begin{itemize}
+\item explorer les sources d’offres
+\item analyser automatiquement les nouvelles opportunités
+\item préparer des candidatures optimisées
+\item ajuster la stratégie de recherche
+\end{itemize}
+
+\subsection{Ordre de développement recommandé}
+
+L’ordre de développement recommandé est :
+
+\begin{enumerate}
+\item architecture backend et base de données
+\item ingestion et normalisation des offres
+\item matching et scoring
+\item interface frontend minimale
+\item préparation des brouillons
+\item validation humaine
+\item pipeline de candidatures
+\item gestion des relances
+\item intégration messagerie
+\item observabilité et monitoring
+\end{enumerate}
+
+\subsection{Orientation générale}
+
+Le développement doit privilégier une progression incrémentale, chaque version apportant une valeur fonctionnelle réelle tout en préparant les capacités plus avancées des versions ultérieures.
+
+\section{Plan de démarrage concret du projet}
+
+\subsection{Objectif}
+
+Cette section a pour objectif de transformer le cahier des charges en plan de démarrage concret du projet.
+
+Elle précise :
+
+\begin{itemize}
+    \item la structure initiale du dépôt ;
+    \item les premiers composants à mettre en place ;
+    \item l’ordre de construction recommandé ;
+    \item les premiers incréments fonctionnels à viser.
+\end{itemize}
+
+\subsection{Structure initiale du projet}
+
+Le projet est initialisé sous la forme d’un mono-dépôt contenant au minimum :
+
+\begin{itemize}
+    \item un backend ;
+    \item un frontend ;
+    \item un worker ;
+    \item des workflows ;
+    \item une documentation ;
+    \item des données de test ;
+    \item des fichiers d’infrastructure.
+\end{itemize}
+
+\subsection{Fichiers racine initiaux}
+
+Les fichiers suivants doivent être créés dès le démarrage :
+
+\begin{itemize}
+    \item \texttt{README.md} ;
+    \item \texttt{.gitignore} ;
+    \item \texttt{.env.example} ;
+    \item \texttt{docker-compose.yml} ;
+    \item \texttt{Makefile}.
+\end{itemize}
+
+\subsection{Premier objectif technique}
+
+Le premier objectif technique recommandé est le suivant :
+
+\begin{center}
+être capable d’enregistrer une offre en base, de l’exposer via l’API et de l’afficher dans une interface simple.
+\end{center}
+
+Cet objectif permet de valider simultanément :
+
+\begin{itemize}
+    \item la base de données ;
+    \item le backend ;
+    \item l’API ;
+    \item le frontend ;
+    \item la circulation des données.
+\end{itemize}
+
+\subsection{Premier incrément fonctionnel}
+
+Le premier incrément fonctionnel recommandé consiste à mettre en place :
+
+\begin{itemize}
+    \item une table \texttt{offers} ;
+    \item un modèle d’offre ;
+    \item un repository d’offres ;
+    \item des endpoints de lecture ;
+    \item une page frontend de liste des offres ;
+    \item une page frontend de détail d’une offre ;
+    \item un jeu de données initial.
+\end{itemize}
+
+\subsection{Incréments fonctionnels suivants}
+
+Les incréments suivants sont recommandés dans l’ordre suivant :
+
+\begin{enumerate}
+    \item scoring des offres ;
+    \item préparation d’un brouillon ;
+    \item validation et soumission ;
+    \item pipeline des candidatures ;
+    \item préparation des relances.
+\end{enumerate}
+
+\subsection{Ordre de développement recommandé}
+
+L’ordre de développement concret recommandé est :
+
+\begin{itemize}
+    \item mise en place du noyau technique du backend ;
+    \item mise en place du modèle d’offre ;
+    \item mise en place de l’API des offres ;
+    \item mise en place du frontend minimal ;
+    \item ajout du scoring ;
+    \item ajout des brouillons ;
+    \item ajout des candidatures ;
+    \item ajout des relances.
+\end{itemize}
+
+\subsection{Premier sprint recommandé}
+
+Le premier sprint vise à produire une fondation fonctionnelle.
+
+Son objectif est :
+
+\begin{center}
+afficher une liste d’offres fictives depuis PostgreSQL dans l’interface.
+\end{center}
+
+Les livrables du sprint 1 sont :
+
+\begin{itemize}
+    \item backend exécutable ;
+    \item base PostgreSQL connectée ;
+    \item migration initiale ;
+    \item seed d’offres ;
+    \item endpoints de lecture ;
+    \item interface de liste et détail des offres.
+\end{itemize}
+
+\subsection{Orientation générale}
+
+Le démarrage du projet doit privilégier des incréments verticaux simples, validant rapidement la cohérence entre base de données, backend, API et frontend, avant d’introduire les couches d’automatisation et d’agentique plus avancées.
+
+\section{Liste exacte des premiers fichiers du Sprint 1}
+
+\subsection{Objectif}
+
+Cette section précise les premiers fichiers à créer pour démarrer concrètement le projet.
+
+L’objectif du Sprint 1 est de rendre possible l’affichage d’offres fictives stockées en base dans une interface web simple.
+
+\subsection{Fichiers racine}
+
+Les fichiers suivants doivent être créés à la racine du projet :
+
+\begin{itemize}
+    \item \texttt{README.md} ;
+    \item \texttt{.gitignore} ;
+    \item \texttt{.env.example} ;
+    \item \texttt{docker-compose.yml} ;
+    \item \texttt{Makefile}.
+\end{itemize}
+
+\subsection{Fichiers backend}
+
+Les fichiers backend à créer en priorité sont :
+
+\begin{itemize}
+    \item \texttt{backend/pyproject.toml} ;
+    \item \texttt{backend/alembic.ini} ;
+    \item \texttt{backend/app/main.py} ;
+    \item \texttt{backend/app/core/config.py} ;
+    \item \texttt{backend/app/core/database.py} ;
+    \item \texttt{backend/app/core/logging.py} ;
+    \item \texttt{backend/app/domain/enums/offer\_state.py} ;
+    \item \texttt{backend/app/infrastructure/orm/models/offer.py} ;
+    \item \texttt{backend/app/schemas/offer.py} ;
+    \item \texttt{backend/app/repositories/offer\_repository.py} ;
+    \item \texttt{backend/app/services/offer\_service.py} ;
+    \item \texttt{backend/app/api/router.py} ;
+    \item \texttt{backend/app/api/routes/health.py} ;
+    \item \texttt{backend/app/api/routes/offers.py} ;
+    \item \texttt{backend/app/api/deps.py}.
+\end{itemize}
+
+\subsection{Fichiers de migration et de données}
+
+Les fichiers suivants doivent être prévus :
+
+\begin{itemize}
+    \item une migration initiale dans \texttt{backend/migrations/} ;
+    \item un fichier de seed d’offres ;
+    \item un script de chargement des données initiales.
+\end{itemize}
+
+\subsection{Fichiers frontend}
+
+Les fichiers frontend à créer en priorité sont :
+
+\begin{itemize}
+    \item \texttt{frontend/package.json} ;
+    \item \texttt{frontend/tsconfig.json} ;
+    \item \texttt{frontend/next.config.ts} ;
+    \item \texttt{frontend/src/app/layout.tsx} ;
+    \item \texttt{frontend/src/app/page.tsx} ;
+    \item \texttt{frontend/src/app/offers/page.tsx} ;
+    \item \texttt{frontend/src/app/offers/[id]/page.tsx} ;
+    \item \texttt{frontend/src/components/layout/AppShell.tsx} ;
+    \item \texttt{frontend/src/components/offers/OfferList.tsx} ;
+    \item \texttt{frontend/src/components/offers/OfferCard.tsx} ;
+    \item \texttt{frontend/src/components/offers/OfferDetail.tsx} ;
+    \item \texttt{frontend/src/components/ui/StatusBadge.tsx} ;
+    \item \texttt{frontend/src/components/ui/ScoreBadge.tsx} ;
+    \item \texttt{frontend/src/lib/api-client.ts} ;
+    \item \texttt{frontend/src/features/offers/api.ts} ;
+    \item \texttt{frontend/src/features/offers/types.ts}.
+\end{itemize}
+
+\subsection{Fichiers de test}
+
+Les fichiers de test minimaux recommandés sont :
+
+\begin{itemize}
+    \item \texttt{backend/tests/test\_health.py} ;
+    \item \texttt{backend/tests/test\_offer\_repository.py} ;
+    \item \texttt{backend/tests/test\_offers\_api.py}.
+\end{itemize}
+
+\subsection{Ordre de création recommandé}
+
+L’ordre de création recommandé est :
+
+\begin{enumerate}
+    \item fichiers racine ;
+    \item noyau technique du backend ;
+    \item modèle d’offre ;
+    \item repository et service d’offre ;
+    \item endpoints API ;
+    \item migration initiale et seed ;
+    \item frontend minimal ;
+    \item tests minimaux.
+\end{enumerate}
+
+\subsection{Définition de fini du Sprint 1}
+
+Le Sprint 1 est considéré comme terminé lorsque :
+
+\begin{itemize}
+    \item le backend est exécutable ;
+    \item la base PostgreSQL est connectée ;
+    \item la table des offres existe ;
+    \item des offres fictives sont chargées en base ;
+    \item l’API permet de lister les offres ;
+    \item l’API permet de consulter le détail d’une offre ;
+    \item le frontend affiche la liste des offres ;
+    \item le frontend affiche le détail d’une offre.
+\end{itemize}
+
+\section{Backlog détaillé du Sprint 1}
+
+\subsection{Objectif}
+
+Le Sprint 1 a pour objectif de rendre possible l’affichage d’offres fictives stockées dans PostgreSQL dans une interface frontend simple.
+
+\subsection{Découpage du Sprint 1}
+
+Le Sprint 1 est structuré en six blocs :
+
+\begin{enumerate}
+    \item initialisation du dépôt ;
+    \item socle backend ;
+    \item modèle Offre et persistance ;
+    \item API des offres ;
+    \item frontend minimal ;
+    \item tests et validation.
+\end{enumerate}
+
+\subsection{Bloc 1 : initialisation du dépôt}
+
+Les tâches de ce bloc sont :
+
+\begin{itemize}
+    \item créer le dépôt et l’arborescence initiale ;
+    \item créer les fichiers racine ;
+    \item préparer l’environnement local.
+\end{itemize}
+
+\subsection{Bloc 2 : socle backend}
+
+Les tâches de ce bloc sont :
+
+\begin{itemize}
+    \item initialiser le projet Python backend ;
+    \item créer le point d’entrée FastAPI ;
+    \item mettre en place la configuration ;
+    \item mettre en place la connexion à la base ;
+    \item initialiser le système de migrations.
+\end{itemize}
+
+\subsection{Bloc 3 : modèle Offre et persistance}
+
+Les tâches de ce bloc sont :
+
+\begin{itemize}
+    \item définir l’énumération minimale des états d’offre ;
+    \item créer le modèle ORM de l’offre ;
+    \item créer la migration initiale ;
+    \item créer les schémas d’offre ;
+    \item créer le repository d’offre ;
+    \item créer le service d’offre ;
+    \item préparer les données de seed ;
+    \item créer le script de chargement initial.
+\end{itemize}
+
+\subsection{Bloc 4 : API des offres}
+
+Les tâches de ce bloc sont :
+
+\begin{itemize}
+    \item créer les dépendances API ;
+    \item créer la route de santé ;
+    \item créer les routes d’offre ;
+    \item agréger les routes dans le routeur principal.
+\end{itemize}
+
+\subsection{Bloc 5 : frontend minimal}
+
+Les tâches de ce bloc sont :
+
+\begin{itemize}
+    \item initialiser le projet Next.js ;
+    \item créer le layout global ;
+    \item créer le client API frontend ;
+    \item définir les types frontend d’offre ;
+    \item définir les appels API liés aux offres ;
+    \item créer les composants UI minimaux ;
+    \item créer la page liste des offres ;
+    \item créer la page détail d’une offre ;
+    \item créer la page d’accueil minimale.
+\end{itemize}
+
+\subsection{Bloc 6 : tests et validation}
+
+Les tâches de ce bloc sont :
+
+\begin{itemize}
+    \item tester l’endpoint de santé ;
+    \item tester le repository d’offre ;
+    \item tester l’API des offres ;
+    \item effectuer une validation manuelle de bout en bout.
+\end{itemize}
+
+\subsection{Ordre recommandé}
+
+L’ordre recommandé d’exécution est :
+
+\begin{enumerate}
+    \item initialisation du dépôt ;
+    \item socle backend ;
+    \item modèle Offre et persistance ;
+    \item API des offres ;
+    \item frontend minimal ;
+    \item tests et validation.
+\end{enumerate}
+
+\subsection{Tâches critiques}
+
+Les tâches critiques du Sprint 1 sont :
+
+\begin{itemize}
+    \item connexion à la base de données ;
+    \item création du modèle d’offre ;
+    \item migration initiale ;
+    \item création du repository d’offre ;
+    \item création des endpoints d’offre ;
+    \item chargement des données fictives ;
+    \item affichage de la liste des offres ;
+    \item affichage du détail d’une offre.
+\end{itemize}
+
+\subsection{Définition de fini du Sprint 1}
+
+Le Sprint 1 est considéré comme terminé lorsque :
+
+\begin{itemize}
+    \item la stack est exécutable ;
+    \item PostgreSQL est connecté ;
+    \item la table des offres existe ;
+    \item des offres fictives sont chargées en base ;
+    \item l’API permet de lister les offres ;
+    \item l’API permet de consulter le détail d’une offre ;
+    \item le frontend affiche la liste des offres ;
+    \item le frontend affiche le détail d’une offre.
+\end{itemize}
+
+\section{Décisions techniques structurantes}
+
+Cette section fixe les décisions techniques fondamentales qui structurent le développement du système.
+
+Ces décisions servent de référence pendant toute la phase d’implémentation et visent à garantir la cohérence de l’architecture ainsi que la stabilité du développement.
+
+\subsection{Architecture initiale du système}
+
+La première version du système adopte une architecture simple de type monolithe modulaire.
+
+Le système est composé des éléments suivants :
+
+\begin{itemize}
+\item une interface utilisateur web (frontend) ;
+\item une API backend responsable de la logique métier ;
+\item une base de données PostgreSQL ;
+\item un ou plusieurs workers dédiés aux tâches asynchrones.
+\end{itemize}
+
+L’utilisation de microservices indépendants n’est pas retenue dans les premières versions afin de limiter la complexité opérationnelle et de favoriser un développement rapide et cohérent.
+
+\subsection{Source de vérité métier}
+
+La logique métier et les états des objets principaux du système sont centralisés dans le backend.
+
+Les états des entités suivantes doivent être contrôlés exclusivement par le backend :
+
+\begin{itemize}
+\item les offres ;
+\item les brouillons de candidature ;
+\item les candidatures ;
+\item les relances.
+\end{itemize}
+
+Le frontend, les agents ou les outils d’orchestration ne doivent pas modifier directement ces états sans passer par les services du backend.
+
+\subsection{Stratégie de collecte des offres}
+
+La collecte des offres est organisée par niveaux de complexité.
+
+\begin{itemize}
+\item \textbf{Niveau 1 :} pages carrières d’entreprises et sources simples ;
+\item \textbf{Niveau 2 :} plateformes publiques d’offres d’emploi ;
+\item \textbf{Niveau 3 :} plateformes complexes nécessitant authentification ou navigation avancée.
+\end{itemize}
+
+Les premières versions du système privilégient les sources de niveau 1 afin de valider le fonctionnement global du pipeline avant d’intégrer des sources plus complexes.
+
+\subsection{Stratégie de scoring des offres}
+
+L’évaluation de la pertinence d’une offre repose sur un score global combinant plusieurs critères.
+
+Ces critères peuvent inclure :
+
+\begin{itemize}
+\item la pertinence métier ;
+\item la correspondance des compétences ;
+\item la localisation ;
+\item le type de contrat ;
+\item le délai de candidature ;
+\item l’intérêt stratégique de l’entreprise.
+\end{itemize}
+
+Le score doit rester explicable et permettre de justifier les décisions prises par le système.
+
+\subsection{Niveau d’automatisation autorisé}
+
+Le système vise à assister l’utilisateur tout en conservant un contrôle humain sur les actions externes.
+
+Les principes suivants s’appliquent :
+
+\begin{itemize}
+\item la préparation des candidatures peut être automatisée ;
+\item la soumission d’une candidature nécessite une validation humaine ;
+\item les relances doivent être proposées par le système mais validées par l’utilisateur ;
+\item aucune candidature ne doit être envoyée automatiquement sans approbation explicite.
+\end{itemize}
+
+Ce principe garantit la qualité des candidatures et la confiance de l’utilisateur dans le système.
+
+
+\end{document}
+
+
+
+
+
