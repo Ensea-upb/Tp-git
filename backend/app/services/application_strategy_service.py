@@ -27,6 +27,18 @@ _STALE_DAYS = 21
 _APPLY_NOW_MIN_SCORE = 70.0
 _APPLY_NOW_LIMIT = 5
 
+# Statuts indiquant une candidature encore en vie — utilisé pour exclure les
+# offres déjà en cours de traitement de la suggestion APPLY_NOW.
+# Les statuts terminaux (REJECTED, ACCEPTED, ARCHIVED) ne bloquent pas la
+# suggestion : l'offre peut être repostée et mérite d'être re-signalée.
+_ACTIVE_APPLICATION_STATUSES = frozenset({
+    ApplicationStatus.DRAFT,
+    ApplicationStatus.READY_TO_SEND,
+    ApplicationStatus.SENT,
+    ApplicationStatus.FOLLOW_UP_DUE,
+    ApplicationStatus.INTERVIEW,
+})
+
 
 @dataclass
 class StrategyAction:
@@ -139,7 +151,11 @@ class ApplicationStrategyService:
 
         Critères : ranking_score ≥ 70, is_active=True, aucune Application existante.
         """
-        applied_offer_ids = select(Application.offer_id).distinct()
+        applied_offer_ids = (
+            select(Application.offer_id)
+            .where(Application.status.in_(_ACTIVE_APPLICATION_STATUSES))
+            .distinct()
+        )
         top_offers = self.db.execute(
             select(Offer)
             .where(Offer.is_active == True)  # noqa: E712

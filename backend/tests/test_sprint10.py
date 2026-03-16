@@ -11,7 +11,6 @@ Couvre :
 """
 import uuid
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
 
 import pytest
 
@@ -157,8 +156,8 @@ class TestApplicationStrategyService:
         target = next(a for a in apply_now if a.offer_id == offer.id)
         assert target.priority == 3
 
-    def test_apply_now_not_generated_if_application_exists(self, db):
-        """APPLY_NOW n'est pas généré si une candidature existe déjà pour l'offre."""
+    def test_apply_now_not_generated_if_active_application_exists(self, db):
+        """APPLY_NOW n'est pas généré si une candidature active (SENT) existe pour l'offre."""
         from app.services.application_strategy_service import ApplicationStrategyService
 
         offer = _make_offer(db, ranking_score=90.0)
@@ -170,6 +169,38 @@ class TestApplicationStrategyService:
 
         apply_now = [a for a in actions if a.action_type == StrategyActionType.APPLY_NOW]
         assert not any(a.offer_id == offer.id for a in apply_now)
+
+    def test_apply_now_generated_after_rejection(self, db):
+        """
+        APPLY_NOW est généré pour une offre dont la seule candidature est REJECTED.
+        Une candidature rejetée est un statut terminal — l'offre peut être repostée
+        et mérite d'être re-signalée comme opportunité.
+        """
+        from app.services.application_strategy_service import ApplicationStrategyService
+
+        offer = _make_offer(db, ranking_score=80.0)
+        _make_application(db, status=ApplicationStatus.REJECTED, offer=offer)
+        db.commit()
+
+        svc = ApplicationStrategyService(db)
+        actions = svc.recommend_actions()
+
+        apply_now = [a for a in actions if a.action_type == StrategyActionType.APPLY_NOW]
+        assert any(a.offer_id == offer.id for a in apply_now)
+
+    def test_apply_now_generated_after_archived(self, db):
+        """APPLY_NOW est généré si la seule candidature est ARCHIVED (statut terminal)."""
+        from app.services.application_strategy_service import ApplicationStrategyService
+
+        offer = _make_offer(db, ranking_score=80.0)
+        _make_application(db, status=ApplicationStatus.ARCHIVED, offer=offer)
+        db.commit()
+
+        svc = ApplicationStrategyService(db)
+        actions = svc.recommend_actions()
+
+        apply_now = [a for a in actions if a.action_type == StrategyActionType.APPLY_NOW]
+        assert any(a.offer_id == offer.id for a in apply_now)
 
     def test_apply_now_not_generated_for_low_score(self, db):
         """APPLY_NOW requiert ranking_score ≥ 70."""
@@ -265,14 +296,14 @@ class TestOfferPriorityService:
 
     def test_priority_score_formula(self, db):
         """
-        priority_score = 0.4 × ranking + 0.4 × matching + 0.2 × freshness
+        priority_score = 0.6 × ranking_score + 0.4 × matching_score
         Vérifié pour une offre avec ranking_score=80, personalized_score=60.
+        Résultat attendu : 0.6 × 80 + 0.4 × 60 = 72.0
         """
-        from app.services.offer_priority_service import OfferPriorityService, _freshness_score_100
+        from app.services.offer_priority_service import OfferPriorityService
 
         offer = _make_offer(db, ranking_score=80.0)
         offer.personalized_score = 60.0
-        offer.published_at = datetime.now(timezone.utc) - timedelta(days=3)
         db.flush()
         db.commit()
 
@@ -280,9 +311,8 @@ class TestOfferPriorityService:
         entry = next((r for r in result if r["offer"].id == offer.id), None)
         assert entry is not None
 
-        expected_freshness = _freshness_score_100(offer)
-        expected_score = round(0.4 * 80 + 0.4 * 60 + 0.2 * expected_freshness, 2)
-        assert abs(entry["priority_score"] - expected_score) < 0.1
+        expected_score = round(0.6 * 80 + 0.4 * 60, 2)  # 72.0
+        assert abs(entry["priority_score"] - expected_score) < 0.01
 
     def test_sorted_by_priority_desc(self, db):
         """Les résultats sont triés par priority_score décroissant."""
@@ -410,7 +440,8 @@ class TestSkillGapService:
         from app.services.skill_gap_service import SkillGapService
         from app.infrastructure.db.models.candidate_profile import CandidateProfile, DEFAULT_CANDIDATE_ID
 
-        profile = CandidateProfile(id=DEFAULT_CANDIDATE_ID, skills=[], tech_stack=[])
+        # Profil avec au moins une compétence pour que la garde ne bloque pas
+        profile = CandidateProfile(id=DEFAULT_CANDIDATE_ID, skills=["git"], tech_stack=[])
         db.add(profile)
         db.flush()
 
@@ -420,7 +451,50 @@ class TestSkillGapService:
 
         svc = SkillGapService(db)
         missing = svc.analyze_for_offer(offer)
+        assert len(missing) > 0
         assert missing == sorted(missing)
+
+    def test_no_gaps_when_profile_empty(self, db):
+        """
+        Garde profil vide : si le profil ne déclare aucune compétence,
+        analyze_for_offer et analyze_for_offers retournent [] sans bruit.
+
+        Sans cette garde, toutes les compétences requises apparaîtraient comme
+        manquantes, produisant un signal inexploitable.
+        """
+        from app.services.skill_gap_service import SkillGapService
+        from app.infrastructure.db.models.candidate_profile import CandidateProfile, DEFAULT_CANDIDATE_ID
+
+        # Profil existant mais sans compétences déclarées
+        profile = CandidateProfile(id=DEFAULT_CANDIDATE_ID, skills=None, tech_stack=None)
+        db.add(profile)
+        db.flush()
+
+        offer = _make_offer(db)
+        offer.tags = ["python", "spark", "kafka"]
+        db.flush()
+
+        svc = SkillGapService(db)
+        assert svc.analyze_for_offer(offer) == []
+
+    def test_no_gaps_when_profile_has_empty_lists(self, db):
+        """
+        Garde profil vide : skills=[] et tech_stack=[] → même comportement que None.
+        """
+        from app.services.skill_gap_service import SkillGapService
+        from app.infrastructure.db.models.candidate_profile import CandidateProfile, DEFAULT_CANDIDATE_ID
+
+        profile = CandidateProfile(id=DEFAULT_CANDIDATE_ID, skills=[], tech_stack=[])
+        db.add(profile)
+        db.flush()
+
+        offer = _make_offer(db)
+        offer.tags = ["python", "spark"]
+        db.flush()
+
+        svc = SkillGapService(db)
+        assert svc.analyze_for_offer(offer) == []
+        assert svc.analyze_for_offers([offer]) == []
 
 
 # ── PARTIE 5 : API Strategy ───────────────────────────────────────────────────

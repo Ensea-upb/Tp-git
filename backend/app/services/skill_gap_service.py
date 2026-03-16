@@ -33,9 +33,15 @@ class SkillGapService:
         """
         Retourne les compétences requises par l'offre absentes du profil candidat.
         Résultat trié alphabétiquement.
+
+        Retourne [] si le profil est absent ou ne déclare aucune compétence :
+        un profil vide rendrait toutes les compétences "manquantes", ce qui
+        produirait un signal trop bruyant et inexploitable.
         """
         profile = self._get_profile()
         candidate_skills = _extract_candidate_skills(profile)
+        if not candidate_skills:
+            return []
         required_skills = _extract_required_skills(offer)
         missing = required_skills - candidate_skills
         return sorted(missing)
