@@ -15,9 +15,11 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     backend_cors_origins: str = "http://localhost:3000"
 
-    # LLM (Sprint 3+)
-    llm_api_key: str = ""
-    llm_model: str = "claude-sonnet-4-20250514"
+    # LLM — Ollama local (Sprint 5)
+    llm_base_url: str = "http://localhost:11434"
+    llm_model_default: str = "gemma3n:e2b"
+    llm_model_hq: str = "qwen2.5:7b-instruct"
+    llm_timeout_seconds: int = 120
 
     # Stockage fichiers
     file_storage_path: str = "/data/files"

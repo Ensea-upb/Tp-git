@@ -82,3 +82,9 @@ class Offer(Base):
     user_status: Mapped["OfferUserStatus | None"] = relationship(  # noqa: F821
         "OfferUserStatus", back_populates="offer", uselist=False, cascade="all, delete-orphan"
     )
+    llm_analysis: Mapped["OfferLLMAnalysis | None"] = relationship(  # noqa: F821
+        "OfferLLMAnalysis", back_populates="offer", uselist=False, cascade="all, delete-orphan"
+    )
+    profile_match: Mapped["ProfileMatchLLM | None"] = relationship(  # noqa: F821
+        "ProfileMatchLLM", back_populates="offer", uselist=False, cascade="all, delete-orphan"
+    )

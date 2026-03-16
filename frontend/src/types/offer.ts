@@ -76,6 +76,8 @@ export interface OfferDetail extends OfferListItem {
   score_justification: ScoreJustification | null;
   personalized_justification: ScoreJustification | null;
   updated_at: string;
+  llm_analysis: import("@/types/analysis").OfferLLMAnalysis | null;
+  profile_match: import("@/types/analysis").ProfileMatch | null;
 }
 
 export interface PaginatedOffers {

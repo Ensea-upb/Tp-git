@@ -24,6 +24,10 @@ import app.infrastructure.db.models.offer  # noqa: E402, F401
 import app.infrastructure.db.models.ingestion_run  # noqa: E402, F401
 import app.infrastructure.db.models.user_preference  # noqa: E402, F401
 import app.infrastructure.db.models.offer_user_status  # noqa: E402, F401
+import app.infrastructure.db.models.llm_cache  # noqa: E402, F401
+import app.infrastructure.db.models.offer_llm_analysis  # noqa: E402, F401
+import app.infrastructure.db.models.candidate_profile  # noqa: E402, F401
+import app.infrastructure.db.models.profile_match_llm  # noqa: E402, F401
 
 target_metadata = Base.metadata
 

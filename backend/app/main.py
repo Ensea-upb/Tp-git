@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Agent Personnel de Recherche de Stage",
-    description="API backend — Sprint 1",
+    description="API backend — Sprint 5",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -34,7 +34,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=False,
-    allow_methods=["GET", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
 

@@ -4,6 +4,9 @@ import { getOffer } from "@/lib/api";
 import { WORK_MODE_LABELS, TAG_LABELS, TAG_COLORS } from "@/lib/constants";
 import StateChip from "@/components/StateChip";
 import OfferActions from "@/components/OfferActions";
+import LLMAnalysisPanel from "@/components/LLMAnalysisPanel";
+import ProfileMatchPanel from "@/components/ProfileMatchPanel";
+import ApplicationAssistant from "@/components/ApplicationAssistant";
 
 interface PageProps {
   params: { id: string };
@@ -237,6 +240,15 @@ export default async function OfferDetailPage({ params }: PageProps) {
               </div>
             </div>
           )}
+
+          {/* LLM Analysis */}
+          <LLMAnalysisPanel offerId={offer.id} analysis={offer.llm_analysis ?? null} />
+
+          {/* Profile Match */}
+          <ProfileMatchPanel offerId={offer.id} match={offer.profile_match ?? null} />
+
+          {/* Application Assistant */}
+          <ApplicationAssistant offerId={offer.id} />
         </div>
       </div>
 

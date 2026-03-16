@@ -8,6 +8,13 @@ import type {
   UserStatusValue,
 } from "@/types/offer";
 import type { UserPreferences, PreferencesUpdate } from "@/types/preferences";
+import type {
+  OfferLLMAnalysis,
+  ProfileMatch,
+  CandidateProfile,
+  CandidateProfileUpdate,
+  AssistantResult,
+} from "@/types/analysis";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const API_KEY = process.env.INTERNAL_API_KEY || "dev-api-key-changeme";
@@ -96,4 +103,51 @@ export async function setOfferAction(offerId: string, action: ActionType): Promi
 
 export async function removeOfferAction(offerId: string, action: ActionType): Promise<void> {
   await apiFetch<void>(`/offers/${offerId}/${action}`, { method: "DELETE" });
+}
+
+// ── LLM Analysis ─────────────────────────────────────────────────────
+
+export async function triggerOfferAnalysis(offerId: string): Promise<{ status: string }> {
+  return apiFetch<{ status: string }>(`/offers/${offerId}/analyze`, { method: "POST" });
+}
+
+export async function getOfferAnalysis(offerId: string): Promise<OfferLLMAnalysis> {
+  return apiFetch<OfferLLMAnalysis>(`/offers/${offerId}/analysis`);
+}
+
+export async function triggerProfileMatch(offerId: string): Promise<{ status: string }> {
+  return apiFetch<{ status: string }>(`/offers/${offerId}/match-profile`, { method: "POST" });
+}
+
+export async function getProfileMatch(offerId: string): Promise<ProfileMatch> {
+  return apiFetch<ProfileMatch>(`/offers/${offerId}/match`);
+}
+
+// ── Application Assistant ────────────────────────────────────────────
+
+export async function generateCoverLetter(offerId: string): Promise<AssistantResult> {
+  return apiFetch<AssistantResult>(`/offers/${offerId}/cover-letter`, { method: "POST" });
+}
+
+export async function generateApplicationEmail(offerId: string): Promise<AssistantResult> {
+  return apiFetch<AssistantResult>(`/offers/${offerId}/email`, { method: "POST" });
+}
+
+export async function generateInterviewPrep(offerId: string): Promise<AssistantResult> {
+  return apiFetch<AssistantResult>(`/offers/${offerId}/interview-prep`, { method: "POST" });
+}
+
+// ── Candidate Profile ────────────────────────────────────────────────
+
+export async function getCandidateProfile(): Promise<CandidateProfile> {
+  return apiFetch<CandidateProfile>("/candidate");
+}
+
+export async function updateCandidateProfile(
+  body: CandidateProfileUpdate
+): Promise<CandidateProfile> {
+  return apiFetch<CandidateProfile>("/candidate", {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
 }

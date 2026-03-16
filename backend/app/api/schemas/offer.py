@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 
 from app.domain.enums.offer_state import OfferState
 from app.domain.enums.work_mode import WorkMode
+from app.api.schemas.analysis import OfferLLMAnalysisOut, ProfileMatchOut
 
 
 class CompanyBrief(BaseModel):
@@ -63,6 +64,8 @@ class OfferOut(BaseModel):
     company: CompanyBrief | None = None
     primary_source: SourceBrief | None = None
     user_status: UserStatusBrief | None = None
+    llm_analysis: OfferLLMAnalysisOut | None = None
+    profile_match: ProfileMatchOut | None = None
 
 
 class OfferListItem(BaseModel):

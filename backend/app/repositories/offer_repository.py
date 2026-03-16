@@ -8,7 +8,9 @@ from app.domain.enums.offer_state import OfferState
 from app.domain.enums.user_status import UserStatus
 from app.domain.enums.work_mode import WorkMode
 from app.infrastructure.db.models.offer import Offer
+from app.infrastructure.db.models.offer_llm_analysis import OfferLLMAnalysis
 from app.infrastructure.db.models.offer_user_status import OfferUserStatus
+from app.infrastructure.db.models.profile_match_llm import ProfileMatchLLM
 
 SortBy = Literal["created_at", "relevance_score", "personalized_score"]
 
@@ -94,6 +96,8 @@ class OfferRepository:
                 joinedload(Offer.company),
                 joinedload(Offer.primary_source),
                 joinedload(Offer.user_status),
+                joinedload(Offer.llm_analysis),
+                joinedload(Offer.profile_match),
             )
             .where(Offer.id == offer_id)
         )
