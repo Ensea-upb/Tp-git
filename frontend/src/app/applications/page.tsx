@@ -6,6 +6,7 @@ import type { Application, ApplicationStats, ApplicationStatus } from "@/types/a
 import { APPLICATION_STATUS_LABELS } from "@/types/application";
 import ApplicationCard from "@/components/ApplicationCard";
 import ApplicationPipeline from "@/components/ApplicationPipeline";
+import StrategyPanel from "@/components/StrategyPanel";
 
 const FILTER_OPTIONS: { label: string; value: ApplicationStatus | "" }[] = [
   { label: "Tous", value: "" },
@@ -58,7 +59,10 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <div>
+    <div className="flex gap-6">
+      {/* Colonne principale */}
+      <div className="flex-1 min-w-0">
+
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -176,6 +180,16 @@ export default function ApplicationsPage() {
           </button>
         </div>
       )}
+
+      </div>{/* fin colonne principale */}
+
+      {/* Panneau stratégie (sidebar) */}
+      <aside className="hidden lg:block w-80 shrink-0">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm sticky top-4">
+          <h2 className="text-sm font-bold text-gray-800 mb-4">🧭 Stratégie du jour</h2>
+          <StrategyPanel />
+        </div>
+      </aside>
     </div>
   );
 }

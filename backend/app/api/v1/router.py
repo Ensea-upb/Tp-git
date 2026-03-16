@@ -11,6 +11,7 @@ from app.api.v1 import (
     offers,
     preferences,
     sources,
+    strategy,
 )
 
 api_router = APIRouter(prefix="/v1")
@@ -25,3 +26,4 @@ api_router.include_router(ingestion.router, prefix="/ingestion", tags=["ingestio
 api_router.include_router(preferences.router, prefix="/preferences", tags=["preferences"])
 api_router.include_router(candidate.router)
 api_router.include_router(applications.router)
+api_router.include_router(strategy.router)

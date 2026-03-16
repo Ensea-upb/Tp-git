@@ -244,3 +244,17 @@ export async function getContextualInterviewPrep(id: string): Promise<Record<str
     method: "POST",
   });
 }
+
+// ── Sprint 10 : Strategy ──────────────────────────────────────────────────────
+
+import type { StrategyRecommendations, PrioritizedOffer } from "@/types/strategy";
+
+export async function getStrategyRecommendations(
+  limit = 10
+): Promise<StrategyRecommendations> {
+  return apiFetch<StrategyRecommendations>(`/strategy/recommendations?limit=${limit}`);
+}
+
+export async function getPrioritizedOffers(limit = 10): Promise<PrioritizedOffer[]> {
+  return apiFetch<PrioritizedOffer[]>(`/offers/prioritized?limit=${limit}`);
+}
