@@ -220,3 +220,176 @@ def test_applications_require_auth(client, db):
     offer = _make_offer(db)
     resp = client.post("/v1/applications", json={"offer_id": str(offer.id)})
     assert resp.status_code == 401
+
+
+# ── Tests : états terminaux protégés (fix 2) ──────────────────────────
+
+
+@pytest.mark.parametrize("terminal_status", ["REJECTED", "ACCEPTED", "ARCHIVED"])
+def test_cannot_transition_from_terminal_status(client, api_headers, db, terminal_status):
+    offer = _make_offer(db)
+    create_resp = client.post(
+        "/v1/applications",
+        json={"offer_id": str(offer.id)},
+        headers=api_headers,
+    )
+    app_id = create_resp.json()["id"]
+
+    # Aller directement en statut terminal
+    client.patch(
+        f"/v1/applications/{app_id}/status",
+        json={"status": terminal_status},
+        headers=api_headers,
+    )
+
+    # Toute transition depuis un état terminal doit être bloquée
+    resp = client.patch(
+        f"/v1/applications/{app_id}/status",
+        json={"status": "DRAFT"},
+        headers=api_headers,
+    )
+    assert resp.status_code == 400
+
+
+# ── Tests : follow-up atomique (fix 1) ────────────────────────────────
+
+
+def test_followup_and_status_update_are_atomic(client, api_headers, db):
+    """Vérifie que le follow-up et la mise à jour de statut sont persistés ensemble."""
+    offer = _make_offer(db)
+    create_resp = client.post(
+        "/v1/applications",
+        json={"offer_id": str(offer.id)},
+        headers=api_headers,
+    )
+    app_id = create_resp.json()["id"]
+
+    client.patch(
+        f"/v1/applications/{app_id}/status",
+        json={"status": "SENT"},
+        headers=api_headers,
+    )
+
+    scheduled = (datetime.now(timezone.utc) + timedelta(days=3)).isoformat()
+    client.post(
+        f"/v1/applications/{app_id}/followup",
+        json={"scheduled_at": scheduled},
+        headers=api_headers,
+    )
+
+    # Les deux effets doivent être visibles en un seul GET
+    resp = client.get(f"/v1/applications/{app_id}", headers=api_headers)
+    data = resp.json()
+    assert data["status"] == "FOLLOW_UP_DUE"
+    assert len(data["followups"]) == 1
+
+
+# ── Tests : restriction aux statuts autorisés (fix 5) ─────────────────
+
+
+@pytest.mark.parametrize("forbidden_status", ["DRAFT", "READY_TO_SEND", "REJECTED", "ACCEPTED", "ARCHIVED"])
+def test_followup_forbidden_on_inactive_statuses(client, api_headers, db, forbidden_status):
+    offer = _make_offer(db)
+    create_resp = client.post(
+        "/v1/applications",
+        json={"offer_id": str(offer.id)},
+        headers=api_headers,
+    )
+    app_id = create_resp.json()["id"]
+
+    # Forcer le statut (ne pas passer par transition gardée pour les terminaux)
+    # On set direct via patch (DRAFT → forbidden_status est autorisé sauf si terminal)
+    client.patch(
+        f"/v1/applications/{app_id}/status",
+        json={"status": forbidden_status},
+        headers=api_headers,
+    )
+
+    scheduled = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+    resp = client.post(
+        f"/v1/applications/{app_id}/followup",
+        json={"scheduled_at": scheduled},
+        headers=api_headers,
+    )
+    assert resp.status_code == 400
+
+
+# ── Tests : scheduled_at dans le futur (fix 4) ────────────────────────
+
+
+def test_followup_past_date_rejected(client, api_headers, db):
+    offer = _make_offer(db)
+    create_resp = client.post(
+        "/v1/applications",
+        json={"offer_id": str(offer.id)},
+        headers=api_headers,
+    )
+    app_id = create_resp.json()["id"]
+
+    client.patch(
+        f"/v1/applications/{app_id}/status",
+        json={"status": "SENT"},
+        headers=api_headers,
+    )
+
+    past = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    resp = client.post(
+        f"/v1/applications/{app_id}/followup",
+        json={"scheduled_at": past},
+        headers=api_headers,
+    )
+    assert resp.status_code == 422  # validation Pydantic
+
+
+def test_followup_now_rejected(client, api_headers, db):
+    """Une date = maintenant doit aussi être refusée (strictement futur)."""
+    offer = _make_offer(db)
+    create_resp = client.post(
+        "/v1/applications",
+        json={"offer_id": str(offer.id)},
+        headers=api_headers,
+    )
+    app_id = create_resp.json()["id"]
+
+    client.patch(
+        f"/v1/applications/{app_id}/status",
+        json={"status": "SENT"},
+        headers=api_headers,
+    )
+
+    # Utilise une date légèrement dans le passé pour simuler "maintenant ou avant"
+    now_minus = (datetime.now(timezone.utc) - timedelta(seconds=1)).isoformat()
+    resp = client.post(
+        f"/v1/applications/{app_id}/followup",
+        json={"scheduled_at": now_minus},
+        headers=api_headers,
+    )
+    assert resp.status_code == 422
+
+
+# ── Tests : drafts_ready (fix 3) ──────────────────────────────────────
+
+
+def test_new_application_has_drafts_ready_false(client, api_headers, db):
+    offer = _make_offer(db)
+    resp = client.post(
+        "/v1/applications",
+        json={"offer_id": str(offer.id)},
+        headers=api_headers,
+    )
+    assert resp.status_code == 201
+    assert resp.json()["drafts_ready"] is False
+
+
+def test_drafts_ready_exposed_in_get(client, api_headers, db):
+    offer = _make_offer(db)
+    create_resp = client.post(
+        "/v1/applications",
+        json={"offer_id": str(offer.id)},
+        headers=api_headers,
+    )
+    app_id = create_resp.json()["id"]
+
+    resp = client.get(f"/v1/applications/{app_id}", headers=api_headers)
+    assert "drafts_ready" in resp.json()
+    assert resp.json()["drafts_ready"] is False

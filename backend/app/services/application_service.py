@@ -1,7 +1,10 @@
 """
-Application Service — Sprint 6.
-Gère le cycle de vie des candidatures.
-Les brouillons LLM sont générés en tâche de fond après création.
+Application Service — Sprint 6 (post-review corrections).
+Corrections appliquées :
+- add_followup : commit unique (atomique)
+- update_status : états terminaux protégés
+- populate_drafts_background : positionne drafts_ready=True en fin de tâche
+- add_followup : restreint aux statuts autorisés (SENT, FOLLOW_UP_DUE, INTERVIEW)
 """
 import logging
 import uuid
@@ -14,10 +17,25 @@ from app.infrastructure.db.models.application import Application
 from app.infrastructure.db.models.application_followup import ApplicationFollowup
 from app.infrastructure.db.session import SessionLocal
 from app.repositories.application_repository import ApplicationRepository
+from app.domain.errors import BusinessRuleError, NotFoundError
 from app.repositories.offer_repository import OfferRepository
 from app.services.application_assistant_service import ApplicationAssistantService
 
 logger = logging.getLogger(__name__)
+
+# États depuis lesquels on ne peut plus transitionner
+_TERMINAL_STATUSES = {
+    ApplicationStatus.REJECTED,
+    ApplicationStatus.ACCEPTED,
+    ApplicationStatus.ARCHIVED,
+}
+
+# Seuls ces statuts permettent de créer un follow-up
+_FOLLOWUP_ALLOWED_STATUSES = {
+    ApplicationStatus.SENT,
+    ApplicationStatus.FOLLOW_UP_DUE,
+    ApplicationStatus.INTERVIEW,
+}
 
 
 class ApplicationService:
@@ -32,13 +50,14 @@ class ApplicationService:
         notes: str | None = None,
     ) -> Application:
         if OfferRepository(self.db).get_by_id(offer_id) is None:
-            raise ValueError(f"Offer {offer_id} not found")
+            raise NotFoundError(f"Offer {offer_id} not found")
 
         application = Application(
             offer_id=offer_id,
             status=ApplicationStatus.DRAFT,
             source_channel=source_channel,
             notes=notes,
+            drafts_ready=False,
         )
         self.repo.create(application)
         self.db.commit()
@@ -51,13 +70,21 @@ class ApplicationService:
     def get(self, application_id: uuid.UUID) -> Application:
         app = self.repo.get(application_id)
         if app is None:
-            raise ValueError(f"Application {application_id} not found")
+            raise NotFoundError(f"Application {application_id} not found")
         return app
 
     def update_status(
         self, application_id: uuid.UUID, new_status: ApplicationStatus
     ) -> Application:
         app = self.get(application_id)
+
+        # Protéger les états terminaux — aucune transition sortante possible
+        if app.status in _TERMINAL_STATUSES:
+            raise BusinessRuleError(
+                f"Cannot transition from terminal status '{app.status.value}'. "
+                "Archive, reject or accept is final."
+            )
+
         app.status = new_status
         if new_status == ApplicationStatus.SENT and app.applied_at is None:
             app.applied_at = datetime.utcnow()
@@ -71,8 +98,14 @@ class ApplicationService:
         scheduled_at: datetime,
         notes: str | None = None,
     ) -> ApplicationFollowup:
-        # Vérifie que la candidature existe
-        self.get(application_id)
+        app = self.get(application_id)
+
+        # Restreindre aux statuts actifs pertinents
+        if app.status not in _FOLLOWUP_ALLOWED_STATUSES:
+            raise BusinessRuleError(
+                f"Cannot add a follow-up when status is '{app.status.value}'. "
+                f"Allowed: {', '.join(s.value for s in _FOLLOWUP_ALLOWED_STATUSES)}."
+            )
 
         followup = ApplicationFollowup(
             application_id=application_id,
@@ -80,15 +113,13 @@ class ApplicationService:
             notes=notes,
         )
         self.repo.add_followup(followup)
-        self.db.commit()
-        self.db.refresh(followup)
 
-        # Passer le statut à FOLLOW_UP_DUE si encore en SENT
-        app = self.repo.get(application_id)
-        if app and app.status == ApplicationStatus.SENT:
+        # Transition SENT → FOLLOW_UP_DUE dans le même commit
+        if app.status == ApplicationStatus.SENT:
             app.status = ApplicationStatus.FOLLOW_UP_DUE
-            self.db.commit()
 
+        self.db.commit()  # commit unique — atomique
+        self.db.refresh(followup)
         return followup
 
 
@@ -97,6 +128,8 @@ class ApplicationService:
 async def populate_drafts_background(application_id: uuid.UUID) -> None:
     """
     Génère draft_cover_letter et draft_email via LLM et les persiste.
+    Positionne drafts_ready=True en fin de tâche, qu'il y ait des contenus ou non,
+    pour permettre à la UI de distinguer "en cours" / "terminé" / "indisponible".
     Appelée en BackgroundTask — crée sa propre session DB.
     """
     db: Session = SessionLocal()
@@ -125,6 +158,8 @@ async def populate_drafts_background(application_id: uuid.UUID) -> None:
         except Exception:
             logger.exception("LLM email draft failed for application %s", application_id)
 
+        # Toujours marquer la tâche comme terminée — même si LLM était indisponible
+        app.drafts_ready = True
         db.commit()
     finally:
         db.close()

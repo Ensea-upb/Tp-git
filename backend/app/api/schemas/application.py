@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.domain.enums.application_status import ApplicationStatus
 
@@ -19,6 +19,17 @@ class ApplicationStatusUpdate(BaseModel):
 class FollowupCreate(BaseModel):
     scheduled_at: datetime
     notes: str | None = None
+
+    @field_validator("scheduled_at")
+    @classmethod
+    def must_be_future(cls, v: datetime) -> datetime:
+        now = datetime.now(timezone.utc)
+        # Normalise en tz-aware si naïf
+        if v.tzinfo is None:
+            v = v.replace(tzinfo=timezone.utc)
+        if v <= now:
+            raise ValueError("scheduled_at must be strictly in the future")
+        return v
 
 
 class FollowupOut(BaseModel):
@@ -41,6 +52,7 @@ class ApplicationOut(BaseModel):
     status: ApplicationStatus
     applied_at: datetime | None = None
     source_channel: str | None = None
+    drafts_ready: bool = False
     draft_cover_letter: str | None = None
     draft_email: str | None = None
     notes: str | None = None

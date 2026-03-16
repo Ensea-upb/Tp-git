@@ -24,6 +24,7 @@ export interface Application {
   status: ApplicationStatus;
   applied_at: string | null;
   source_channel: string | null;
+  drafts_ready: boolean;
   draft_cover_letter: string | null;
   draft_email: string | null;
   notes: string | null;

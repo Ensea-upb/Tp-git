@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,6 +28,7 @@ class Application(Base):
     source_channel: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Brouillons générés par LLM
+    drafts_ready: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     draft_cover_letter: Mapped[str | None] = mapped_column(Text, nullable=True)
     draft_email: Mapped[str | None] = mapped_column(Text, nullable=True)
 

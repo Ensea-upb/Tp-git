@@ -14,9 +14,66 @@ interface Props {
   onUpdate: () => void;
 }
 
+function DraftSection({ application }: { application: Application }) {
+  const [showDraft, setShowDraft] = useState(false);
+  const hasDrafts = application.draft_cover_letter || application.draft_email;
+
+  // Génération toujours en cours
+  if (!application.drafts_ready) {
+    return (
+      <p className="text-xs text-gray-400 italic mb-3 flex items-center gap-1">
+        <span className="inline-block w-2 h-2 rounded-full bg-blue-300 animate-pulse" />
+        Génération des brouillons en cours…
+      </p>
+    );
+  }
+
+  // Génération terminée mais LLM indisponible (drafts vides)
+  if (!hasDrafts) {
+    return (
+      <p className="text-xs text-amber-600 mb-3 flex items-center gap-1">
+        <span>⚠</span> Brouillons indisponibles (LLM hors ligne lors de la création)
+      </p>
+    );
+  }
+
+  // Brouillons disponibles
+  return (
+    <div className="mb-3">
+      <button
+        onClick={() => setShowDraft(!showDraft)}
+        className="text-xs text-blue-600 hover:underline"
+      >
+        {showDraft ? "Masquer brouillons" : "Voir brouillons LLM"}
+      </button>
+      {showDraft && (
+        <div className="mt-2 space-y-2">
+          {application.draft_cover_letter && (
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1">
+                Lettre de motivation
+              </p>
+              <pre className="text-xs bg-gray-50 border rounded p-2 whitespace-pre-wrap max-h-40 overflow-y-auto">
+                {application.draft_cover_letter}
+              </pre>
+            </div>
+          )}
+          {application.draft_email && (
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1">Email</p>
+              <pre className="text-xs bg-gray-50 border rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                {application.draft_email}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ApplicationCard({ application, onUpdate }: Props) {
   const [loading, setLoading] = useState(false);
-  const [showDraft, setShowDraft] = useState(false);
 
   const statusLabel = APPLICATION_STATUS_LABELS[application.status];
   const statusColor = APPLICATION_STATUS_COLORS[application.status];
@@ -42,7 +99,6 @@ export default function ApplicationCard({ application, onUpdate }: Props) {
   }
 
   async function scheduleFollowup() {
-    // Default: +7 days
     const date = new Date();
     date.setDate(date.getDate() + 7);
     setLoading(true);
@@ -57,7 +113,10 @@ export default function ApplicationCard({ application, onUpdate }: Props) {
     }
   }
 
-  const hasDrafts = application.draft_cover_letter || application.draft_email;
+  const isTerminal =
+    application.status === "REJECTED" ||
+    application.status === "ACCEPTED" ||
+    application.status === "ARCHIVED";
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -87,8 +146,7 @@ export default function ApplicationCard({ application, onUpdate }: Props) {
       {/* Date de candidature */}
       {application.applied_at && (
         <p className="text-xs text-gray-400 mb-2">
-          Envoyé le{" "}
-          {new Date(application.applied_at).toLocaleDateString("fr-FR")}
+          Envoyé le {new Date(application.applied_at).toLocaleDateString("fr-FR")}
         </p>
       )}
 
@@ -99,79 +157,50 @@ export default function ApplicationCard({ application, onUpdate }: Props) {
         </p>
       )}
 
-      {/* Brouillons LLM */}
-      {hasDrafts && (
-        <div className="mb-3">
-          <button
-            onClick={() => setShowDraft(!showDraft)}
-            className="text-xs text-blue-600 hover:underline"
-          >
-            {showDraft ? "Masquer brouillons" : "Voir brouillons LLM"}
-          </button>
-          {showDraft && (
-            <div className="mt-2 space-y-2">
-              {application.draft_cover_letter && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">
-                    Lettre de motivation
-                  </p>
-                  <pre className="text-xs bg-gray-50 border rounded p-2 whitespace-pre-wrap max-h-40 overflow-y-auto">
-                    {application.draft_cover_letter}
-                  </pre>
-                </div>
-              )}
-              {application.draft_email && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Email</p>
-                  <pre className="text-xs bg-gray-50 border rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
-                    {application.draft_email}
-                  </pre>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Brouillons LLM — 3 états distincts */}
+      <DraftSection application={application} />
 
-      {/* Actions contextuelles */}
-      <div className="flex flex-wrap gap-1.5 mt-2">
-        {(application.status === "DRAFT" || application.status === "READY_TO_SEND") && (
-          <button
-            onClick={markAsSent}
-            disabled={loading}
-            className="text-xs bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700 disabled:opacity-50"
-          >
-            Marquer envoyé
-          </button>
-        )}
-        {application.status === "SENT" && (
-          <>
+      {/* Actions contextuelles — désactivées sur états terminaux */}
+      {!isTerminal && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {(application.status === "DRAFT" || application.status === "READY_TO_SEND") && (
             <button
-              onClick={scheduleFollowup}
+              onClick={markAsSent}
               disabled={loading}
-              className="text-xs bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 disabled:opacity-50"
+              className="text-xs bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700 disabled:opacity-50"
             >
-              + Relance
+              Marquer envoyé
             </button>
+          )}
+          {application.status === "SENT" && (
+            <>
+              <button
+                onClick={scheduleFollowup}
+                disabled={loading}
+                className="text-xs bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 disabled:opacity-50"
+              >
+                + Relance
+              </button>
+              <button
+                onClick={markAsInterview}
+                disabled={loading}
+                className="text-xs bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-700 disabled:opacity-50"
+              >
+                Entretien
+              </button>
+            </>
+          )}
+          {application.status === "FOLLOW_UP_DUE" && (
             <button
               onClick={markAsInterview}
               disabled={loading}
               className="text-xs bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-700 disabled:opacity-50"
             >
-              Entretien
+              Entretien obtenu
             </button>
-          </>
-        )}
-        {application.status === "FOLLOW_UP_DUE" && (
-          <button
-            onClick={markAsInterview}
-            disabled={loading}
-            className="text-xs bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-700 disabled:opacity-50"
-          >
-            Entretien obtenu
-          </button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

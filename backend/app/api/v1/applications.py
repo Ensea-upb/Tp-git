@@ -20,6 +20,7 @@ from app.api.schemas.application import (
     FollowupCreate,
     FollowupOut,
 )
+from app.domain.errors import BusinessRuleError, NotFoundError
 from app.infrastructure.db.session import get_db
 from app.services.application_service import ApplicationService, populate_drafts_background
 
@@ -42,12 +43,10 @@ async def create_application(
             source_channel=payload.source_channel,
             notes=payload.notes,
         )
-    except ValueError as exc:
+    except NotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
 
-    # Génération LLM en tâche de fond (non-bloquant)
     background_tasks.add_task(populate_drafts_background, app.id)
-
     return ApplicationOut.model_validate(app)
 
 
@@ -61,7 +60,7 @@ def list_applications(db: Session = Depends(get_db)) -> list[ApplicationOut]:
 def get_application(application_id: uuid.UUID, db: Session = Depends(get_db)) -> ApplicationOut:
     try:
         app = ApplicationService(db).get(application_id)
-    except ValueError as exc:
+    except NotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     return ApplicationOut.model_validate(app)
 
@@ -74,8 +73,10 @@ def update_application_status(
 ) -> ApplicationOut:
     try:
         app = ApplicationService(db).update_status(application_id, payload.status)
-    except ValueError as exc:
+    except NotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    except BusinessRuleError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     return ApplicationOut.model_validate(app)
 
 
@@ -95,6 +96,8 @@ def add_followup(
             scheduled_at=payload.scheduled_at,
             notes=payload.notes,
         )
-    except ValueError as exc:
+    except NotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    except BusinessRuleError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     return FollowupOut.model_validate(followup)
