@@ -18,10 +18,14 @@ import type {
 import type {
   Application,
   ApplicationCreate,
+  ApplicationEvent,
+  ApplicationStats,
   ApplicationStatus,
   FollowupCreate,
+  FollowupRecommendation,
   Followup,
   PaginatedApplications,
+  RecruiterReplyCreate,
 } from "@/types/application";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -206,5 +210,37 @@ export async function addFollowup(id: string, body: FollowupCreate): Promise<Fol
   return apiFetch<Followup>(`/applications/${id}/followup`, {
     method: "POST",
     body: JSON.stringify(body),
+  });
+}
+
+// ── Sprint 9 ──────────────────────────────────────────────────────────────────
+
+export async function getApplicationTimeline(id: string): Promise<ApplicationEvent[]> {
+  return apiFetch<ApplicationEvent[]>(`/applications/${id}/timeline`);
+}
+
+export async function addRecruiterReply(
+  id: string,
+  body: RecruiterReplyCreate
+): Promise<ApplicationEvent> {
+  return apiFetch<ApplicationEvent>(`/applications/${id}/recruiter-reply`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getFollowupRecommendation(
+  id: string
+): Promise<FollowupRecommendation> {
+  return apiFetch<FollowupRecommendation>(`/applications/${id}/followup-recommendation`);
+}
+
+export async function getApplicationStats(): Promise<ApplicationStats> {
+  return apiFetch<ApplicationStats>("/applications/stats");
+}
+
+export async function getContextualInterviewPrep(id: string): Promise<Record<string, unknown>> {
+  return apiFetch<Record<string, unknown>>(`/applications/${id}/interview-prep`, {
+    method: "POST",
   });
 }

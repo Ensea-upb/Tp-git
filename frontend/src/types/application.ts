@@ -59,6 +59,37 @@ export interface FollowupCreate {
   notes?: string;
 }
 
+// ── Sprint 9 ──────────────────────────────────────────────────────────────────
+
+export interface ApplicationEvent {
+  id: string;
+  application_id: string;
+  event_type: string;
+  payload_json: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface FollowupRecommendation {
+  recommended_delay_days: number;
+  reason: string;
+  suggested_date: string;
+}
+
+export interface ApplicationStats {
+  total: number;
+  interviews: number;
+  rejections: number;
+  offers: number;
+  response_rate: number;
+}
+
+export interface RecruiterReplyCreate {
+  message_text: string;
+  channel?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
   DRAFT: "Brouillon",
   READY_TO_SEND: "Prêt à envoyer",

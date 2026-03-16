@@ -120,6 +120,61 @@ JSON attendu:
 }}"""
 
 
+def build_contextual_interview_prep_prompt(
+    offer: Offer,
+    profile: CandidateProfile,
+    application_history: list[dict],
+    skills_required: list[str] | None = None,
+) -> str:
+    """
+    Prompt enrichi pour la préparation d'entretien.
+    Injecte la description de l'offre, les compétences requises (issues de l'analyse LLM
+    si disponibles), le profil candidat et l'historique de la candidature.
+    """
+    title = offer.normalized_title or ""
+    company = offer.company.name if offer.company else "l'entreprise"
+    description = (offer.normalized_description or "")[:800]
+    profile_skills = ", ".join(profile.skills or [])
+    profile_tech = ", ".join(profile.tech_stack or [])
+    profile_level = profile.current_level or ""
+    profile_summary = profile.summary or ""
+
+    # Compétences requises depuis l'analyse LLM (ou description brute)
+    req_skills = ", ".join(skills_required or []) if skills_required else "non analysées"
+
+    # Résumé de l'historique (5 derniers événements max)
+    history_lines = [
+        f"- [{e.get('event_type', '?')}] {e.get('created_at', '')} : {e.get('detail', '')}"
+        for e in application_history[-5:]
+    ]
+    history_text = "\n".join(history_lines) if history_lines else "Aucun historique"
+
+    return f"""Prépare des questions d'entretien personnalisées pour ce candidat et ce poste.
+Réponds UNIQUEMENT avec un objet JSON valide.
+
+Poste: {title} @ {company}
+Description: {description}
+
+Compétences requises par le poste: {req_skills}
+
+Candidat: {profile_level}
+Compétences: {profile_skills}
+Technologies maîtrisées: {profile_tech}
+Profil: {profile_summary}
+
+Historique de la candidature:
+{history_text}
+
+JSON attendu:
+{{
+  "technical_questions": ["question technique 1", "question 2", "question 3"],
+  "behavioral_questions": ["question comportementale 1", "question 2"],
+  "questions_to_ask": ["question à poser au recruteur 1", "question 2"],
+  "preparation_tips": ["conseil personnalisé 1", "conseil 2"],
+  "focus_areas": ["domaine à travailler 1", "domaine 2"]
+}}"""
+
+
 def build_interview_prep_prompt(offer: Offer, profile: CandidateProfile) -> str:
     title = offer.normalized_title or ""
     company = offer.company.name if offer.company else "l'entreprise"

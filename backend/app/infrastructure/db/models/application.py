@@ -47,6 +47,12 @@ class Application(Base):
         cascade="all, delete-orphan",
         order_by="ApplicationFollowup.scheduled_at",
     )
+    events: Mapped[list["ApplicationEvent"]] = relationship(  # noqa: F821
+        "ApplicationEvent",
+        back_populates="application",
+        cascade="all, delete-orphan",
+        order_by="ApplicationEvent.created_at",
+    )
 
     # ── Champs calculés exposés via Pydantic from_attributes ──────────
 

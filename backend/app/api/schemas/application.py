@@ -70,3 +70,44 @@ class PaginatedApplications(BaseModel):
     page: int
     limit: int
     has_next: bool
+
+
+# ── Sprint 9 : Timeline ──────────────────────────────────────────────
+
+
+class ApplicationEventOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    application_id: uuid.UUID
+    event_type: str
+    payload_json: dict | None = None
+    created_at: datetime
+
+
+# ── Sprint 9 : Réponse recruteur ─────────────────────────────────────
+
+
+class RecruiterReplyCreate(BaseModel):
+    message_text: str
+    channel: str | None = None
+
+
+# ── Sprint 9 : Recommandation de suivi ───────────────────────────────
+
+
+class FollowupRecommendationOut(BaseModel):
+    recommended_delay_days: int
+    reason: str
+    suggested_date: datetime
+
+
+# ── Sprint 9 : Statistiques ──────────────────────────────────────────
+
+
+class ApplicationStatsOut(BaseModel):
+    total: int
+    interviews: int
+    rejections: int
+    offers: int
+    response_rate: float

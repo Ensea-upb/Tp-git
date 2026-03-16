@@ -8,6 +8,7 @@ import {
 } from "@/types/application";
 import { updateApplicationStatus, addFollowup } from "@/lib/api";
 import { useState } from "react";
+import ApplicationTimeline from "@/components/ApplicationTimeline";
 
 interface Props {
   application: Application;
@@ -136,6 +137,7 @@ function FollowupSection({
 
 export default function ApplicationCard({ application, onUpdate }: Props) {
   const [loading, setLoading] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
 
   const statusLabel = APPLICATION_STATUS_LABELS[application.status];
   const statusColor = APPLICATION_STATUS_COLORS[application.status];
@@ -277,6 +279,22 @@ export default function ApplicationCard({ application, onUpdate }: Props) {
           </button>
         </div>
       )}
+
+      {/* Timeline Sprint 9 */}
+      <div className="mt-3 border-t border-gray-100 pt-2">
+        <button
+          onClick={() => setShowTimeline(!showTimeline)}
+          className="text-xs text-gray-400 hover:text-blue-600 hover:underline"
+        >
+          {showTimeline ? "Masquer timeline" : "Voir timeline"}
+        </button>
+        {showTimeline && (
+          <ApplicationTimeline
+            applicationId={application.id}
+            onReplyAdded={onUpdate}
+          />
+        )}
+      </div>
     </div>
   );
 }

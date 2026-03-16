@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getApplications } from "@/lib/api";
-import type { Application, ApplicationStatus } from "@/types/application";
+import { getApplications, getApplicationStats } from "@/lib/api";
+import type { Application, ApplicationStats, ApplicationStatus } from "@/types/application";
 import { APPLICATION_STATUS_LABELS } from "@/types/application";
 import ApplicationCard from "@/components/ApplicationCard";
 import ApplicationPipeline from "@/components/ApplicationPipeline";
@@ -26,18 +26,19 @@ export default function ApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "">("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<ApplicationStats | null>(null);
   const limit = 50;
 
   const loadApplications = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getApplications({
-        status: statusFilter || undefined,
-        page,
-        limit,
-      });
+      const [data, statsData] = await Promise.all([
+        getApplications({ status: statusFilter || undefined, page, limit }),
+        getApplicationStats(),
+      ]);
       setApplications(data.items);
       setTotal(data.total);
+      setStats(statsData);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de chargement");
@@ -74,6 +75,27 @@ export default function ApplicationsPage() {
           + Depuis une offre
         </a>
       </div>
+
+      {/* Stats Sprint 9 */}
+      {stats && (
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
+          {[
+            { label: "Total", value: stats.total, color: "text-gray-700" },
+            { label: "Entretiens", value: stats.interviews, color: "text-purple-600" },
+            { label: "Refus", value: stats.rejections, color: "text-red-500" },
+            { label: "Offres", value: stats.offers, color: "text-green-600" },
+            { label: "Taux réponse", value: `${stats.response_rate}%`, color: "text-blue-600" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="bg-white border border-gray-200 rounded-lg p-3 text-center shadow-sm"
+            >
+              <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Filtre par statut */}
       <div className="flex flex-wrap gap-2 mb-6">
