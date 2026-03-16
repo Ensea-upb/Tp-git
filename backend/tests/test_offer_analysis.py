@@ -206,3 +206,188 @@ async def test_match_offer_clamps_score():
 
     # Score should be clamped to 100
     assert captured["match"].match_score == 100.0
+
+
+# ---- normalize_list integration in services --------------------------------
+
+@pytest.mark.asyncio
+async def test_analyze_offer_normalizes_string_missions():
+    """LLM retourne missions comme chaîne CSV → doit être converti en liste."""
+    offer = _make_offer()
+    db = MagicMock()
+    mock_analysis_repo = MagicMock()
+    captured = {}
+
+    def fake_upsert(analysis):
+        captured["analysis"] = analysis
+        return analysis
+
+    mock_analysis_repo.upsert = fake_upsert
+
+    llm_response = {
+        "summary": "Test",
+        "missions": "Analyser les données, Construire des modèles",  # string, not list
+        "skills_required": ["Python"],
+        "tech_stack": None,
+        "seniority_level": "junior",
+    }
+
+    with patch("app.services.offer_llm_analysis_service.OfferRepository") as MockOfferRepo, \
+         patch("app.services.offer_llm_analysis_service.OfferLLMAnalysisRepository") as MockAnalysisRepo, \
+         patch("app.services.offer_llm_analysis_service.call_llm_json", AsyncMock(return_value=llm_response)):
+
+        MockOfferRepo.return_value.get_by_id.return_value = offer
+        MockAnalysisRepo.return_value = mock_analysis_repo
+
+        service = OfferLLMAnalysisService(db)
+        await service.analyze_offer(offer.id)
+
+    assert captured["analysis"].missions == ["Analyser les données", "Construire des modèles"]
+    assert captured["analysis"].tech_stack is None
+
+
+@pytest.mark.asyncio
+async def test_analyze_offer_drops_dict_fields():
+    """LLM retourne un dict pour skills_required → doit être None, pas crash."""
+    offer = _make_offer()
+    db = MagicMock()
+    mock_analysis_repo = MagicMock()
+    captured = {}
+
+    def fake_upsert(analysis):
+        captured["analysis"] = analysis
+        return analysis
+
+    mock_analysis_repo.upsert = fake_upsert
+
+    llm_response = {
+        "summary": "Test",
+        "missions": ["Mission 1"],
+        "skills_required": {"hard": ["Python"], "soft": ["Communication"]},  # dict, not list
+        "tech_stack": [],
+        "seniority_level": "junior",
+    }
+
+    with patch("app.services.offer_llm_analysis_service.OfferRepository") as MockOfferRepo, \
+         patch("app.services.offer_llm_analysis_service.OfferLLMAnalysisRepository") as MockAnalysisRepo, \
+         patch("app.services.offer_llm_analysis_service.call_llm_json", AsyncMock(return_value=llm_response)):
+
+        MockOfferRepo.return_value.get_by_id.return_value = offer
+        MockAnalysisRepo.return_value = mock_analysis_repo
+
+        service = OfferLLMAnalysisService(db)
+        await service.analyze_offer(offer.id)
+
+    assert captured["analysis"].skills_required is None
+    assert captured["analysis"].tech_stack is None  # empty list → None
+
+
+@pytest.mark.asyncio
+async def test_match_offer_normalizes_string_strengths():
+    """LLM retourne strengths comme chaîne → doit être converti en liste."""
+    offer = _make_offer()
+    profile = _make_profile()
+    db = MagicMock()
+    mock_match_repo = MagicMock()
+    captured = {}
+
+    def fake_upsert(match):
+        captured["match"] = match
+        return match
+
+    mock_match_repo.upsert = fake_upsert
+
+    llm_response = {
+        "match_score": 70,
+        "strengths": "Python expertise, ML background",  # string, not list
+        "gaps": ["No Spark"],
+        "recommendation": "Good fit",
+    }
+
+    with patch("app.services.profile_matching_service.OfferRepository") as MockOffer, \
+         patch("app.services.profile_matching_service.CandidateProfileRepository") as MockProfile, \
+         patch("app.services.profile_matching_service.ProfileMatchLLMRepository") as MockMatch, \
+         patch("app.services.profile_matching_service.call_llm_json", AsyncMock(return_value=llm_response)):
+
+        MockOffer.return_value.get_by_id.return_value = offer
+        MockProfile.return_value.get_default.return_value = profile
+        MockMatch.return_value = mock_match_repo
+
+        service = ProfileMatchingService(db)
+        await service.match_offer(offer.id)
+
+    assert captured["match"].strengths == ["Python expertise", "ML background"]
+
+
+# ---- Idempotency tests (API layer) -----------------------------------------
+
+def test_trigger_analysis_idempotent_done(client, db, api_headers, default_prefs):
+    """POST /analyze retourne 202 avec status=done si analyse déjà DONE."""
+    from app.infrastructure.db.models.offer_llm_analysis import OfferLLMAnalysis
+    from app.infrastructure.db.models.offer import Offer
+
+    offer_id = uuid.uuid4()
+    offer = Offer(id=offer_id, normalized_title="Test Offer")
+    analysis = OfferLLMAnalysis(
+        offer_id=offer_id,
+        model_used="gemma3n:e2b",
+        analysis_status="DONE",
+        summary="Already done",
+    )
+    db.add(offer)
+    db.add(analysis)
+    db.flush()
+
+    response = client.post(f"/v1/offers/{offer_id}/analyze", headers=api_headers)
+    assert response.status_code == 202
+    data = response.json()
+    assert data["status"] == "done"
+    assert "detail" in data
+
+
+def test_trigger_analysis_idempotent_running(client, db, api_headers, default_prefs):
+    """POST /analyze retourne 202 avec status=running si analyse en cours."""
+    from app.infrastructure.db.models.offer_llm_analysis import OfferLLMAnalysis
+    from app.infrastructure.db.models.offer import Offer
+
+    offer_id = uuid.uuid4()
+    offer = Offer(id=offer_id, normalized_title="Running Offer")
+    analysis = OfferLLMAnalysis(
+        offer_id=offer_id,
+        model_used="gemma3n:e2b",
+        analysis_status="RUNNING",
+    )
+    db.add(offer)
+    db.add(analysis)
+    db.flush()
+
+    response = client.post(f"/v1/offers/{offer_id}/analyze", headers=api_headers)
+    assert response.status_code == 202
+    assert response.json()["status"] == "running"
+
+
+def test_trigger_analysis_queues_when_failed(client, db, api_headers, default_prefs):
+    """POST /analyze re-queue si le statut précédent est FAILED (pas d'idempotence)."""
+    from app.infrastructure.db.models.offer_llm_analysis import OfferLLMAnalysis
+    from app.infrastructure.db.models.offer import Offer
+
+    offer_id = uuid.uuid4()
+    offer = Offer(id=offer_id, normalized_title="Failed Offer")
+    analysis = OfferLLMAnalysis(
+        offer_id=offer_id,
+        model_used="gemma3n:e2b",
+        analysis_status="FAILED",
+    )
+    db.add(offer)
+    db.add(analysis)
+    db.flush()
+
+    # Patch le background task pour éviter tout appel Ollama réel
+    with patch(
+        "app.services.offer_llm_analysis_service.OfferLLMAnalysisService.analyze_offer_background",
+        new=AsyncMock(return_value=None),
+    ):
+        response = client.post(f"/v1/offers/{offer_id}/analyze", headers=api_headers)
+
+    assert response.status_code == 202
+    assert response.json()["status"] == "queued"

@@ -23,6 +23,24 @@ def _build_cache_key(model: str, prompt: str) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
+def normalize_list(value) -> list[str] | None:
+    """
+    Coerce an LLM-provided value to list[str] or None.
+    Handles: None, list, comma-separated string, single string.
+    Ensures every element is a non-empty string.
+    """
+    if value is None:
+        return None
+    if isinstance(value, list):
+        result = [str(x).strip() for x in value if str(x).strip()]
+        return result if result else None
+    if isinstance(value, str):
+        parts = [p.strip() for p in value.split(",") if p.strip()]
+        return parts if parts else None
+    # dict, int, etc. — discard
+    return None
+
+
 def _extract_json(text: str) -> dict | list | None:
     """Extract first JSON object or array from LLM response text."""
     # Try direct parse first

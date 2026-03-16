@@ -12,7 +12,7 @@ from app.infrastructure.db.models.profile_match_llm import ProfileMatchLLM
 from app.repositories.candidate_profile_repository import CandidateProfileRepository
 from app.repositories.offer_repository import OfferRepository
 from app.repositories.profile_match_llm_repository import ProfileMatchLLMRepository
-from app.services.llm.llm_service import call_llm_json
+from app.services.llm.llm_service import call_llm_json, normalize_list
 from app.services.llm.prompt_builder import build_profile_match_prompt
 
 logger = logging.getLogger(__name__)
@@ -58,9 +58,10 @@ class ProfileMatchingService:
                         match.match_score = max(0, min(100, float(raw_score)))
                     except (TypeError, ValueError):
                         pass
-                match.strengths = parsed.get("strengths")
-                match.gaps = parsed.get("gaps")
-                match.recommendation = parsed.get("recommendation")
+                match.strengths = normalize_list(parsed.get("strengths"))
+                match.gaps = normalize_list(parsed.get("gaps"))
+                recommendation = parsed.get("recommendation")
+                match.recommendation = str(recommendation).strip() if recommendation else None
                 match.match_status = "DONE"
             else:
                 match.match_status = "FAILED"

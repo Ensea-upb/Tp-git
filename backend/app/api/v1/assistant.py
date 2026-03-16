@@ -12,7 +12,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.infrastructure.db.session import get_db
 from app.repositories.offer_repository import OfferRepository
 from app.services.application_assistant_service import ApplicationAssistantService
 

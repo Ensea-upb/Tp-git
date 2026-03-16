@@ -12,7 +12,7 @@ from app.config import settings
 from app.infrastructure.db.models.offer_llm_analysis import OfferLLMAnalysis
 from app.repositories.offer_llm_analysis_repository import OfferLLMAnalysisRepository
 from app.repositories.offer_repository import OfferRepository
-from app.services.llm.llm_service import call_llm_json
+from app.services.llm.llm_service import call_llm_json, normalize_list
 from app.services.llm.prompt_builder import build_offer_analysis_prompt
 
 logger = logging.getLogger(__name__)
@@ -51,11 +51,12 @@ class OfferLLMAnalysisService:
                 db_session=self.db,
             )
             if parsed and isinstance(parsed, dict):
-                analysis.summary = parsed.get("summary")
-                analysis.missions = parsed.get("missions")
-                analysis.skills_required = parsed.get("skills_required")
-                analysis.tech_stack = parsed.get("tech_stack")
-                analysis.seniority_level = parsed.get("seniority_level")
+                analysis.summary = parsed.get("summary") or None
+                analysis.missions = normalize_list(parsed.get("missions"))
+                analysis.skills_required = normalize_list(parsed.get("skills_required"))
+                analysis.tech_stack = normalize_list(parsed.get("tech_stack"))
+                seniority = parsed.get("seniority_level")
+                analysis.seniority_level = str(seniority).strip() if seniority else None
                 analysis.analysis_status = "DONE"
             else:
                 analysis.analysis_status = "FAILED"
