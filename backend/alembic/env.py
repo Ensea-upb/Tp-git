@@ -28,6 +28,8 @@ import app.infrastructure.db.models.llm_cache  # noqa: E402, F401
 import app.infrastructure.db.models.offer_llm_analysis  # noqa: E402, F401
 import app.infrastructure.db.models.candidate_profile  # noqa: E402, F401
 import app.infrastructure.db.models.profile_match_llm  # noqa: E402, F401
+import app.infrastructure.db.models.application  # noqa: E402, F401
+import app.infrastructure.db.models.application_followup  # noqa: E402, F401
 
 target_metadata = Base.metadata
 

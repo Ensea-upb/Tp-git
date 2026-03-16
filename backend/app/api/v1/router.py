@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     analysis,
+    applications,
     assistant,
     candidate,
     health,
@@ -23,3 +24,4 @@ api_router.include_router(sources.router, prefix="/sources", tags=["sources"])
 api_router.include_router(ingestion.router, prefix="/ingestion", tags=["ingestion"])
 api_router.include_router(preferences.router, prefix="/preferences", tags=["preferences"])
 api_router.include_router(candidate.router)
+api_router.include_router(applications.router)

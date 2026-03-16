@@ -25,6 +25,8 @@ from app.infrastructure.db.models.offer import Offer  # noqa: E402
 from app.infrastructure.db.models.offer_llm_analysis import OfferLLMAnalysis  # noqa: E402, F401
 from app.infrastructure.db.models.offer_user_status import OfferUserStatus  # noqa: E402, F401
 from app.infrastructure.db.models.profile_match_llm import ProfileMatchLLM  # noqa: E402, F401
+from app.infrastructure.db.models.application import Application  # noqa: E402, F401
+from app.infrastructure.db.models.application_followup import ApplicationFollowup  # noqa: E402, F401
 from app.infrastructure.db.models.source import Source  # noqa: E402
 from app.infrastructure.db.models.user_preference import UserPreference  # noqa: E402, F401
 from app.infrastructure.db.session import get_db  # noqa: E402

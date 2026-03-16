@@ -15,6 +15,13 @@ import type {
   CandidateProfileUpdate,
   AssistantResult,
 } from "@/types/analysis";
+import type {
+  Application,
+  ApplicationCreate,
+  ApplicationStatus,
+  FollowupCreate,
+  Followup,
+} from "@/types/application";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const API_KEY = process.env.INTERNAL_API_KEY || "dev-api-key-changeme";
@@ -148,6 +155,40 @@ export async function updateCandidateProfile(
 ): Promise<CandidateProfile> {
   return apiFetch<CandidateProfile>("/candidate", {
     method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+// ── Applications ──────────────────────────────────────────────────────
+
+export async function createApplication(body: ApplicationCreate): Promise<Application> {
+  return apiFetch<Application>("/applications", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getApplications(): Promise<Application[]> {
+  return apiFetch<Application[]>("/applications");
+}
+
+export async function getApplication(id: string): Promise<Application> {
+  return apiFetch<Application>(`/applications/${id}`);
+}
+
+export async function updateApplicationStatus(
+  id: string,
+  status: ApplicationStatus
+): Promise<Application> {
+  return apiFetch<Application>(`/applications/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function addFollowup(id: string, body: FollowupCreate): Promise<Followup> {
+  return apiFetch<Followup>(`/applications/${id}/followup`, {
+    method: "POST",
     body: JSON.stringify(body),
   });
 }
