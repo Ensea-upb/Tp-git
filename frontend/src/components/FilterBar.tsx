@@ -5,6 +5,7 @@ import {
   CONTRACT_TYPE_OPTIONS,
   WORK_MODE_OPTIONS,
   SORT_OPTIONS,
+  USER_STATUS_FILTER_OPTIONS,
 } from "@/lib/constants";
 import type { SourceOut } from "@/types/offer";
 
@@ -23,7 +24,6 @@ export default function FilterBar({ currentParams, sources }: FilterBarProps) {
     } else {
       params.delete(key);
     }
-    // Réinitialiser la pagination sur tout changement de filtre
     params.delete("page");
     router.push(`/offers?${params.toString()}`);
   };
@@ -55,6 +55,20 @@ export default function FilterBar({ currentParams, sources }: FilterBarProps) {
         aria-label="Filtrer par mode de travail"
       >
         {WORK_MODE_OPTIONS.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+
+      {/* Statut utilisateur */}
+      <select
+        className={selectClass}
+        value={currentParams.user_status ?? ""}
+        onChange={(e) => handleChange("user_status", e.target.value)}
+        aria-label="Filtrer par statut"
+      >
+        {USER_STATUS_FILTER_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>

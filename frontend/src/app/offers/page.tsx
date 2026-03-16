@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getOffers, getSources } from "@/lib/api";
 import OfferCard from "@/components/OfferCard";
 import FilterBar from "@/components/FilterBar";
-import type { OfferState, WorkMode, SortBy } from "@/types/offer";
+import type { OfferState, WorkMode, SortBy, UserStatusValue } from "@/types/offer";
 
 interface SearchParams {
   page?: string;
@@ -12,6 +12,7 @@ interface SearchParams {
   work_mode?: string;
   source_id?: string;
   sort_by?: string;
+  user_status?: string;
 }
 
 const STATE_FILTER_OPTIONS: { value: OfferState | ""; label: string }[] = [
@@ -39,6 +40,7 @@ export default async function OffersPage({
   const work_mode = (searchParams.work_mode as WorkMode) || undefined;
   const source_id = searchParams.source_id || undefined;
   const sort_by = (searchParams.sort_by as SortBy) || "created_at";
+  const user_status = (searchParams.user_status as UserStatusValue) || undefined;
 
   let data;
   let error: string | null = null;
@@ -54,6 +56,7 @@ export default async function OffersPage({
         contract_type,
         work_mode,
         source_id,
+        user_status,
         sort_by,
       }),
       getSources().catch(() => []),
@@ -70,6 +73,7 @@ export default async function OffersPage({
   if (searchParams.source_id) currentParams.source_id = searchParams.source_id;
   if (searchParams.sort_by) currentParams.sort_by = searchParams.sort_by;
   if (searchParams.is_active) currentParams.is_active = searchParams.is_active;
+  if (searchParams.user_status) currentParams.user_status = searchParams.user_status;
 
   // Liens pagination — préserve tous les filtres actifs
   const paginationParams = new URLSearchParams(currentParams);

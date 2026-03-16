@@ -17,20 +17,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="flex items-center justify-between h-14">
               <Link href="/" className="flex items-center gap-2">
                 <span className="text-lg font-bold text-gray-900">Agent Stage</span>
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Sprint 1</span>
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Sprint 4</span>
               </Link>
               <div className="flex items-center gap-6 text-sm font-medium">
-                <Link
-                  href="/offers"
-                  className="text-gray-600 hover:text-blue-700 transition-colors"
-                >
+                <Link href="/offers" className="text-gray-600 hover:text-blue-700 transition-colors">
                   Offres
                 </Link>
+                <Link href="/preferences" className="text-gray-600 hover:text-blue-700 transition-colors">
+                  Préférences
+                </Link>
                 <span className="text-gray-300">|</span>
-                <span className="text-gray-400 cursor-not-allowed" title="Disponible Sprint 4">
-                  Candidatures
-                </span>
-                <span className="text-gray-400 cursor-not-allowed" title="Disponible Sprint 6">
+                <span className="text-gray-400 cursor-not-allowed" title="Disponible Sprint 5">
                   Suivi
                 </span>
               </div>
@@ -47,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="border-t border-gray-200 mt-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <p className="text-xs text-gray-400 text-center">
-              Agent Personnel de Recherche de Stage — Sprint 1 — Human-in-the-loop
+              Agent Personnel de Recherche de Stage — Sprint 4 — Human-in-the-loop
             </p>
           </div>
         </footer>

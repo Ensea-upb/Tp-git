@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import verify_api_key
 from app.api.schemas.offer import OfferOut, PaginatedOffers
 from app.domain.enums.offer_state import OfferState
+from app.domain.enums.user_status import UserStatus
 from app.domain.enums.work_mode import WorkMode
 from app.infrastructure.db.session import get_db
 from app.repositories.offer_repository import SortBy
@@ -16,17 +17,17 @@ router = APIRouter(dependencies=[Depends(verify_api_key)])
 
 @router.get("", response_model=PaginatedOffers, summary="Liste paginée des offres")
 def list_offers(
-    page: int = Query(default=1, ge=1, description="Numéro de page"),
-    page_size: int = Query(default=20, ge=1, le=100, description="Offres par page"),
-    state: OfferState | None = Query(default=None, description="Filtrer par état"),
-    is_active: bool | None = Query(default=True, description="Filtrer par statut actif"),
-    contract_type: str | None = Query(default=None, description="Filtrer par type de contrat"),
-    work_mode: WorkMode | None = Query(default=None, description="Filtrer par mode de travail"),
-    source_id: uuid.UUID | None = Query(default=None, description="Filtrer par source"),
-    sort_by: SortBy = Query(default="created_at", description="Tri : created_at ou relevance_score"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    state: OfferState | None = Query(default=None),
+    is_active: bool | None = Query(default=True),
+    contract_type: str | None = Query(default=None),
+    work_mode: WorkMode | None = Query(default=None),
+    source_id: uuid.UUID | None = Query(default=None),
+    user_status: UserStatus | None = Query(default=None, description="Filtrer par statut utilisateur"),
+    sort_by: SortBy = Query(default="created_at"),
     db: Session = Depends(get_db),
 ) -> PaginatedOffers:
-    """Retourne la liste paginée des offres avec filtres et tri optionnels."""
     service = OfferService(db)
     return service.list_offers(
         page=page,
@@ -36,6 +37,7 @@ def list_offers(
         contract_type=contract_type,
         work_mode=work_mode,
         source_id=source_id,
+        user_status=user_status,
         sort_by=sort_by,
     )
 
@@ -45,7 +47,6 @@ def get_offer(
     offer_id: uuid.UUID,
     db: Session = Depends(get_db),
 ) -> OfferOut:
-    """Retourne le détail complet d'une offre par son UUID."""
     service = OfferService(db)
     offer = service.get_offer(offer_id)
     if offer is None:

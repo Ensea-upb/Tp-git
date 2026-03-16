@@ -54,6 +54,10 @@ class Offer(Base):
     action_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
     score_justification: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
+    # Scoring personnalisé (calculé depuis les préférences utilisateur)
+    personalized_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    personalized_justification: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+
     # Tags métier (data, ml, ai, analytics, econometrics…)
     tags: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
 
@@ -74,4 +78,7 @@ class Offer(Base):
     primary_source: Mapped["Source | None"] = relationship("Source", back_populates="offers")  # noqa: F821
     raw_offer: Mapped["OfferRaw | None"] = relationship(  # noqa: F821
         "OfferRaw", back_populates="normalized_offer", foreign_keys=[raw_offer_id]
+    )
+    user_status: Mapped["OfferUserStatus | None"] = relationship(  # noqa: F821
+        "OfferUserStatus", back_populates="offer", uselist=False, cascade="all, delete-orphan"
     )

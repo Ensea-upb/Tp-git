@@ -34,9 +34,11 @@ from app.repositories.ingestion_run_repository import IngestionRunRepository
 from app.repositories.offer_raw_repository import OfferRawRepository
 from app.repositories.offer_repository import OfferRepository
 from app.repositories.source_repository import SourceRepository
+from app.repositories.user_preference_repository import UserPreferenceRepository
 from app.services.offer_deduplicator import OfferDeduplicator
 from app.services.offer_normalizer import OfferNormalizer
 from app.services.offer_scoring_service import OfferScoringService
+from app.services.personalized_offer_scoring_service import PersonalizedOfferScoringService
 from app.services.source_connector_manager import SourceConnectorManager
 
 logger = logging.getLogger(__name__)
@@ -52,6 +54,8 @@ class OfferIngestionService:
         self.ingestion_run_repo = IngestionRunRepository(db)
         self.normalizer = OfferNormalizer()
         self.scorer = OfferScoringService()
+        self.personalized_scorer = PersonalizedOfferScoringService()
+        self.pref_repo = UserPreferenceRepository(db)
         self.deduplicator = OfferDeduplicator(
             offer_repo=self.offer_repo,
             offer_raw_repo=self.offer_raw_repo,
@@ -192,8 +196,12 @@ class OfferIngestionService:
                 current_state=OfferState.NORMALIZED,
                 is_active=True,
             )
-            # e. Scorer
+            # e. Scorer global
             self.scorer.score(offer, normalized)
+            # f. Scorer personnalisé si profil existe
+            prefs = self.pref_repo.get_default()
+            if prefs is not None:
+                self.personalized_scorer.score(offer, prefs)
             self.offer_repo.create(offer)
             self._update_raw_status(offer_raw, "PARSED")
             result.new_offers += 1
@@ -204,8 +212,10 @@ class OfferIngestionService:
                 if existing:
                     existing.checksum = normalized.checksum
                     existing.raw_offer_id = offer_raw.id
-                    # Re-scorer l'offre mise à jour
                     self.scorer.score(existing, normalized)
+                    prefs = self.pref_repo.get_default()
+                    if prefs is not None:
+                        self.personalized_scorer.score(existing, prefs)
                     self.db.flush()
             self._update_raw_status(offer_raw, "PARSED")
             result.updated_offers += 1

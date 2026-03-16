@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOffer } from "@/lib/api";
-import { WORK_MODE_LABELS } from "@/lib/constants";
+import { WORK_MODE_LABELS, TAG_LABELS, TAG_COLORS } from "@/lib/constants";
 import StateChip from "@/components/StateChip";
+import OfferActions from "@/components/OfferActions";
 
 interface PageProps {
   params: { id: string };
@@ -18,9 +19,9 @@ function MetaItem({ label, value }: { label: string; value: string | number | nu
   );
 }
 
-function ScoreBar({ score, label }: { score: number; label: string }) {
+function ScoreBar({ score, label, color }: { score: number; label: string; color?: string }) {
   const pct = Math.min(100, Math.max(0, score));
-  const color = pct >= 80 ? "bg-green-500" : pct >= 60 ? "bg-yellow-400" : "bg-red-400";
+  const barColor = color ?? (pct >= 80 ? "bg-green-500" : pct >= 60 ? "bg-yellow-400" : "bg-red-400");
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
@@ -28,9 +29,19 @@ function ScoreBar({ score, label }: { score: number; label: string }) {
         <span className="font-bold text-gray-800">{pct.toFixed(0)} / 100</span>
       </div>
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full ${barColor} transition-all`} style={{ width: `${pct}%` }} />
       </div>
     </div>
+  );
+}
+
+function TagBadge({ tag }: { tag: string }) {
+  const label = TAG_LABELS[tag] ?? tag;
+  const colorClass = TAG_COLORS[tag] ?? "bg-gray-50 text-gray-600 border-gray-200";
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${colorClass}`}>
+      {label}
+    </span>
   );
 }
 
@@ -89,7 +100,16 @@ export default async function OfferDetailPage({ params }: PageProps) {
           <StateChip state={offer.current_state} />
         </div>
 
-        {/* Métadonnées en grille */}
+        {/* Tags */}
+        {offer.tags && offer.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {offer.tags.map((tag) => (
+              <TagBadge key={tag} tag={tag} />
+            ))}
+          </div>
+        )}
+
+        {/* Métadonnées */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-t border-b border-gray-100">
           <MetaItem label="Type" value={offer.contract_type} />
           <MetaItem
@@ -127,7 +147,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Description */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-4">
           {offer.normalized_description && (
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-base font-semibold text-gray-800 mb-3">Description du poste</h2>
@@ -138,91 +158,85 @@ export default async function OfferDetailPage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Scoring */}
+        {/* Colonne droite */}
         <div className="space-y-4">
-          {(offer.global_score != null || offer.action_score != null) && (
+          {/* Actions utilisateur */}
+          <div className="bg-white rounded-lg border border-gray-200 p-5">
+            <h2 className="text-base font-semibold text-gray-800 mb-3">Actions</h2>
+            <OfferActions
+              offerId={offer.id}
+              currentStatus={offer.user_status?.status ?? null}
+            />
+          </div>
+
+          {/* Scores */}
+          {(offer.personalized_score != null || offer.global_score != null) && (
             <div className="bg-white rounded-lg border border-gray-200 p-5">
-              <h2 className="text-base font-semibold text-gray-800 mb-4">Score de pertinence</h2>
+              <h2 className="text-base font-semibold text-gray-800 mb-4">Scores</h2>
               <div className="space-y-4">
+                {offer.personalized_score != null && (
+                  <ScoreBar
+                    score={offer.personalized_score}
+                    label="Score personnalisé"
+                    color={
+                      offer.personalized_score >= 80
+                        ? "bg-blue-500"
+                        : offer.personalized_score >= 60
+                        ? "bg-blue-300"
+                        : "bg-gray-300"
+                    }
+                  />
+                )}
                 {offer.global_score != null && (
                   <ScoreBar score={offer.global_score} label="Score global" />
-                )}
-                {offer.action_score != null && (
-                  <ScoreBar score={offer.action_score} label="Score d'action" />
                 )}
               </div>
             </div>
           )}
 
+          {/* Justification personnalisée */}
+          {offer.personalized_justification?.détails &&
+            offer.personalized_justification.détails.length > 0 && (
+              <div className="bg-blue-50 rounded-lg border border-blue-100 p-4">
+                <h3 className="text-sm font-semibold text-blue-800 mb-2">
+                  Détail score personnalisé
+                </h3>
+                <p className="text-xs text-blue-700 italic mb-2">
+                  {offer.personalized_justification.résumé}
+                </p>
+                <ul className="space-y-0.5">
+                  {offer.personalized_justification.détails.map((d, i) => (
+                    <li key={i} className="text-xs text-blue-700 flex items-start gap-1">
+                      <span className="mt-0.5 shrink-0">·</span>
+                      {d}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+          {/* Analyse globale */}
           {offer.score_justification && (
             <div className="bg-white rounded-lg border border-gray-200 p-5">
-              <h2 className="text-base font-semibold text-gray-800 mb-3">Analyse</h2>
+              <h2 className="text-base font-semibold text-gray-800 mb-3">Analyse globale</h2>
               <div className="space-y-3 text-sm">
                 {offer.score_justification.résumé && (
                   <p className="text-gray-700 italic">{offer.score_justification.résumé}</p>
                 )}
-
-                {offer.score_justification.points_forts &&
-                  offer.score_justification.points_forts.length > 0 && (
-                    <div>
-                      <p className="font-medium text-green-700 mb-1">Points forts</p>
-                      <ul className="space-y-0.5">
-                        {offer.score_justification.points_forts.map((pt, i) => (
-                          <li key={i} className="flex items-start gap-1.5 text-gray-700">
-                            <span className="text-green-500 mt-0.5">✓</span>
-                            {pt}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                {offer.score_justification.détails &&
+                  offer.score_justification.détails.length > 0 && (
+                    <ul className="space-y-0.5">
+                      {offer.score_justification.détails.map((d, i) => (
+                        <li key={i} className="text-xs text-gray-600 flex items-start gap-1">
+                          <span className="mt-0.5 shrink-0">·</span>
+                          {d}
+                        </li>
+                      ))}
+                    </ul>
                   )}
-
-                {offer.score_justification.points_faibles &&
-                  offer.score_justification.points_faibles.length > 0 && (
-                    <div>
-                      <p className="font-medium text-orange-700 mb-1">Points d&apos;attention</p>
-                      <ul className="space-y-0.5">
-                        {offer.score_justification.points_faibles.map((pt, i) => (
-                          <li key={i} className="flex items-start gap-1.5 text-gray-700">
-                            <span className="text-orange-400 mt-0.5">△</span>
-                            {pt}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                {offer.score_justification.recommandation && (
-                  <div className="bg-blue-50 rounded p-3 mt-2">
-                    <p className="text-xs font-medium text-blue-700 mb-0.5">Recommandation</p>
-                    <p className="text-blue-800 text-xs">{offer.score_justification.recommandation}</p>
-                  </div>
-                )}
               </div>
             </div>
           )}
-
-          {/* Actions (placeholder Sprint 4) */}
-          <div className="bg-white rounded-lg border border-dashed border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-400 mb-3">Actions</h2>
-            <div className="space-y-2">
-              <button
-                disabled
-                title="Disponible Sprint 4"
-                className="w-full px-4 py-2 text-sm bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed"
-              >
-                Préparer la candidature
-              </button>
-              <button
-                disabled
-                title="Disponible Sprint 4"
-                className="w-full px-4 py-2 text-sm border border-dashed border-gray-200 text-gray-400 rounded-lg cursor-not-allowed"
-              >
-                Rejeter l&apos;offre
-              </button>
-            </div>
-            <p className="text-xs text-gray-400 mt-3 text-center">Disponible Sprint 4</p>
-          </div>
         </div>
       </div>
 

@@ -20,7 +20,9 @@ from app.infrastructure.db.base import Base  # noqa: E402
 from app.infrastructure.db.models.company import Company  # noqa: E402
 from app.infrastructure.db.models.ingestion_run import IngestionRun  # noqa: E402, F401
 from app.infrastructure.db.models.offer import Offer  # noqa: E402
+from app.infrastructure.db.models.offer_user_status import OfferUserStatus  # noqa: E402, F401
 from app.infrastructure.db.models.source import Source  # noqa: E402
+from app.infrastructure.db.models.user_preference import UserPreference  # noqa: E402, F401
 from app.infrastructure.db.session import get_db  # noqa: E402
 from app.main import app  # noqa: E402
 
@@ -134,3 +136,23 @@ def sample_offer(db):
     db.add(offer)
     db.flush()
     return offer
+
+
+@pytest.fixture()
+def default_prefs(db):
+    """Crée un profil de préférences par défaut pour les tests de scoring personnalisé."""
+    from app.infrastructure.db.models.user_preference import DEFAULT_PROFILE_ID, UserPreference
+
+    prefs = UserPreference(
+        id=DEFAULT_PROFILE_ID,
+        preferred_contract_types=["Stage", "Alternance"],
+        preferred_work_modes=["REMOTE", "HYBRID"],
+        preferred_locations=["Paris"],
+        preferred_keywords=["python", "data"],
+        preferred_domains=["data", "ml"],
+        exclude_keywords=["PHP legacy"],
+        minimum_duration_months=4,
+    )
+    db.add(prefs)
+    db.flush()
+    return prefs

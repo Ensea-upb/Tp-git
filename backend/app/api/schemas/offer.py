@@ -24,6 +24,14 @@ class SourceBrief(BaseModel):
     source_type: str
 
 
+class UserStatusBrief(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    status: str
+    notes: str | None = None
+    updated_at: datetime
+
+
 class OfferOut(BaseModel):
     """Schéma de sortie complet d'une offre normalisée."""
 
@@ -44,6 +52,8 @@ class OfferOut(BaseModel):
     global_score: float | None = None
     action_score: float | None = None
     score_justification: dict | None = None
+    personalized_score: float | None = None
+    personalized_justification: dict | None = None
     tags: list[str] | None = None
     offer_url: str | None = None
     created_at: datetime
@@ -52,6 +62,7 @@ class OfferOut(BaseModel):
     # Relations
     company: CompanyBrief | None = None
     primary_source: SourceBrief | None = None
+    user_status: UserStatusBrief | None = None
 
 
 class OfferListItem(BaseModel):
@@ -68,12 +79,14 @@ class OfferListItem(BaseModel):
     current_state: OfferState
     is_active: bool
     global_score: float | None = None
+    personalized_score: float | None = None
     tags: list[str] | None = None
     published_at: datetime | None = None
     created_at: datetime
 
     company: CompanyBrief | None = None
     primary_source: SourceBrief | None = None
+    user_status: UserStatusBrief | None = None
 
 
 class PaginatedOffers(BaseModel):

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.api.schemas.offer import OfferListItem, OfferOut, PaginatedOffers
 from app.domain.enums.offer_state import OfferState
+from app.domain.enums.user_status import UserStatus
 from app.domain.enums.work_mode import WorkMode
 from app.repositories.offer_repository import OfferRepository, SortBy
 
@@ -21,6 +22,7 @@ class OfferService:
         contract_type: str | None = None,
         work_mode: WorkMode | None = None,
         source_id: uuid.UUID | None = None,
+        user_status: UserStatus | None = None,
         sort_by: SortBy = "created_at",
     ) -> PaginatedOffers:
         offers, total = self.repo.get_all(
@@ -31,6 +33,7 @@ class OfferService:
             contract_type=contract_type,
             work_mode=work_mode,
             source_id=source_id,
+            user_status=user_status,
             sort_by=sort_by,
         )
         items = [OfferListItem.model_validate(o) for o in offers]

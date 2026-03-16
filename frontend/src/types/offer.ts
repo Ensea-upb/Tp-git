@@ -17,7 +17,9 @@ export type OfferState =
 
 export type WorkMode = "ONSITE" | "HYBRID" | "REMOTE";
 
-export type SortBy = "created_at" | "relevance_score";
+export type SortBy = "created_at" | "relevance_score" | "personalized_score";
+
+export type UserStatusValue = "FAVORITE" | "SHORTLISTED" | "REJECTED" | "APPLIED";
 
 export interface CompanyBrief {
   id: string;
@@ -32,6 +34,12 @@ export interface SourceBrief {
   source_type: string;
 }
 
+export interface UserStatusBrief {
+  status: UserStatusValue;
+  notes: string | null;
+  updated_at: string;
+}
+
 export interface OfferListItem {
   id: string;
   normalized_title: string;
@@ -42,17 +50,21 @@ export interface OfferListItem {
   current_state: OfferState;
   is_active: boolean;
   global_score: number | null;
+  personalized_score: number | null;
   tags: string[] | null;
   published_at: string | null;
   created_at: string;
   company: CompanyBrief | null;
   primary_source: SourceBrief | null;
+  user_status: UserStatusBrief | null;
 }
 
 export interface ScoreJustification {
   score?: number;
   résumé?: string;
   détails?: string[];
+  base_score?: number;
+  delta?: number;
   [key: string]: unknown;
 }
 
@@ -62,6 +74,7 @@ export interface OfferDetail extends OfferListItem {
   deadline_at: string | null;
   offer_url: string | null;
   score_justification: ScoreJustification | null;
+  personalized_justification: ScoreJustification | null;
   updated_at: string;
 }
 

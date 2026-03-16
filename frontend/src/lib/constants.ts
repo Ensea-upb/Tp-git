@@ -1,4 +1,4 @@
-import type { WorkMode, OfferState } from "@/types/offer";
+import type { WorkMode, OfferState, UserStatusValue } from "@/types/offer";
 
 export const WORK_MODE_LABELS: Record<WorkMode, string> = {
   ONSITE: "Présentiel",
@@ -38,6 +38,20 @@ export const TAG_COLORS: Record<string, string> = {
   econometrics: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
+export const USER_STATUS_LABELS: Record<UserStatusValue, string> = {
+  FAVORITE: "Favori",
+  SHORTLISTED: "Shortlistée",
+  REJECTED: "Rejetée",
+  APPLIED: "Postulée",
+};
+
+export const USER_STATUS_COLORS: Record<UserStatusValue, string> = {
+  FAVORITE: "bg-amber-50 text-amber-700 border-amber-200",
+  SHORTLISTED: "bg-green-50 text-green-700 border-green-200",
+  REJECTED: "bg-red-50 text-red-500 border-red-200",
+  APPLIED: "bg-blue-50 text-blue-700 border-blue-200",
+};
+
 export const CONTRACT_TYPE_OPTIONS = [
   { value: "", label: "Tous les contrats" },
   { value: "Stage", label: "Stage" },
@@ -54,7 +68,24 @@ export const WORK_MODE_OPTIONS = [
   { value: "REMOTE", label: "Télétravail" },
 ];
 
+export const USER_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "Tous les statuts" },
+  { value: "FAVORITE", label: "Favoris" },
+  { value: "SHORTLISTED", label: "Shortlistées" },
+  { value: "REJECTED", label: "Rejetées" },
+  { value: "APPLIED", label: "Postulées" },
+];
+
 export const SORT_OPTIONS = [
   { value: "created_at", label: "Date d'ajout" },
-  { value: "relevance_score", label: "Score de pertinence" },
+  { value: "relevance_score", label: "Score global" },
+  { value: "personalized_score", label: "Score personnalisé" },
+];
+
+export const DOMAIN_OPTIONS = [
+  { value: "data", label: "Data" },
+  { value: "ml", label: "Machine Learning" },
+  { value: "ai", label: "Intelligence Artificielle" },
+  { value: "analytics", label: "Analytics" },
+  { value: "econometrics", label: "Économétrie" },
 ];
