@@ -18,6 +18,7 @@ from app.domain.enums.offer_state import OfferState  # noqa: E402
 from app.domain.enums.work_mode import WorkMode  # noqa: E402
 from app.infrastructure.db.base import Base  # noqa: E402
 from app.infrastructure.db.models.company import Company  # noqa: E402
+from app.infrastructure.db.models.ingestion_run import IngestionRun  # noqa: E402, F401
 from app.infrastructure.db.models.offer import Offer  # noqa: E402
 from app.infrastructure.db.models.source import Source  # noqa: E402
 from app.infrastructure.db.session import get_db  # noqa: E402

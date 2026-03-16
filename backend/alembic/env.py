@@ -21,6 +21,7 @@ import app.infrastructure.db.models.source  # noqa: E402, F401
 import app.infrastructure.db.models.company  # noqa: E402, F401
 import app.infrastructure.db.models.offer_raw  # noqa: E402, F401
 import app.infrastructure.db.models.offer  # noqa: E402, F401
+import app.infrastructure.db.models.ingestion_run  # noqa: E402, F401
 
 target_metadata = Base.metadata
 

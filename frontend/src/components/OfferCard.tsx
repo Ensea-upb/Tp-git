@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { OfferListItem } from "@/types/offer";
-import { WORK_MODE_LABELS } from "@/lib/constants";
+import { WORK_MODE_LABELS, TAG_LABELS, TAG_COLORS } from "@/lib/constants";
 import StateChip from "./StateChip";
 
 interface OfferCardProps {
@@ -20,9 +20,23 @@ function ScoreBar({ score }: { score: number }) {
   );
 }
 
+function TagBadge({ tag }: { tag: string }) {
+  const label = TAG_LABELS[tag] ?? tag;
+  const colorClass = TAG_COLORS[tag] ?? "bg-gray-50 text-gray-600 border-gray-200";
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${colorClass}`}>
+      {label}
+    </span>
+  );
+}
+
 export default function OfferCard({ offer }: OfferCardProps) {
   const publishedDate = offer.published_at
-    ? new Date(offer.published_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })
+    ? new Date(offer.published_at).toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
     : null;
 
   return (
@@ -49,18 +63,23 @@ export default function OfferCard({ offer }: OfferCardProps) {
               {offer.duration_months && <span>· {offer.duration_months} mois</span>}
             </span>
           )}
-          {offer.location_text && (
-            <span>📍 {offer.location_text}</span>
-          )}
+          {offer.location_text && <span>📍 {offer.location_text}</span>}
           {offer.work_mode && (
             <span>🏢 {WORK_MODE_LABELS[offer.work_mode] ?? offer.work_mode}</span>
           )}
-          {publishedDate && (
-            <span>Publié le {publishedDate}</span>
-          )}
+          {publishedDate && <span>Publié le {publishedDate}</span>}
         </div>
 
-        {/* Scores */}
+        {/* Tags métier */}
+        {offer.tags && offer.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {offer.tags.map((tag) => (
+              <TagBadge key={tag} tag={tag} />
+            ))}
+          </div>
+        )}
+
+        {/* Score de pertinence */}
         {offer.global_score != null && (
           <div className="space-y-1">
             <div className="flex items-center justify-between text-xs text-gray-500 mb-0.5">

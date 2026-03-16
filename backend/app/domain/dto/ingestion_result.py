@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass, field
 
 
@@ -13,3 +14,5 @@ class IngestionResult:
     errors: int = 0
     duration_seconds: float = 0.0
     error_details: list[str] = field(default_factory=list)
+    # Identifiant du run persisté en base (disponible après commit)
+    run_id: uuid.UUID | None = None

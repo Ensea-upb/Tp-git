@@ -6,7 +6,9 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import verify_api_key
 from app.api.schemas.offer import OfferOut, PaginatedOffers
 from app.domain.enums.offer_state import OfferState
+from app.domain.enums.work_mode import WorkMode
 from app.infrastructure.db.session import get_db
+from app.repositories.offer_repository import SortBy
 from app.services.offer_service import OfferService
 
 router = APIRouter(dependencies=[Depends(verify_api_key)])
@@ -18,11 +20,24 @@ def list_offers(
     page_size: int = Query(default=20, ge=1, le=100, description="Offres par page"),
     state: OfferState | None = Query(default=None, description="Filtrer par état"),
     is_active: bool | None = Query(default=True, description="Filtrer par statut actif"),
+    contract_type: str | None = Query(default=None, description="Filtrer par type de contrat"),
+    work_mode: WorkMode | None = Query(default=None, description="Filtrer par mode de travail"),
+    source_id: uuid.UUID | None = Query(default=None, description="Filtrer par source"),
+    sort_by: SortBy = Query(default="created_at", description="Tri : created_at ou relevance_score"),
     db: Session = Depends(get_db),
 ) -> PaginatedOffers:
-    """Retourne la liste paginée des offres avec filtres optionnels."""
+    """Retourne la liste paginée des offres avec filtres et tri optionnels."""
     service = OfferService(db)
-    return service.list_offers(page=page, page_size=page_size, state=state, is_active=is_active)
+    return service.list_offers(
+        page=page,
+        page_size=page_size,
+        state=state,
+        is_active=is_active,
+        contract_type=contract_type,
+        work_mode=work_mode,
+        source_id=source_id,
+        sort_by=sort_by,
+    )
 
 
 @router.get("/{offer_id}", response_model=OfferOut, summary="Détail d'une offre")

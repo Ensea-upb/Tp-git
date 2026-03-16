@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.enums.offer_state import OfferState
@@ -53,6 +53,9 @@ class Offer(Base):
     global_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
     action_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
     score_justification: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+
+    # Tags métier (data, ml, ai, analytics, econometrics…)
+    tags: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
 
     # Déduplication
     offer_url: Mapped[str | None] = mapped_column(String(2048), nullable=True, unique=True)

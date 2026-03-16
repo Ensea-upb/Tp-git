@@ -1,10 +1,14 @@
 import uuid
+from typing import Literal
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from app.domain.enums.offer_state import OfferState
+from app.domain.enums.work_mode import WorkMode
 from app.infrastructure.db.models.offer import Offer
+
+SortBy = Literal["created_at", "relevance_score"]
 
 
 class OfferRepository:
@@ -21,12 +25,17 @@ class OfferRepository:
         page_size: int = 20,
         state: OfferState | None = None,
         is_active: bool | None = True,
+        contract_type: str | None = None,
+        work_mode: WorkMode | None = None,
+        source_id: uuid.UUID | None = None,
+        sort_by: SortBy = "created_at",
     ) -> tuple[list[Offer], int]:
         """Retourne (liste d'offres, total) selon les filtres."""
+        order_col = Offer.global_score.desc().nulls_last() if sort_by == "relevance_score" else Offer.created_at.desc()
         query = (
             select(Offer)
             .options(joinedload(Offer.company), joinedload(Offer.primary_source))
-            .order_by(Offer.created_at.desc())
+            .order_by(order_col)
         )
         count_query = select(func.count(Offer.id))
 
@@ -37,6 +46,18 @@ class OfferRepository:
         if is_active is not None:
             query = query.where(Offer.is_active == is_active)
             count_query = count_query.where(Offer.is_active == is_active)
+
+        if contract_type is not None:
+            query = query.where(Offer.contract_type == contract_type)
+            count_query = count_query.where(Offer.contract_type == contract_type)
+
+        if work_mode is not None:
+            query = query.where(Offer.work_mode == work_mode)
+            count_query = count_query.where(Offer.work_mode == work_mode)
+
+        if source_id is not None:
+            query = query.where(Offer.primary_source_id == source_id)
+            count_query = count_query.where(Offer.primary_source_id == source_id)
 
         total = self.db.execute(count_query).scalar_one()
         offset = (page - 1) * page_size

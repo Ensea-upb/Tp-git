@@ -60,20 +60,15 @@ class TestRunSource:
             _make_raw_payload("Stage DevOps"),
         ]
 
+        service = OfferIngestionService(db)
+        mock_connector = MagicMock()
+        mock_connector.fetch.return_value = payloads
+        mock_connector.is_available.return_value = True
+
         with patch.object(
-            OfferIngestionService, "_build_connector_for_source", return_value=None
+            service.connector_manager, "get_connector", return_value=mock_connector
         ):
-            service = OfferIngestionService(db)
-
-            # Injecter les payloads directement via le connecteur mocké
-            mock_connector = MagicMock()
-            mock_connector.fetch.return_value = payloads
-            mock_connector.is_available.return_value = True
-
-            with patch.object(
-                service.connector_manager, "get_connector", return_value=mock_connector
-            ):
-                result = service.run_source(active_source.id)
+            result = service.run_source(active_source.id)
 
         assert result.total_fetched == 2
         assert result.new_offers == 2
