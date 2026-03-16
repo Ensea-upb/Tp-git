@@ -1,17 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOffer } from "@/lib/api";
+import { WORK_MODE_LABELS } from "@/lib/constants";
 import StateChip from "@/components/StateChip";
 
 interface PageProps {
   params: { id: string };
 }
-
-const WORK_MODE_LABELS: Record<string, string> = {
-  ONSITE: "Présentiel",
-  HYBRID: "Hybride",
-  REMOTE: "Télétravail",
-};
 
 function MetaItem({ label, value }: { label: string; value: string | number | null | undefined }) {
   if (!value) return null;

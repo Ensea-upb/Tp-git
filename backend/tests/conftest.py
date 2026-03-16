@@ -3,11 +3,15 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-# Configurer l'environnement de test avant d'importer l'app
-os.environ.setdefault("DATABASE_URL", "postgresql://agent_user:agent_password@postgres:5432/agent_db")
+# --- Variables d'environnement de test ---
+# Définie avant tout import de l'app pour que pydantic-settings les lise
+os.environ.setdefault(
+    "DATABASE_URL",
+    "postgresql://agent_user:agent_password@postgres:5432/agent_db_test",
+)
 os.environ.setdefault("APP_API_KEY", "test-api-key")
 
 from app.domain.enums.offer_state import OfferState  # noqa: E402
@@ -19,22 +23,49 @@ from app.infrastructure.db.models.source import Source  # noqa: E402
 from app.infrastructure.db.session import get_db  # noqa: E402
 from app.main import app  # noqa: E402
 
-# Utiliser la même DB que l'app pour les tests d'intégration
+# --- Base de test isolée ---
+# Utilise agent_db_test au lieu de agent_db pour ne jamais toucher la base prod/seed.
+# La base agent_db_test est créée dynamiquement si elle n'existe pas.
 TEST_DATABASE_URL = os.environ["DATABASE_URL"]
-engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+_admin_url = TEST_DATABASE_URL.rsplit("/", 1)[0] + "/postgres"
+_test_db_name = TEST_DATABASE_URL.rsplit("/", 1)[1].split("?")[0]
 
 
-@pytest.fixture(scope="session")
-def db_engine():
-    Base.metadata.create_all(bind=engine)
-    yield engine
-    # Ne pas supprimer — base partagée avec le seed
+def _ensure_test_db_exists() -> None:
+    """Crée la base de test si elle n'existe pas encore."""
+    admin_engine = create_engine(_admin_url, isolation_level="AUTOCOMMIT")
+    with admin_engine.connect() as conn:
+        exists = conn.execute(
+            text("SELECT 1 FROM pg_database WHERE datname = :name"),
+            {"name": _test_db_name},
+        ).fetchone()
+        if not exists:
+            conn.execute(text(f'CREATE DATABASE "{_test_db_name}"'))
+    admin_engine.dispose()
+
+
+_ensure_test_db_exists()
+
+test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_schema():
+    """Crée le schéma complet dans la base de test (une seule fois par session)."""
+    Base.metadata.create_all(bind=test_engine)
+    yield
+    Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture()
-def db(db_engine):
-    connection = db_engine.connect()
+def db(setup_test_schema):
+    """
+    Session de test avec rollback automatique après chaque test.
+    Chaque test obtient une transaction propre — isolation garantie.
+    """
+    connection = test_engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
     yield session
@@ -45,6 +76,7 @@ def db(db_engine):
 
 @pytest.fixture()
 def client(db):
+    """Client HTTP avec override de la dépendance DB pointant vers la session de test."""
     def override_get_db():
         try:
             yield db
@@ -64,7 +96,7 @@ def api_headers():
 
 @pytest.fixture()
 def sample_offer(db):
-    """Crée une offre de test et la retourne."""
+    """Crée une offre de test isolée dans la transaction courante."""
     source = Source(
         id=uuid.uuid4(),
         name="Test Source",

@@ -1,16 +1,11 @@
 import Link from "next/link";
 import type { OfferListItem } from "@/types/offer";
+import { WORK_MODE_LABELS } from "@/lib/constants";
 import StateChip from "./StateChip";
 
 interface OfferCardProps {
   offer: OfferListItem;
 }
-
-const WORK_MODE_LABELS: Record<string, string> = {
-  ONSITE: "Présentiel",
-  HYBRID: "Hybride",
-  REMOTE: "Télétravail",
-};
 
 function ScoreBar({ score }: { score: number }) {
   const pct = Math.min(100, Math.max(0, score));

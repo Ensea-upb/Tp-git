@@ -8,8 +8,13 @@ Usage : python scripts/seed.py
 import sys
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
-sys.path.insert(0, "/app")
+# Permet d'exécuter le script aussi bien dans Docker (/app) que localement
+_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_root))
+
+from sqlalchemy import func, select
 
 from app.domain.enums.offer_state import OfferState
 from app.domain.enums.work_mode import WorkMode
@@ -22,8 +27,8 @@ from app.infrastructure.db.models.source import Source
 def seed() -> None:
     db = SessionLocal()
     try:
-        # Vérifier si des données existent déjà
-        existing = db.query(Offer).count()
+        # Vérifier si des données existent déjà (SQLAlchemy 2.x)
+        existing = db.execute(select(func.count(Offer.id))).scalar_one()
         if existing > 0:
             print(f"Seed déjà effectué — {existing} offres en base. Skip.")
             return
