@@ -5,6 +5,8 @@ POST   /v1/offers/{id}/favorite    → FAVORITE
 DELETE /v1/offers/{id}/favorite    → supprime le statut
 POST   /v1/offers/{id}/shortlist   → SHORTLISTED
 DELETE /v1/offers/{id}/shortlist   → supprime le statut
+POST   /v1/offers/{id}/apply       → APPLIED
+DELETE /v1/offers/{id}/apply       → supprime le statut
 POST   /v1/offers/{id}/reject      → REJECTED
 DELETE /v1/offers/{id}/reject      → supprime le statut
 
@@ -91,6 +93,27 @@ def add_shortlist(offer_id: uuid.UUID, db: Session = Depends(get_db)) -> OfferUs
     summary="Retirer de la shortlist",
 )
 def remove_shortlist(offer_id: uuid.UUID, db: Session = Depends(get_db)) -> None:
+    _remove(offer_id, db)
+
+
+# ── Apply ─────────────────────────────────────────────────────────────
+
+@router.post(
+    "/{offer_id}/apply",
+    response_model=OfferUserStatusOut,
+    status_code=status.HTTP_200_OK,
+    summary="Marquer une offre comme postulée",
+)
+def apply_offer(offer_id: uuid.UUID, db: Session = Depends(get_db)) -> OfferUserStatusOut:
+    return _set(offer_id, UserStatus.APPLIED, db)
+
+
+@router.delete(
+    "/{offer_id}/apply",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Annuler la candidature sur une offre",
+)
+def remove_apply(offer_id: uuid.UUID, db: Session = Depends(get_db)) -> None:
     _remove(offer_id, db)
 
 

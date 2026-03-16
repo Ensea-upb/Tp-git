@@ -6,11 +6,12 @@ PUT /v1/candidate   — upsert singleton profile
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import verify_api_key
 from app.infrastructure.db.session import get_db
 from app.api.schemas.candidate import CandidateProfileOut, CandidateProfileUpdate
 from app.repositories.candidate_profile_repository import CandidateProfileRepository
 
-router = APIRouter(prefix="/candidate", tags=["candidate"])
+router = APIRouter(prefix="/candidate", tags=["candidate"], dependencies=[Depends(verify_api_key)])
 
 
 @router.get("", response_model=CandidateProfileOut)

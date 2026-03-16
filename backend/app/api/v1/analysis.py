@@ -11,6 +11,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import verify_api_key
 from app.infrastructure.db.session import get_db
 from app.api.schemas.analysis import OfferLLMAnalysisOut, ProfileMatchOut
 from app.repositories.offer_llm_analysis_repository import OfferLLMAnalysisRepository
@@ -19,7 +20,7 @@ from app.repositories.offer_repository import OfferRepository
 from app.services.offer_llm_analysis_service import OfferLLMAnalysisService
 from app.services.profile_matching_service import ProfileMatchingService
 
-router = APIRouter(prefix="/offers", tags=["llm-analysis"])
+router = APIRouter(prefix="/offers", tags=["llm-analysis"], dependencies=[Depends(verify_api_key)])
 logger = logging.getLogger(__name__)
 
 _IDEMPOTENT_STATUSES = {"DONE", "RUNNING"}

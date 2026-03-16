@@ -51,7 +51,6 @@ class OfferOut(BaseModel):
     current_state: OfferState
     is_active: bool
     global_score: float | None = None
-    action_score: float | None = None
     score_justification: dict | None = None
     personalized_score: float | None = None
     personalized_justification: dict | None = None

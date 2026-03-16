@@ -6,17 +6,17 @@ POST /v1/offers/{id}/email            — generate application email
 POST /v1/offers/{id}/interview-prep   — generate interview prep
 """
 import uuid
-import asyncio
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import verify_api_key
 from app.infrastructure.db.session import get_db
 from app.repositories.offer_repository import OfferRepository
 from app.services.application_assistant_service import ApplicationAssistantService
 
-router = APIRouter(prefix="/offers", tags=["assistant"])
+router = APIRouter(prefix="/offers", tags=["assistant"], dependencies=[Depends(verify_api_key)])
 logger = logging.getLogger(__name__)
 
 

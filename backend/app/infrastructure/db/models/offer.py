@@ -51,6 +51,7 @@ class Offer(Base):
 
     # Scoring
     global_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    # DEPRECATED: action_score n'est plus écrit par aucun service. Colonne à supprimer via migration 006.
     action_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
     score_justification: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
