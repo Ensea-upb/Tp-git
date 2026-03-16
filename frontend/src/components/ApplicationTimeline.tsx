@@ -55,16 +55,21 @@ interface Props {
 export default function ApplicationTimeline({ applicationId, onReplyAdded }: Props) {
   const [events, setEvents] = useState<ApplicationEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replyChannel, setReplyChannel] = useState("email");
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   async function loadTimeline() {
     setLoading(true);
+    setError(null);
     try {
       const data = await getApplicationTimeline(applicationId);
       setEvents(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur lors du chargement de la timeline.");
     } finally {
       setLoading(false);
     }
@@ -78,6 +83,7 @@ export default function ApplicationTimeline({ applicationId, onReplyAdded }: Pro
     e.preventDefault();
     if (!replyText.trim()) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       await addRecruiterReply(applicationId, {
         message_text: replyText.trim(),
@@ -87,6 +93,8 @@ export default function ApplicationTimeline({ applicationId, onReplyAdded }: Pro
       setShowReplyForm(false);
       await loadTimeline();
       onReplyAdded?.();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Erreur lors de l'enregistrement.");
     } finally {
       setSubmitting(false);
     }
@@ -94,6 +102,10 @@ export default function ApplicationTimeline({ applicationId, onReplyAdded }: Pro
 
   if (loading) {
     return <p className="text-xs text-gray-400 py-2">Chargement timeline…</p>;
+  }
+
+  if (error) {
+    return <p className="text-xs text-red-500 py-2">{error}</p>;
   }
 
   return (
@@ -133,6 +145,9 @@ export default function ApplicationTimeline({ applicationId, onReplyAdded }: Pro
             rows={2}
             className="w-full text-xs border rounded px-2 py-1 resize-none"
           />
+          {submitError && (
+            <p className="text-xs text-red-500">{submitError}</p>
+          )}
           <div className="flex gap-2">
             <button
               type="submit"

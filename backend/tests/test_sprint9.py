@@ -527,3 +527,44 @@ class TestApplicationApiSprint9:
         resp = client.get("/v1/applications/stats", headers=api_headers)
         # 200 (stats) et non 422 (validation UUID échouée)
         assert resp.status_code == 200
+
+    def test_recruiter_reply_empty_message_rejected(self, client, api_headers):
+        """POST /recruiter-reply → 422 si message_text est vide."""
+        resp = client.post(
+            f"/v1/applications/{uuid.uuid4()}/recruiter-reply",
+            json={"message_text": ""},
+            headers=api_headers,
+        )
+        assert resp.status_code == 422
+
+    def test_recruiter_reply_invalid_channel_rejected(self, client, api_headers, db):
+        """POST /recruiter-reply → 422 si channel n'est pas dans l'enum autorisé."""
+        offer = _make_offer(db)
+        db.commit()
+
+        from app.services.application_service import ApplicationService
+        app = ApplicationService(db).create(offer.id)
+
+        resp = client.post(
+            f"/v1/applications/{app.id}/recruiter-reply",
+            json={"message_text": "Test", "channel": "fax"},
+            headers=api_headers,
+        )
+        assert resp.status_code == 422
+
+    def test_recruiter_reply_valid_channels(self, client, api_headers, db):
+        """POST /recruiter-reply → 201 pour chaque channel autorisé."""
+        offer = _make_offer(db)
+        db.commit()
+
+        from app.services.application_service import ApplicationService
+        svc = ApplicationService(db)
+
+        for channel in ("email", "phone", "linkedin", "other"):
+            app = svc.create(offer.id)
+            resp = client.post(
+                f"/v1/applications/{app.id}/recruiter-reply",
+                json={"message_text": "Test message", "channel": channel},
+                headers=api_headers,
+            )
+            assert resp.status_code == 201, f"Expected 201 for channel={channel}, got {resp.status_code}"

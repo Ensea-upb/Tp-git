@@ -8,7 +8,7 @@ Sprint 9 : timeline via ApplicationEventRepository, réponse recruteur,
 """
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -94,7 +94,7 @@ class ApplicationService:
 
         app.status = new_status
         if new_status == ApplicationStatus.SENT and app.applied_at is None:
-            app.applied_at = datetime.utcnow()
+            app.applied_at = datetime.now(timezone.utc)
 
         self.event_repo.emit(
             application_id,

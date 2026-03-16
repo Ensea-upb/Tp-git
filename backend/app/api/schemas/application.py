@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime, timezone
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.domain.enums.application_status import ApplicationStatus
 
@@ -89,8 +90,8 @@ class ApplicationEventOut(BaseModel):
 
 
 class RecruiterReplyCreate(BaseModel):
-    message_text: str
-    channel: str | None = None
+    message_text: str = Field(min_length=1, max_length=5000)
+    channel: Literal["email", "phone", "linkedin", "other"] | None = None
 
 
 # ── Sprint 9 : Recommandation de suivi ───────────────────────────────
