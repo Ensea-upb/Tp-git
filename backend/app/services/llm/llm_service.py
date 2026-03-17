@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 import re
+from collections import OrderedDict
 from datetime import datetime, timedelta
 
 import httpx
@@ -14,8 +15,20 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Cache TTL in-memory (LLM responses rarely change for the same prompt)
-_IN_MEMORY_CACHE: dict[str, str] = {}
+# Cache in-memory borné (LLM responses rarely change for the same prompt).
+# Taille maximale : 1 000 entrées avec éviction FIFO pour éviter les fuites mémoire.
+_MAX_CACHE_SIZE = 1_000
+_IN_MEMORY_CACHE: OrderedDict[str, str] = OrderedDict()
+
+
+def _cache_put(key: str, value: str) -> None:
+    """Insère dans le cache in-memory avec éviction FIFO si la limite est atteinte."""
+    if key in _IN_MEMORY_CACHE:
+        _IN_MEMORY_CACHE.move_to_end(key)
+    else:
+        if len(_IN_MEMORY_CACHE) >= _MAX_CACHE_SIZE:
+            _IN_MEMORY_CACHE.popitem(last=False)
+        _IN_MEMORY_CACHE[key] = value
 
 
 def _build_cache_key(model: str, prompt: str) -> str:
@@ -86,6 +99,7 @@ async def call_llm(
     # In-memory cache
     if cache_key in _IN_MEMORY_CACHE:
         logger.debug("LLM in-memory cache hit: %s", cache_key[:16])
+        _IN_MEMORY_CACHE.move_to_end(cache_key)
         return _IN_MEMORY_CACHE[cache_key]
 
     # DB cache
@@ -95,7 +109,7 @@ async def call_llm(
         cached = repo.get(cache_key)
         if cached is not None:
             logger.debug("LLM DB cache hit: %s", cache_key[:16])
-            _IN_MEMORY_CACHE[cache_key] = cached
+            _cache_put(cache_key, cached)
             return cached
 
     # Call Ollama
@@ -126,7 +140,7 @@ async def call_llm(
         raise
 
     # Store in caches
-    _IN_MEMORY_CACHE[cache_key] = result_text
+    _cache_put(cache_key, result_text)
     if db_session is not None:
         from app.repositories.llm_cache_repository import LLMCacheRepository
         repo = LLMCacheRepository(db_session)

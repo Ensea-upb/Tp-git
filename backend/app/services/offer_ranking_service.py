@@ -83,7 +83,7 @@ class OfferRankingService:
         for offer in offers:
             score = self._compute(offer)
             offer.ranking_score = round(score, 2)
-        self.db.commit()
+        self.db.flush()
         logger.info("OfferRankingService: %d offres re-scorées", len(offers))
         return len(offers)
 

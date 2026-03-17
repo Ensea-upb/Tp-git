@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Agent Personnel de Recherche de Stage",
-    description="API backend — Sprint 5",
+    description="API backend — Sprint 10",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",

@@ -38,7 +38,7 @@ def get_strategy_recommendations(
 
     - **actions** : liste d'actions recommandées triées par priorité décroissante
     - **prioritized_offers** : top offres actives selon priority_score composite
-      (0.4 × ranking_score + 0.4 × matching_score + 0.2 × freshness)
+      (0.6 × ranking_score + 0.4 × matching_score)
     - **skill_gaps** : compétences manquantes sur les 5 premières offres priorisées
     """
     # ── Actions recommandées ──────────────────────────────────────────

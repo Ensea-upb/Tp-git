@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import verify_api_key
 from app.api.schemas.offer import OfferOut, PaginatedOffers
+from app.api.schemas.strategy import PrioritizedOfferOut
 from app.domain.enums.offer_state import OfferState
 from app.domain.enums.user_status import UserStatus
 from app.domain.enums.work_mode import WorkMode
@@ -49,27 +50,31 @@ def list_offers(
     )
 
 
-@router.get("/prioritized", response_model=list[dict], summary="Offres priorisées par score composite")
+@router.get(
+    "/prioritized",
+    response_model=list[PrioritizedOfferOut],
+    summary="Offres priorisées par score composite",
+)
 def get_prioritized_offers(
     limit: int = Query(default=10, ge=1, le=50, description="Nombre d'offres à retourner"),
     db: Session = Depends(get_db),
-) -> list[dict]:
+) -> list[PrioritizedOfferOut]:
     """
     Retourne les offres actives triées par priority_score décroissant.
 
-    priority_score = 0.4 × ranking_score + 0.4 × matching_score + 0.2 × freshness_score
+    priority_score = 0.6 × ranking_score + 0.4 × matching_score
     """
     items = OfferPriorityService(db).get_prioritized(limit=limit)
     return [
-        {
-            "offer_id": str(item["offer"].id),
-            "title": item["offer"].normalized_title,
-            "priority_score": item["priority_score"],
-            "ranking_score": item["ranking_score"],
-            "matching_score": item["matching_score"],
-            "location_text": item["offer"].location_text,
-            "company_name": item["offer"].company.name if item["offer"].company else None,
-        }
+        PrioritizedOfferOut(
+            offer_id=item["offer"].id,
+            title=item["offer"].normalized_title,
+            priority_score=item["priority_score"],
+            ranking_score=item["ranking_score"],
+            matching_score=item["matching_score"],
+            location_text=item["offer"].location_text,
+            company_name=item["offer"].company.name if item["offer"].company else None,
+        )
         for item in items
     ]
 

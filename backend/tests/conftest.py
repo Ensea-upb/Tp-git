@@ -41,28 +41,49 @@ _admin_url = TEST_DATABASE_URL.rsplit("/", 1)[0] + "/postgres"
 _test_db_name = TEST_DATABASE_URL.rsplit("/", 1)[1].split("?")[0]
 
 
+_DB_AVAILABLE = True  # Mis à False si PostgreSQL inaccessible au démarrage
+
+
 def _ensure_test_db_exists() -> None:
-    """Crée la base de test si elle n'existe pas encore."""
+    """Crée la base de test si elle n'existe pas encore. Silencieux si PostgreSQL est absent."""
+    global _DB_AVAILABLE
     admin_engine = create_engine(_admin_url, isolation_level="AUTOCOMMIT")
-    with admin_engine.connect() as conn:
-        exists = conn.execute(
-            text("SELECT 1 FROM pg_database WHERE datname = :name"),
-            {"name": _test_db_name},
-        ).fetchone()
-        if not exists:
-            conn.execute(text(f'CREATE DATABASE "{_test_db_name}"'))
-    admin_engine.dispose()
+    try:
+        with admin_engine.connect() as conn:
+            exists = conn.execute(
+                text("SELECT 1 FROM pg_database WHERE datname = :name"),
+                {"name": _test_db_name},
+            ).fetchone()
+            if not exists:
+                conn.execute(text(f'CREATE DATABASE "{_test_db_name}"'))
+    except Exception as exc:
+        import warnings
+        warnings.warn(
+            f"PostgreSQL inaccessible ({exc}). "
+            "Les tests nécessitant une DB seront ignorés. "
+            "Les tests unitaires (test_basic.py) peuvent tourner sans DB.",
+            stacklevel=1,
+        )
+        _DB_AVAILABLE = False
+    finally:
+        admin_engine.dispose()
 
 
 _ensure_test_db_exists()
 
-test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
+test_engine = create_engine(
+    TEST_DATABASE_URL if _DB_AVAILABLE else "sqlite:///:memory:",
+    pool_pre_ping=True,
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_schema():
     """Crée le schéma complet dans la base de test (une seule fois par session)."""
+    if not _DB_AVAILABLE:
+        yield
+        return
     Base.metadata.create_all(bind=test_engine)
     yield
     Base.metadata.drop_all(bind=test_engine)
@@ -74,6 +95,8 @@ def db(setup_test_schema):
     Session de test avec rollback automatique après chaque test.
     Chaque test obtient une transaction propre — isolation garantie.
     """
+    if not _DB_AVAILABLE:
+        pytest.skip("PostgreSQL non disponible — test ignoré")
     connection = test_engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)

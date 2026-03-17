@@ -1,5 +1,7 @@
 """Import all ORM models to ensure they are registered with SQLAlchemy metadata."""
+from app.infrastructure.db.models.application import Application  # noqa: F401
 from app.infrastructure.db.models.application_event import ApplicationEvent  # noqa: F401
+from app.infrastructure.db.models.application_followup import ApplicationFollowup  # noqa: F401
 from app.infrastructure.db.models.candidate_profile import CandidateProfile  # noqa: F401
 from app.infrastructure.db.models.company import Company  # noqa: F401
 from app.infrastructure.db.models.ingestion_run import IngestionRun  # noqa: F401
