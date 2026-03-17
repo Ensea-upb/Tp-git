@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.infrastructure.db.models.candidate_profile import CandidateProfile, DEFAULT_CANDIDATE_ID
 
@@ -17,10 +18,15 @@ class CandidateProfileRepository:
 
     def get_or_create_default(self) -> CandidateProfile:
         profile = self.get_default()
-        if profile is None:
+        if profile is not None:
+            return profile
+        try:
             profile = CandidateProfile(id=DEFAULT_CANDIDATE_ID)
             self.db.add(profile)
             self.db.flush()
+        except IntegrityError:
+            self.db.rollback()
+            profile = self.get_default()
         return profile
 
     def save(self, profile: CandidateProfile) -> CandidateProfile:
