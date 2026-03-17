@@ -97,7 +97,6 @@ def seed() -> None:
                 "work_mode": WorkMode.HYBRID,
                 "state": OfferState.QUALIFIED,
                 "global_score": 87.5,
-                "action_score": 82.0,
                 "justification": {
                     "résumé": "Très bonne adéquation profil/offre",
                     "points_forts": ["C/C++ maîtrisé", "Systèmes embarqués", "Entreprise cible"],
@@ -123,7 +122,6 @@ def seed() -> None:
                 "work_mode": WorkMode.ONSITE,
                 "state": OfferState.ANALYZED,
                 "global_score": 79.0,
-                "action_score": 74.0,
                 "justification": {
                     "résumé": "Bonne adéquation sur les compétences data",
                     "points_forts": ["Python", "Machine learning", "Secteur aéro intéressant"],
@@ -149,7 +147,6 @@ def seed() -> None:
                 "work_mode": WorkMode.HYBRID,
                 "state": OfferState.READY_FOR_REVIEW,
                 "global_score": 91.0,
-                "action_score": 88.5,
                 "justification": {
                     "résumé": "Excellente adéquation — entreprise top, stack parfaite",
                     "points_forts": ["React", "TypeScript", "Java Spring", "Agile"],
@@ -175,7 +172,6 @@ def seed() -> None:
                 "work_mode": WorkMode.HYBRID,
                 "state": OfferState.NORMALIZED,
                 "global_score": 68.0,
-                "action_score": 60.0,
                 "justification": {
                     "résumé": "Adéquation correcte mais profil consultant non prioritaire",
                     "points_forts": ["Docker", "Cloud", "Paris"],
@@ -201,7 +197,6 @@ def seed() -> None:
                 "work_mode": WorkMode.ONSITE,
                 "state": OfferState.DETECTED,
                 "global_score": None,
-                "action_score": None,
                 "justification": None,
                 "company_idx": 4,
                 "source": source_career,
@@ -222,7 +217,6 @@ def seed() -> None:
                 "work_mode": WorkMode.HYBRID,
                 "state": OfferState.ANALYZED,
                 "global_score": 72.0,
-                "action_score": 65.0,
                 "justification": {
                     "résumé": "Bon match technique, secteur bancaire moins attractif",
                     "points_forts": ["Java Spring Boot", "PostgreSQL", "Kafka"],
@@ -248,7 +242,6 @@ def seed() -> None:
                 "work_mode": WorkMode.ONSITE,
                 "state": OfferState.QUALIFIED,
                 "global_score": 84.0,
-                "action_score": 79.5,
                 "justification": {
                     "résumé": "Très bonne adéquation systèmes embarqués automobile",
                     "points_forts": ["C/C++", "Embarqué temps-réel", "ADAS très demandé"],
@@ -274,7 +267,6 @@ def seed() -> None:
                 "work_mode": WorkMode.HYBRID,
                 "state": OfferState.NORMALIZED,
                 "global_score": 61.0,
-                "action_score": 52.0,
                 "justification": {
                     "résumé": "Adéquation partielle — IoT intéressant mais stack peu familière",
                     "points_forts": ["Python", "Impact environnemental positif"],
@@ -300,7 +292,6 @@ def seed() -> None:
                 "work_mode": WorkMode.HYBRID,
                 "state": OfferState.DRAFT_PREPARED,
                 "global_score": 88.0,
-                "action_score": 85.0,
                 "justification": {
                     "résumé": "Excellente adéquation — stack moderne, R&D, Paris",
                     "points_forts": ["FastAPI", "Python", "5G/cloud-native", "R&D"],
@@ -326,7 +317,6 @@ def seed() -> None:
                 "work_mode": WorkMode.HYBRID,
                 "state": OfferState.ANALYZED,
                 "global_score": 70.0,
-                "action_score": 63.0,
                 "justification": {
                     "résumé": "Bonne adéquation technique, secteur ferroviaire moins prioritaire",
                     "points_forts": ["Python", "React", "REST APIs", "Systèmes critiques"],
@@ -358,7 +348,6 @@ def seed() -> None:
                 current_state=data["state"],
                 is_active=True,
                 global_score=data["global_score"],
-                action_score=data["action_score"],
                 score_justification=data["justification"],
                 offer_url=data["url"],
             )
