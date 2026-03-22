@@ -1,6 +1,8 @@
 import logging
 from contextlib import asynccontextmanager
 
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,8 +16,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _run_migrations() -> None:
+    try:
+        alembic_cfg = Config("alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+        logger.info("Migrations Alembic appliquées")
+    except Exception as exc:
+        logger.warning("Migrations ignorées (déjà à jour ou erreur) : %s", exc)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _run_migrations()
     logger.info("Backend démarré — env=%s", settings.app_env)
     yield
     logger.info("Backend arrêté")

@@ -28,7 +28,13 @@ import type {
   RecruiterReplyCreate,
 } from "@/types/application";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// SSR (server components inside Docker) → use internal service name
+// CSR (browser) → use public URL exposed on localhost
+const API_BASE_URL =
+  typeof window === "undefined"
+    ? (process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000")
+    : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000");
+
 const API_KEY = process.env.INTERNAL_API_KEY || "dev-api-key-changeme";
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {

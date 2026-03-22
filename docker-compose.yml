@@ -47,6 +47,7 @@ services:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      INTERNAL_API_URL: http://backend:8000
       INTERNAL_API_KEY: ${APP_API_KEY:-dev-api-key-changeme}
     volumes:
       - ./frontend:/app
